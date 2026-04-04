@@ -10,7 +10,7 @@
 <atom:link href="https://madhavpr191221.github.io/survival-analysis-blog/index.xml" rel="self" type="application/rss+xml"/>
 <description>A blog built with Quarto</description>
 <generator>quarto-1.9.36</generator>
-<lastBuildDate>Sat, 04 Apr 2026 10:09:51 GMT</lastBuildDate>
+<lastBuildDate>Sat, 04 Apr 2026 10:19:28 GMT</lastBuildDate>
 <item>
   <title>Part 1: Why Survival Analysis Exists</title>
   <link>https://madhavpr191221.github.io/survival-analysis-blog/posts/part-1-why-survival-analysis-exists/</link>
@@ -139,7 +139,7 @@ Note
 <p><img src="https://latex.codecogs.com/png.latex?%0AP(t_0%20%5Cleq%20T%20%5Cleq%20t_0%20+%20%5CDelta%20t%20%5Cmid%20T%20%3E%20t_0)%20=%20%5Cfrac%7BP(t_0%20%3C%20T%20%5Cleq%20t_0%20+%20%5CDelta%20t)%7D%7BP(T%20%3E%20t_0)%7D%20=%20%5Cfrac%7BF(t_0%20+%20%5CDelta%20t)%20-%20F(t_0)%7D%7BS(t_0)%7D%0A"></p>
 <p>Let us call this quantity <img src="https://latex.codecogs.com/png.latex?G(t_0)">. Dividing both sides by <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t">:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7BG(t_0)%7D%7B%5CDelta%20t%7D%20=%20%5Cfrac%7B1%7D%7BS(t_0)%7D%20%5Ccdot%20%5Cfrac%7BF(t_0%20+%20%5CDelta%20t)%20-%20F(t_0)%7D%7B%5CDelta%20t%7D%0A"></p>
-<p>Now, where have you seen an expression of the form <img src="https://latex.codecogs.com/png.latex?f(a%20+%20h)%20-%20f(a)"> where <img src="https://latex.codecogs.com/png.latex?h"> is small? That’s right — calculus. As <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t%20%5Cto%200">:</p>
+<p>Now, where have you seen an expression of the form <img src="https://latex.codecogs.com/png.latex?(f(a%20+%20h)%20-%20f(a))%20/%20h"> where <img src="https://latex.codecogs.com/png.latex?h"> is small? That’s right — calculus. As <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t%20%5Cto%200">:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7BF(t_0%20+%20%5CDelta%20t)%20-%20F(t_0)%7D%7B%5CDelta%20t%7D%20%5Cto%20f(t_0)%0A"></p>
 <p>because the derivative of the CDF is the PDF. So in the limit:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Clim_%7B%5CDelta%20t%20%5Cto%200%7D%20%5Cfrac%7BG(t_0)%7D%7B%5CDelta%20t%7D%20=%20%5Cfrac%7Bf(t_0)%7D%7BS(t_0)%7D%0A"></p>
@@ -152,8 +152,8 @@ Note
 <p><img src="https://latex.codecogs.com/png.latex?%0AP(t_0%20%5Cleq%20T%20%5Cleq%20t_0%20+%20%5CDelta%20t)%20=%20%5Cint_%7Bt_0%7D%5E%7Bt_0%20+%20%5CDelta%20t%7D%20f(x)%5C,%20dx%20%5Capprox%20f(t_0)%20%5Ccdot%20%5CDelta%20t%0A"></p>
 <p>So the conditional probability of failure in <img src="https://latex.codecogs.com/png.latex?%5Bt_0,%20t_0%20+%20%5CDelta%20t%5D"> becomes:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7BP(t_0%20%5Cleq%20T%20%5Cleq%20t_0%20+%20%5CDelta%20t)%7D%7BS(t_0)%7D%20%5Capprox%20%5Cfrac%7Bf(t_0)%20%5Ccdot%20%5CDelta%20t%7D%7BS(t_0)%7D%20=%20%5Clambda(t_0)%20%5Ccdot%20%5CDelta%20t%0A"></p>
-<p>This is the key insight. <img src="https://latex.codecogs.com/png.latex?%5Clambda(t_0)%20%5Ccdot%20%5CDelta%20t"> is approximately the conditional probability that a machine which has survived until <img src="https://latex.codecogs.com/png.latex?t_0"> will fail in the next <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t"> hours. This is why <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)"> is called the <strong>rate of failure per unit time</strong> — it tells you, at every moment, how dangerous the next instant is for a system that has made it this far.</p>
-<p>Note the crucial distinction: <img src="https://latex.codecogs.com/png.latex?f(t)"> is the unconditional density of failure at <img src="https://latex.codecogs.com/png.latex?t">. <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)"> conditions on survival. To make it more explicit, <img src="https://latex.codecogs.com/png.latex?f(t)"> is a probability <em>density</em>, not a probability. <img src="https://latex.codecogs.com/png.latex?f(5000)%20=%200.0001"> does not mean “the probability of failure at exactly 5000 hours is 0.0001.” It means the probability of failure in a small interval around 5000 hours is approximately <img src="https://latex.codecogs.com/png.latex?f(5000)%20%5Ccdot%20%5CDelta%20t%20=%0A0.0001%20%5Ccdot%20%5CDelta%20t">. Here is a concrete example to illustrate the difference.</p>
+<p>This is the key insight. <img src="https://latex.codecogs.com/png.latex?%5Clambda(t_0)%20%5Ccdot%20%5CDelta%20t"> is approximately the conditional probability that a machine which has survived until <img src="https://latex.codecogs.com/png.latex?t_0"> will fail in the next <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t"> hours. This is why <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)"> is called the <strong>rate of failure per unit time</strong> — it tells you, at every moment, how risky the next instant is for a system that has made it this far.</p>
+<p>Let us clear any confusion between the probability density function <img src="https://latex.codecogs.com/png.latex?f(t)"> and the hazard function <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)">. The probability density function <img src="https://latex.codecogs.com/png.latex?f(t)"> is the <strong>unconditional density</strong> of failure at <img src="https://latex.codecogs.com/png.latex?t">. <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)"> conditions on survival. To make it more explicit, <img src="https://latex.codecogs.com/png.latex?f(t)"> is a probability <em>density</em>, not a probability. <img src="https://latex.codecogs.com/png.latex?f(5000)%20=%200.0001"> does not mean “the probability of failure at exactly 5000 hours is 0.0001.” It means the probability of failure in a small interval around 5000 hours is approximately <img src="https://latex.codecogs.com/png.latex?f(5000)%20%5Ccdot%20%5CDelta%20t%20=%0A0.0001%20%5Ccdot%20%5CDelta%20t">. Here is a concrete example to illustrate the difference.</p>
 <p>Consider two machines — call them <strong>Machine A</strong> and <strong>Machine B</strong>. At <img src="https://latex.codecogs.com/png.latex?t_0%20=%205000"> hours, both have the same unconditional failure density: <img src="https://latex.codecogs.com/png.latex?f(5000)%20=%200.0001">. A naive reading suggests they are equally “failure-prone” at this moment. They are not.</p>
 <ul>
 <li><strong>Machine A</strong> has <img src="https://latex.codecogs.com/png.latex?S(5000)%20=%200.9"> — 90% of such machines survive to 5000 hours. Reaching this point is unremarkable.</li>
@@ -176,7 +176,7 @@ Note
 </section>
 <section id="what-does-the-cumulative-hazard-function-lambdat-mean" class="level3">
 <h3 class="anchored" data-anchor-id="what-does-the-cumulative-hazard-function-lambdat-mean">What does the cumulative hazard function <img src="https://latex.codecogs.com/png.latex?%5CLambda(t)"> mean?</h3>
-<p>The cumulative hazard function <img src="https://latex.codecogs.com/png.latex?%5CLambda(t)"> can be interpreted as the accumulated risk of failure/stress/death up to time <img src="https://latex.codecogs.com/png.latex?t"> since the start of observation. Think of it as a “risk score” that increases over time. The higher <img src="https://latex.codecogs.com/png.latex?%5CLambda(t)"> is, the more likely the system is to fail by time <img src="https://latex.codecogs.com/png.latex?t">.</p>
+<p>The cumulative hazard function <img src="https://latex.codecogs.com/png.latex?%5CLambda(t)"> can be interpreted as the accumulated risk of failure or death up to time <img src="https://latex.codecogs.com/png.latex?t"> since the start of observation. Think of it as a “risk score” that increases over time. The higher <img src="https://latex.codecogs.com/png.latex?%5CLambda(t)"> is, the more likely the system is to fail by time <img src="https://latex.codecogs.com/png.latex?t">.</p>
 <p>However, the most important consequence of the relationship between the cumulative hazard and the survival function is that the probability of survival decays exponentially with the cumulative hazard. This means that if the cumulative hazard increases linearly over time, the survival function will decay exponentially. If the cumulative hazard increases more rapidly, the survival function will decay even faster. This exponential relationship is the bridge between the hazard function (which can be estimated from data as we will see in the later sections) and the survival function (which is often what engineers, clinicians, and business leaders care about).</p>
 </section>
 <section id="the-unified-framework-of-survival-analysis" class="level3">
@@ -199,7 +199,7 @@ Note
 
  ]]></description>
   <guid>https://madhavpr191221.github.io/survival-analysis-blog/posts/part-1-why-survival-analysis-exists/</guid>
-  <pubDate>Sat, 04 Apr 2026 10:09:51 GMT</pubDate>
+  <pubDate>Sat, 04 Apr 2026 10:19:28 GMT</pubDate>
 </item>
 </channel>
 </rss>
