@@ -7,11 +7,18 @@
     "text": "This is the first post in a Quarto blog. Welcome!\n\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "A Survival Guide to Survival Analysis",
+    "objectID": "posts/part-1-why-survival-analysis-exists/index.html",
+    "href": "posts/part-1-why-survival-analysis-exists/index.html",
+    "title": "Part 1: Why Survival Analysis Exists",
     "section": "",
-    "text": "Post With Code\n\n\n\nnews\n\ncode\n\nanalysis\n\n\n\n\n\n\n\n\n\nApr 4, 2026\n\n\nHarlow Malloc\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nApr 1, 2026\n\n\nTristan O’Malley\n\n\n\n\n\nNo matching items"
+    "text": "Time = 0 has passed. There’s a machine fresh off the assembly line, there’s a patient that got a second shot at life after a surgery, there’s a customer who just signed up with your services. The question is not whether — machines fail, patients die, customers leave. The question is when, and what we can say about that when, given everything we know. The branch of statistics that deals with answering this and other related questions is called survival analysis.\nIf you are trained in basic statistics and machine learning methods, your first instinct would probably be to reach for regression. Time is a continuous variable and (linear) regression — the workhorse of statistics — is the best fit for dealing with continuous variables. Right? No. Wrong. Here are the reasons regression breaks.\n1. Regression does not place any constraints on the range of the response variable whereas the time to failure is always non-negative.\n2. In the linear regression setup, the response variable is an estimate of its conditional expectation given the covariates, i.e \\(E[Y \\mid X]\\). For survival analysis, conditional expectation is sometimes not the right quantity to estimate. In a clinical setting, you might care about “What fraction of patients survive beyond 10 years post surgery?” In a predictive maintenance setting, an engineer might ask “At what rate are machines failing after 10,000 hours of operation?” These are fundamentally different questions from “what is the average time to failure given these covariates?” — and regression, by construction, can only answer the latter.\n3. And here comes the most important part. Imagine you are studying the time-to-failure of 10 machines. You run the study for 10,000 hours and stop. At the end of your study, 6 machines have failed and you know their exact failure times. The 4 machines that survived are, well, still running and all you know is that their survival time is greater than 10,000. If you naively regress on the six machines that failed and discard the ones that did not, your estimate of the time to failure is biased downward — because the machines you discarded are precisely the most durable ones in your sample. There is a name for this situation which we will get to very shortly."
+  },
+  {
+    "objectID": "posts/part-1-why-survival-analysis-exists/index.html#the-setup",
+    "href": "posts/part-1-why-survival-analysis-exists/index.html#the-setup",
+    "title": "Part 1: Why Survival Analysis Exists",
+    "section": "The Setup",
+    "text": "The Setup\nFrom here on, let’s fix our language. We’ll talk about the lifetime \\(T\\) of a system — a machine, a patient, a customer — and the results will be general enough to apply to all of them.\nLet \\(T\\) be the lifetime of a system — a non-negative continuous random variable with probability density function \\(f\\) and cumulative distribution function \\(F\\). The survival function of \\(T\\), denoted \\(S(t)\\), is the probability that the system survives at least \\(t\\) units of time:\n\\[\nS(t) = P(T &gt; t)\n\\]\nThe cumulative distribution function \\(F(t)\\) is the probability that \\(T \\leq t\\), which is the probability that the system’s lifetime is at most \\(t\\) units:\n\\[\nF(t) = P(T \\leq t)\n\\]\nAnd by simple probability rules:\n\\[\nS(t) + F(t) = 1\n\\]"
   },
   {
     "objectID": "about.html",
@@ -19,6 +26,13 @@
     "title": "About",
     "section": "",
     "text": "About this blog"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "A Survival Guide to Survival Analysis",
+    "section": "",
+    "text": "Part 1: Why Survival Analysis Exists\n\n\n\nsurvival analysis\n\nstatistics\n\n\n\n\n\n\n\n\n\nApr 4, 2026\n\n\nMadhav\n\n\n\n\n\n\n\n\n\n\n\n\nPost With Code\n\n\n\nnews\n\ncode\n\nanalysis\n\n\n\n\n\n\n\n\n\nApr 4, 2026\n\n\nHarlow Malloc\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nApr 1, 2026\n\n\nTristan O’Malley\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts/post-with-code/index.html",
