@@ -464,7 +464,7 @@ P(t_0 \leq T \leq t_0 + \Delta t) = \int_{t_0}^{t_0 + \Delta t} f(x)\, dx \appro
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/madhavpr191221\.github\.io\/survival-analysis-blog");
+        var filterRegex = new RegExp("https:\/\/madhavpr191221\.github\.io\/blog");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

@@ -1,1 +1,1 @@
-Sitemap: https://madhavpr191221.github.io/survival-analysis-blog/sitemap.xml
+Sitemap: https://madhavpr191221.github.io/blog/sitemap.xml
