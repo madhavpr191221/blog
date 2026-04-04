@@ -49,6 +49,12 @@
 <blockquote class="blockquote">
 <p><strong>Censoring vs.&nbsp;Missing Data.</strong> A missing value tells you nothing about a variable whereas a censored value conveys partial but concrete information. A machine that survived beyond 10,000 hours tells you exactly that — it lasted <em>at least</em> that long. That lower bound is real, and throwing it away is a statistical crime.</p>
 </blockquote>
+<p>Here is a format mathematical setup of right censored data. We have <img src="https://latex.codecogs.com/png.latex?n"> independent and identically distributed samples of the form <img src="https://latex.codecogs.com/png.latex?(X_i,%20%5Cdelta_i)"> where <img src="https://latex.codecogs.com/png.latex?Y_i%20=%20%5Cmin(T_i,%20C_i)"> and <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i%20=%20%5Cmathbb%7B1%7D%5C%7BT_i%20%5Cleq%20C_i%5C%7D">. Here <img src="https://latex.codecogs.com/png.latex?T_i"> is the lifetime of the <img src="https://latex.codecogs.com/png.latex?i">-th system and <img src="https://latex.codecogs.com/png.latex?C_i"> is the censoring time for that system. If <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i%20=%201">, it means the event of interest (failure) occurred before censoring, and we observe the exact failure time <img src="https://latex.codecogs.com/png.latex?Y_i">. If <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i%20=%200">, it means the event of interest did not occur before censoring, and we only know that the failure time is greater than <img src="https://latex.codecogs.com/png.latex?Y_i">.</p>
+<p>You never observe <img src="https://latex.codecogs.com/png.latex?T_i"> and <img src="https://latex.codecogs.com/png.latex?C_i"> separately — only their minimum and whether the event got there first.</p>
+<ul>
+<li>If <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i%20=%201">, failure happened before the study ended. You know exactly when.</li>
+<li>If <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i%20=%200">, the unit was still alive when you stopped watching. You only know that <img src="https://latex.codecogs.com/png.latex?T_i%20%3E%20Y_i">.</li>
+</ul>
 
 
 </section>
