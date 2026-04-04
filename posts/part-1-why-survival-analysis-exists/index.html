@@ -6,10 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Madhav">
+<meta name="author" content="Madhav Prashanth Ramachandran">
 <meta name="dcterms.date" content="2026-04-04">
 
-<title>Part 1: Why Survival Analysis Exists – A Survival Guide to Survival Analysis</title>
+<title>Part 1: Introduction to Survival Analysis – A Survival Guide to Survival Analysis</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -148,7 +148,7 @@ window.Quarto = {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Part 1: Why Survival Analysis Exists</h1>
+      <h1 class="title">Part 1: Introduction to Survival Analysis</h1>
                                 <div class="quarto-categories">
                 <div class="quarto-category">survival analysis</div>
                 <div class="quarto-category">statistics</div>
@@ -162,14 +162,14 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Author</div>
       <div class="quarto-title-meta-contents">
-               <p>Madhav </p>
+               <p>Madhav Prashanth Ramachandran </p>
             </div>
     </div>
       
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">2026-04-04</p>
+        <p class="date">April 4, 2026</p>
       </div>
     </div>
     
@@ -210,15 +210,14 @@ Note
 <section id="the-setup" class="level2">
 <h2 class="anchored" data-anchor-id="the-setup">The Setup</h2>
 <p>From here on, let’s fix our language. We’ll talk about the lifetime <span class="math inline">\(T\)</span> of a system — a machine, a patient, a customer — and the results will be general enough to apply to all of them.</p>
-<p>Let <span class="math inline">\(T\)</span> be the lifetime of a system — a non-negative continuous random variable with probability density function <span class="math inline">\(f\)</span> and cumulative distribution function <span class="math inline">\(F\)</span>. The survival function of <span class="math inline">\(T\)</span>, denoted <span class="math inline">\(S(t)\)</span>, is the probability that the system survives at least <span class="math inline">\(t\)</span> units of time:</p>
+<p>Let <span class="math inline">\(T\)</span> be the lifetime of a system — a non-negative continuous random variable with Probability Density Function (PDF) <span class="math inline">\(f\)</span> and Cumulative Distribution Function (CDF) <span class="math inline">\(F\)</span>, which is the probability that the system’s lifetime is at most <span class="math inline">\(t\)</span> units. <span class="math display">\[
+F(t) = P(T \leq t)
+\]</span></p>
+<p>The Survival Function of <span class="math inline">\(T\)</span>, denoted <span class="math inline">\(S(t)\)</span>, is the probability that the system survives at least <span class="math inline">\(t\)</span> units of time:</p>
 <p><span class="math display">\[
 S(t) = P(T &gt; t)
 \]</span></p>
-<p>The cumulative distribution function <span class="math inline">\(F(t)\)</span> is the probability that <span class="math inline">\(T \leq t\)</span>, which is the probability that the system’s lifetime is at most <span class="math inline">\(t\)</span> units:</p>
-<p><span class="math display">\[
-F(t) = P(T \leq t)
-\]</span></p>
-<p>And by simple probability rules:</p>
+<p>The CDF and the Survival Function are related by the following simple relationship:</p>
 <p><span class="math display">\[
 S(t) + F(t) = 1
 \]</span></p>
@@ -371,7 +370,7 @@ P(t_0 \leq T \leq t_0 + \Delta t) = \int_{t_0}^{t_0 + \Delta t} f(x)\, dx \appro
 <section id="what-does-the-cumulative-hazard-function-lambdat-mean" class="level3">
 <h3 class="anchored" data-anchor-id="what-does-the-cumulative-hazard-function-lambdat-mean">What does the cumulative hazard function <span class="math inline">\(\Lambda(t)\)</span> mean?</h3>
 <p>The cumulative hazard function <span class="math inline">\(\Lambda(t)\)</span> can be interpreted as the accumulated risk of failure or death up to time <span class="math inline">\(t\)</span> since the start of observation. Think of it as a “risk score” that increases over time. The higher <span class="math inline">\(\Lambda(t)\)</span> is, the more likely the system is to fail by time <span class="math inline">\(t\)</span>.</p>
-<p>However, the most important consequence of the relationship between the cumulative hazard and the survival function is that the probability of survival decays exponentially with the cumulative hazard. This means that if the cumulative hazard increases linearly over time, the survival function will decay exponentially. If the cumulative hazard increases more rapidly, the survival function will decay even faster. This exponential relationship is the bridge between the hazard function (which can be estimated from data as we will see in the later sections) and the survival function (which is often what engineers, clinicians, and business leaders care about).</p>
+<p>However, the most important consequence of the relationship between the cumulative hazard and the survival function is that the probability of survival decays exponentially with the cumulative hazard. This means that if the cumulative hazard increases linearly over time, the survival function will decay exponentially. If the cumulative hazard increases more rapidly, the survival function will decay even faster. This exponential relationship is the bridge between the hazard function (which can be estimated from data as we will see in the later sections) and the survival function (which is often what engineers or clinicians care about).</p>
 </section>
 <section id="the-unified-framework-of-survival-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="the-unified-framework-of-survival-analysis">The Unified Framework of Survival Analysis</h3>

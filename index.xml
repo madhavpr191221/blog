@@ -10,9 +10,10 @@
 <atom:link href="https://madhavpr191221.github.io/survival-analysis-blog/index.xml" rel="self" type="application/rss+xml"/>
 <description>A blog built with Quarto</description>
 <generator>quarto-1.9.36</generator>
-<lastBuildDate>Sat, 04 Apr 2026 10:19:28 GMT</lastBuildDate>
+<lastBuildDate>Fri, 03 Apr 2026 18:30:00 GMT</lastBuildDate>
 <item>
-  <title>Part 1: Why Survival Analysis Exists</title>
+  <title>Part 1: Introduction to Survival Analysis</title>
+  <dc:creator>Madhav Prashanth Ramachandran</dc:creator>
   <link>https://madhavpr191221.github.io/survival-analysis-blog/posts/part-1-why-survival-analysis-exists/</link>
   <description><![CDATA[ 
 
@@ -42,11 +43,10 @@ Note
 <section id="the-setup" class="level2">
 <h2 class="anchored" data-anchor-id="the-setup">The Setup</h2>
 <p>From here on, let’s fix our language. We’ll talk about the lifetime <img src="https://latex.codecogs.com/png.latex?T"> of a system — a machine, a patient, a customer — and the results will be general enough to apply to all of them.</p>
-<p>Let <img src="https://latex.codecogs.com/png.latex?T"> be the lifetime of a system — a non-negative continuous random variable with probability density function <img src="https://latex.codecogs.com/png.latex?f"> and cumulative distribution function <img src="https://latex.codecogs.com/png.latex?F">. The survival function of <img src="https://latex.codecogs.com/png.latex?T">, denoted <img src="https://latex.codecogs.com/png.latex?S(t)">, is the probability that the system survives at least <img src="https://latex.codecogs.com/png.latex?t"> units of time:</p>
+<p>Let <img src="https://latex.codecogs.com/png.latex?T"> be the lifetime of a system — a non-negative continuous random variable with Probability Density Function (PDF) <img src="https://latex.codecogs.com/png.latex?f"> and Cumulative Distribution Function (CDF) <img src="https://latex.codecogs.com/png.latex?F">, which is the probability that the system’s lifetime is at most <img src="https://latex.codecogs.com/png.latex?t"> units. <img src="https://latex.codecogs.com/png.latex?%0AF(t)%20=%20P(T%20%5Cleq%20t)%0A"></p>
+<p>The Survival Function of <img src="https://latex.codecogs.com/png.latex?T">, denoted <img src="https://latex.codecogs.com/png.latex?S(t)">, is the probability that the system survives at least <img src="https://latex.codecogs.com/png.latex?t"> units of time:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0AS(t)%20=%20P(T%20%3E%20t)%0A"></p>
-<p>The cumulative distribution function <img src="https://latex.codecogs.com/png.latex?F(t)"> is the probability that <img src="https://latex.codecogs.com/png.latex?T%20%5Cleq%20t">, which is the probability that the system’s lifetime is at most <img src="https://latex.codecogs.com/png.latex?t"> units:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AF(t)%20=%20P(T%20%5Cleq%20t)%0A"></p>
-<p>And by simple probability rules:</p>
+<p>The CDF and the Survival Function are related by the following simple relationship:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0AS(t)%20+%20F(t)%20=%201%0A"></p>
 </section>
 <section id="censoring" class="level2">
@@ -177,7 +177,7 @@ Note
 <section id="what-does-the-cumulative-hazard-function-lambdat-mean" class="level3">
 <h3 class="anchored" data-anchor-id="what-does-the-cumulative-hazard-function-lambdat-mean">What does the cumulative hazard function <img src="https://latex.codecogs.com/png.latex?%5CLambda(t)"> mean?</h3>
 <p>The cumulative hazard function <img src="https://latex.codecogs.com/png.latex?%5CLambda(t)"> can be interpreted as the accumulated risk of failure or death up to time <img src="https://latex.codecogs.com/png.latex?t"> since the start of observation. Think of it as a “risk score” that increases over time. The higher <img src="https://latex.codecogs.com/png.latex?%5CLambda(t)"> is, the more likely the system is to fail by time <img src="https://latex.codecogs.com/png.latex?t">.</p>
-<p>However, the most important consequence of the relationship between the cumulative hazard and the survival function is that the probability of survival decays exponentially with the cumulative hazard. This means that if the cumulative hazard increases linearly over time, the survival function will decay exponentially. If the cumulative hazard increases more rapidly, the survival function will decay even faster. This exponential relationship is the bridge between the hazard function (which can be estimated from data as we will see in the later sections) and the survival function (which is often what engineers, clinicians, and business leaders care about).</p>
+<p>However, the most important consequence of the relationship between the cumulative hazard and the survival function is that the probability of survival decays exponentially with the cumulative hazard. This means that if the cumulative hazard increases linearly over time, the survival function will decay exponentially. If the cumulative hazard increases more rapidly, the survival function will decay even faster. This exponential relationship is the bridge between the hazard function (which can be estimated from data as we will see in the later sections) and the survival function (which is often what engineers or clinicians care about).</p>
 </section>
 <section id="the-unified-framework-of-survival-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="the-unified-framework-of-survival-analysis">The Unified Framework of Survival Analysis</h3>
@@ -198,8 +198,10 @@ Note
 </section>
 
  ]]></description>
+  <category>survival analysis</category>
+  <category>statistics</category>
   <guid>https://madhavpr191221.github.io/survival-analysis-blog/posts/part-1-why-survival-analysis-exists/</guid>
-  <pubDate>Sat, 04 Apr 2026 10:19:28 GMT</pubDate>
+  <pubDate>Fri, 03 Apr 2026 18:30:00 GMT</pubDate>
 </item>
 </channel>
 </rss>
