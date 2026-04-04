@@ -35,6 +35,20 @@
 <p><img src="https://latex.codecogs.com/png.latex?%0AF(t)%20=%20P(T%20%5Cleq%20t)%0A"></p>
 <p>And by simple probability rules:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0AS(t)%20+%20F(t)%20=%201%0A"></p>
+</section>
+<section id="censoring" class="level2">
+<h2 class="anchored" data-anchor-id="censoring">Censoring</h2>
+<p>Censoring is the reason survival analysis exists as a separate field of statistics. It is a situation where the exact time-to-event is unknown for the subject. All we know is that the failure had not occurred by the time we stopped observing — either because the study ended, or the subject was lost to follow-up. Going back to our machine example, the four machines that are still running after 10,000 hours are censored machines.</p>
+<p>Censoring has three types.</p>
+<ol type="1">
+<li><strong>Right censoring</strong> — the most common. The study ends before the event of interest occurs. The four machines that are still running after 10,000 hours are right censored.</li>
+<li><strong>Left censoring</strong> — The failure happened before you started observing. You inspect a machine for the first time and find it has already failed — you know failure occurred, but not when. Or a patient comes in with a disease that has already progressed to a certain stage — you know the disease started but not when.</li>
+<li><strong>Interval censoring</strong> — You don’t know when the system failed but it happened between two inspection times.</li>
+</ol>
+<p>We will work with right censored data for pretty much the entire 12 part series.</p>
+<blockquote class="blockquote">
+<p><strong>Censoring vs.&nbsp;Missing Data.</strong> A missing value tells you nothing about a variable whereas a censored value conveys partial but concrete information. A machine that survived beyond 10,000 hours tells you exactly that — it lasted <em>at least</em> that long. That lower bound is real, and throwing it away is a statistical crime.</p>
+</blockquote>
 
 
 </section>
