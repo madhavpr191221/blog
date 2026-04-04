@@ -49,14 +49,111 @@
 <blockquote class="blockquote">
 <p><strong>Censoring vs.&nbsp;Missing Data.</strong> A missing value tells you nothing about a variable whereas a censored value conveys partial but concrete information. A machine that survived beyond 10,000 hours tells you exactly that — it lasted <em>at least</em> that long. That lower bound is real, and throwing it away is a statistical crime.</p>
 </blockquote>
-<p>Here is a format mathematical setup of right censored data. We have <img src="https://latex.codecogs.com/png.latex?n"> independent and identically distributed samples of the form <img src="https://latex.codecogs.com/png.latex?(X_i,%20%5Cdelta_i)"> where <img src="https://latex.codecogs.com/png.latex?Y_i%20=%20%5Cmin(T_i,%20C_i)"> and <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i%20=%20%5Cmathbb%7B1%7D%5C%7BT_i%20%5Cleq%20C_i%5C%7D">. Here <img src="https://latex.codecogs.com/png.latex?T_i"> is the lifetime of the <img src="https://latex.codecogs.com/png.latex?i">-th system and <img src="https://latex.codecogs.com/png.latex?C_i"> is the censoring time for that system. If <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i%20=%201">, it means the event of interest (failure) occurred before censoring, and we observe the exact failure time <img src="https://latex.codecogs.com/png.latex?Y_i">. If <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i%20=%200">, it means the event of interest did not occur before censoring, and we only know that the failure time is greater than <img src="https://latex.codecogs.com/png.latex?Y_i">.</p>
-<p>You never observe <img src="https://latex.codecogs.com/png.latex?T_i"> and <img src="https://latex.codecogs.com/png.latex?C_i"> separately — only their minimum and whether the event got there first.</p>
+<p>Here is a formal mathematical setup of right censored data. We have <img src="https://latex.codecogs.com/png.latex?n"> independent and identically distributed samples of the form <img src="https://latex.codecogs.com/png.latex?(Y_i,%20%5Cdelta_i)"> where <img src="https://latex.codecogs.com/png.latex?Y_i%20=%20%5Cmin(T_i,%20C_i)"> and <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i%20=%20%5Cmathbb%7B1%7D%5C%7BT_i%20%5Cleq%20C_i%5C%7D">. Here <img src="https://latex.codecogs.com/png.latex?T_i"> is the lifetime of the <img src="https://latex.codecogs.com/png.latex?i">-th system and <img src="https://latex.codecogs.com/png.latex?C_i"> is the censoring time for that system. <img src="https://latex.codecogs.com/png.latex?%5Cdelta"> is an indicator variable which is 1 if failure happened before censoring, 0 otherwise. <img src="https://latex.codecogs.com/png.latex?Y_i"> is the observed time, which is the minimum of the true lifetime and the censoring time.</p>
+<p>You never observe <img src="https://latex.codecogs.com/png.latex?T_i"> and <img src="https://latex.codecogs.com/png.latex?C_i"> separately — only their minimum and whether the event got there first. Here’s what you know about the <img src="https://latex.codecogs.com/png.latex?i">-th system based on the observed data:</p>
 <ul>
 <li>If <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i%20=%201">, failure happened before the study ended. You know exactly when.</li>
 <li>If <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i%20=%200">, the unit was still alive when you stopped watching. You only know that <img src="https://latex.codecogs.com/png.latex?T_i%20%3E%20Y_i">.</li>
 </ul>
+<p>Here is what a survival analysis dataset looks like in the real world. Each row is one machine — you never see <img src="https://latex.codecogs.com/png.latex?T"> and <img src="https://latex.codecogs.com/png.latex?C"> separately, only their minimum and whether the event occurred.</p>
+<table class="caption-top table">
+<caption>Survival data for 10 machines. <img src="https://latex.codecogs.com/png.latex?%5Cdelta%20=%201"> indicates failure observed; <img src="https://latex.codecogs.com/png.latex?%5Cdelta%20=%200"> indicates censoring.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Machine ID</th>
+<th style="text-align: center;"><img src="https://latex.codecogs.com/png.latex?Y%20=%20%5Cmin(T,%20C)"> (hours)</th>
+<th style="text-align: center;"><img src="https://latex.codecogs.com/png.latex?%5Cdelta"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">M01</td>
+<td style="text-align: center;">2,341</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">M02</td>
+<td style="text-align: center;">10,000</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">M03</td>
+<td style="text-align: center;">7,823</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">M04</td>
+<td style="text-align: center;">10,000</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">M05</td>
+<td style="text-align: center;">1,205</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">M06</td>
+<td style="text-align: center;">9,441</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">M07</td>
+<td style="text-align: center;">10,000</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">M08</td>
+<td style="text-align: center;">4,678</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">M09</td>
+<td style="text-align: center;">10,000</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">M10</td>
+<td style="text-align: center;">6,102</td>
+<td style="text-align: center;">1</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="the-hazard-function" class="level2">
+<h2 class="anchored" data-anchor-id="the-hazard-function">The Hazard Function</h2>
+<p>We have established that <img src="https://latex.codecogs.com/png.latex?S(t)"> tells us the probability of surviving past time <img src="https://latex.codecogs.com/png.latex?t">. But consider a different and more pointed question: given that a system has already survived until time <img src="https://latex.codecogs.com/png.latex?t_0">, how likely is it to fail in the next small instant?</p>
+<p>Let <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t"> be a small time interval. The probability that a system which has survived at least <img src="https://latex.codecogs.com/png.latex?t_0"> units of time fails in <img src="https://latex.codecogs.com/png.latex?%5Bt_0,%20t_0%20+%20%5CDelta%20t%5D"> is, by the definition of conditional probability:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AP(t_0%20%5Cleq%20T%20%5Cleq%20t_0%20+%20%5CDelta%20t%20%5Cmid%20T%20%3E%20t_0)%20=%20%5Cfrac%7BP(t_0%20%3C%20T%20%5Cleq%20t_0%20+%20%5CDelta%20t)%7D%7BP(T%20%3E%20t_0)%7D%20=%20%5Cfrac%7BF(t_0%20+%20%5CDelta%20t)%20-%20F(t_0)%7D%7BS(t_0)%7D%0A"></p>
+<p>Let us call this quantity <img src="https://latex.codecogs.com/png.latex?G(t_0)">. Dividing both sides by <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7BG(t_0)%7D%7B%5CDelta%20t%7D%20=%20%5Cfrac%7B1%7D%7BS(t_0)%7D%20%5Ccdot%20%5Cfrac%7BF(t_0%20+%20%5CDelta%20t)%20-%20F(t_0)%7D%7B%5CDelta%20t%7D%0A"></p>
+<p>Now, where have you seen an expression of the form <img src="https://latex.codecogs.com/png.latex?f(a%20+%20h)%20-%20f(a)"> where <img src="https://latex.codecogs.com/png.latex?h"> is small? That’s right — calculus. As <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t%20%5Cto%200">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7BF(t_0%20+%20%5CDelta%20t)%20-%20F(t_0)%7D%7B%5CDelta%20t%7D%20%5Cto%20f(t_0)%0A"></p>
+<p>because the derivative of the CDF is the PDF. So in the limit:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Clim_%7B%5CDelta%20t%20%5Cto%200%7D%20%5Cfrac%7BG(t_0)%7D%7B%5CDelta%20t%7D%20=%20%5Cfrac%7Bf(t_0)%7D%7BS(t_0)%7D%0A"></p>
+<p>This quantity has a name. It is the <strong>hazard function</strong> of <img src="https://latex.codecogs.com/png.latex?T"> evaluated at <img src="https://latex.codecogs.com/png.latex?t_0">, denoted <img src="https://latex.codecogs.com/png.latex?%5Clambda(t_0)">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cboxed%7B%5Clambda(t_0)%20=%20%5Cfrac%7Bf(t_0)%7D%7BS(t_0)%7D%7D%0A"></p>
+<p>Now I know what you’re thinking. The math is straightforward but why in the world would I care about this silly expression?</p>
+<section id="what-does-lambdat-actually-mean" class="level3">
+<h3 class="anchored" data-anchor-id="what-does-lambdat-actually-mean">What does <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)"> actually mean?</h3>
+<p>Recall that for a continuous random variable, probabilities over small intervals can be approximated using the PDF:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AP(t_0%20%5Cleq%20T%20%5Cleq%20t_0%20+%20%5CDelta%20t)%20=%20%5Cint_%7Bt_0%7D%5E%7Bt_0%20+%20%5CDelta%20t%7D%20f(x)%5C,%20dx%20%5Capprox%20f(t_0)%20%5Ccdot%20%5CDelta%20t%0A"></p>
+<p>So the conditional probability of failure in <img src="https://latex.codecogs.com/png.latex?%5Bt_0,%20t_0%20+%20%5CDelta%20t%5D"> becomes:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7BP(t_0%20%5Cleq%20T%20%5Cleq%20t_0%20+%20%5CDelta%20t)%7D%7BS(t_0)%7D%20%5Capprox%20%5Cfrac%7Bf(t_0)%20%5Ccdot%20%5CDelta%20t%7D%7BS(t_0)%7D%20=%20%5Clambda(t_0)%20%5Ccdot%20%5CDelta%20t%0A"></p>
+<p>This is the key insight. <img src="https://latex.codecogs.com/png.latex?%5Clambda(t_0)%20%5Ccdot%20%5CDelta%20t"> is approximately the conditional probability that a machine which has survived until <img src="https://latex.codecogs.com/png.latex?t_0"> will fail in the next <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t"> hours. This is why <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)"> is called the <strong>rate of failure per unit time</strong> — it tells you, at every moment, how dangerous the next instant is for a system that has made it this far.</p>
+<p>Note the crucial distinction: <img src="https://latex.codecogs.com/png.latex?f(t)"> is the unconditional density of failure at <img src="https://latex.codecogs.com/png.latex?t">. <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)"> conditions on survival. To make it more explicit, <img src="https://latex.codecogs.com/png.latex?f(t)"> is a probability <em>density</em>, not a probability. <img src="https://latex.codecogs.com/png.latex?f(5000)%20=%200.0001"> does not mean “the probability of failure at exactly 5000 hours is 0.0001.” It means the probability of failure in a small interval around 5000 hours is approximately <img src="https://latex.codecogs.com/png.latex?f(5000)%20%5Ccdot%20%5CDelta%20t%20=%0A0.0001%20%5Ccdot%20%5CDelta%20t">. With that in mind:</p>
+<p>Consider two machines — call them <strong>Machine A</strong> and <strong>Machine B</strong>. At <img src="https://latex.codecogs.com/png.latex?t_0%20=%205000"> hours, both have the same unconditional failure density: <img src="https://latex.codecogs.com/png.latex?f(5000)%20=%200.0001">. A naive reading suggests they are equally “failure-prone” at this moment. They are not.</p>
+<ul>
+<li><strong>Machine A</strong> has <img src="https://latex.codecogs.com/png.latex?S(5000)%20=%200.9"> — 90% of such machines survive to 5000 hours. Reaching this point is unremarkable.</li>
+<li><strong>Machine B</strong> has <img src="https://latex.codecogs.com/png.latex?S(5000)%20=%200.1"> — only 10% of such machines survive to 5000 hours. This machine is a true survivor against the odds.</li>
+</ul>
+<p>Their hazard rates at <img src="https://latex.codecogs.com/png.latex?t_0%20=%205000">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Clambda_A(5000)%20=%20%5Cfrac%7Bf(5000)%7D%7BS_A(5000)%7D%20=%20%5Cfrac%7B0.0001%7D%7B0.9%7D%20%5Capprox%200.000111%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Clambda_B(5000)%20=%20%5Cfrac%7Bf(5000)%7D%7BS_B(5000)%7D%20=%20%5Cfrac%7B0.0001%7D%7B0.1%7D%20=%200.001%0A"></p>
+<p>Machine B’s hazard rate is <strong>9 times higher</strong> than Machine A’s at the exact same moment, despite having the same <img src="https://latex.codecogs.com/png.latex?f(5000)">. The reason is simple: Machine B has survived longer than 90% of its kind. The few that remain are under severe stress — and the hazard function knows this. <img src="https://latex.codecogs.com/png.latex?f(t)"> does not.</p>
+<p>This is the power of conditioning on survival. The hazard function carries information that the PDF simply cannot.</p>
 
 
+</section>
 </section>
 
  ]]></description>
