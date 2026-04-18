@@ -5,54 +5,263 @@
       xmlns:dc="http://purl.org/dc/elements/1.1/" 
       version="2.0">
 <channel>
-<title>A Survival Guide to Survival Analysis</title>
-<link>https://your-website-url.example.com/</link>
-<atom:link href="https://your-website-url.example.com/index.xml" rel="self" type="application/rss+xml"/>
+<title>Madhav&#39;s Blog</title>
+<link>https://madhavpr191221.github.io/blog/</link>
+<atom:link href="https://madhavpr191221.github.io/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description>A blog built with Quarto</description>
 <generator>quarto-1.9.36</generator>
-<lastBuildDate>Fri, 03 Apr 2026 18:30:00 GMT</lastBuildDate>
+<lastBuildDate>Fri, 17 Apr 2026 18:30:00 GMT</lastBuildDate>
 <item>
-  <title>Post With Code</title>
-  <dc:creator>Harlow Malloc</dc:creator>
-  <link>https://your-website-url.example.com/posts/post-with-code/</link>
+  <title>Part 2: Distributions in Survival Analysis</title>
+  <dc:creator>Madhav Prashanth Ramachandran</dc:creator>
+  <link>https://madhavpr191221.github.io/blog/posts/part2-distributions-in-survival-analysis/</link>
   <description><![CDATA[ 
 
 
 
 
 
-<p>This is a post with executable code.</p>
+<section id="recap-of-part-1" class="level2">
+<h2 class="anchored" data-anchor-id="recap-of-part-1">Recap of Part 1</h2>
+<p>In the first part of this series, we established why survival analysis exists as a separate field- regression breaks, censoring is real and the functions we care about for survival analysis are fundamentally different from conditional expectations. Using basic calculus and probability theory, we introduced the key actors in survival analysis- the survival function, the hazard function and the cumulative hazard function. We showed that if you know one of these, you know all of them. In Part 2, we ask a natural follow up question- what does a survival distribution look like? The answer entirely depends on the shape of <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)">, the hazard function. We will see how different shapes of the hazard function lead to different survival curves and what that means in real life. A constant hazard leads to something familiar from undergrad probability. A linearly increasing hazard leads somewhere surprising. And a two parameter family called Weibull quietly unifies both of these and more. We will also understand the bathtub curve, a common shape for the hazard function in real life. Finally, we will see how to fit these distributions to data and use them for prediction.</p>
+</section>
+<section id="distributions-in-survival-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="distributions-in-survival-analysis">Distributions in Survival Analysis</h2>
+<section id="constant-hazard-the-exponential-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="constant-hazard-the-exponential-distribution">Constant Hazard: The Exponential Distribution</h3>
+<p>What happens if the hazard function is constant over time? That is, <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)%20=%20%5Clambda"> for all <img src="https://latex.codecogs.com/png.latex?t">? From the interpretation of the hazard function, this means for any time interval <img src="https://latex.codecogs.com/png.latex?delta_t">, the probability of failure in that interval is the same regardless of how long the object has survived so far. That is, for any time intervals <img src="https://latex.codecogs.com/png.latex?%5Bt_1,%20t_1%20+%20%5Cdelta_t%5D"> and <img src="https://latex.codecogs.com/png.latex?%5Bt_2,%20t_2%20+%20%5Cdelta_t%5D">, we have the same probability of failure (conditional on survival up to <img src="https://latex.codecogs.com/png.latex?t_1"> and <img src="https://latex.codecogs.com/png.latex?t_2"> respectively). This is a strong assumption, but it leads to a very simple distribution. Let’s derive it.</p>
+<p>We know that <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)%20=%20%5Clambda"> is constant, so we can write the cumulative hazard function as <img src="https://latex.codecogs.com/png.latex?%5CLambda(t)%20=%20%5Cint_0%5Et%20%5Clambda(s)%20ds%20=%20%5Clambda%20t">. Using the relationship between the survival function and the cumulative hazard function, we have <img src="https://latex.codecogs.com/png.latex?S(t)%20=%20e%5E%7B-%5CLambda(t)%7D%20=%20e%5E%7B-%5Clambda%20t%7D">. The Cumulative distribution function (CDF) is then <img src="https://latex.codecogs.com/png.latex?F(t)%20=%201%20-%20S(t)%20=%201%20-%20e%5E%7B-%5Clambda%20t%7D">. The probability density function (PDF) is the derivative of the CDF, which gives us <img src="https://latex.codecogs.com/png.latex?f(t)%20=%20%5Clambda%20e%5E%7B-%5Clambda%20t%7D">. This distribution is known as the Exponential distribution with <strong>rate</strong> parameter <img src="https://latex.codecogs.com/png.latex?%5Clambda"> - one of the most important continuous distributions in probability theory (probably after the normal distribution). The <strong>rate</strong> parameter <img src="https://latex.codecogs.com/png.latex?%5Clambda"> is in fact the rate of failure per unit time. If you didn’t understand why the parameter lambda is called the rate parameter in your previous courses, you should now.</p>
+<p>Once we have a distribution, the next natural quantities to compute are the moments of the distribution. It is a simple exercise in integration to show that the mean <img src="https://latex.codecogs.com/png.latex?E%5BT%5D"> of the Exponential distribution is <img src="https://latex.codecogs.com/png.latex?1/%5Clambda"> and the variance <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BVar%7D%5BT%5D"> is <img src="https://latex.codecogs.com/png.latex?1/%5Clambda%5E2">. Other quantities related to the moments are the median and the mode. The median is the time <img src="https://latex.codecogs.com/png.latex?t"> such that <img src="https://latex.codecogs.com/png.latex?F(t)%20=%200.5">, which gives us the half-life <img src="https://latex.codecogs.com/png.latex?t_%7B1/2%7D%20=%20%5Cln(2)/%5Clambda">. The mode is the time at which the PDF is maximized, which for the Exponential distribution is at <img src="https://latex.codecogs.com/png.latex?t=0">. The distribution is right skewed- most systems fail early, but there is a long tail of systems that survive for a long time.</p>
+<p>An important property of the Exponential distribution is that it is <strong>memoryless</strong>. What does that mean?</p>
+<p>Suppose the system has already survived for time <img src="https://latex.codecogs.com/png.latex?t_0">. What is the probability that it will survive for an additional time <img src="https://latex.codecogs.com/png.latex?t">? Let’s compute this probability. We want <img src="https://latex.codecogs.com/png.latex?P(T%20%3E%20t_0%20+%20t%20%7C%20T%20%3E%20t_0)">. Using the definition of conditional probability, we have: <img src="https://latex.codecogs.com/png.latex?P(T%20%3E%20t_0%20+%20t%20%5Cmid%20T%20%3E%20t_0)%20=%20%5Cfrac%7BP(%5C%7BT%20%3E%20t_0%20+%20t%5C%7D%20%5Ccap%20%5C%7BT%20%3E%20t_0%5C%7D)%7D%7BP(T%20%3E%20t_0)%7D"></p>
+<p>Since <img src="https://latex.codecogs.com/png.latex?%5C%7BT%20%3E%20t_0%20+%20t%5C%7D%20%5Csubseteq%20%5C%7BT%20%3E%20t_0%5C%7D"> (because if the system survives for <img src="https://latex.codecogs.com/png.latex?t_0%20+%20t">, it must have survived for <img src="https://latex.codecogs.com/png.latex?t_0">), we can simplify this to:</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(T%20%3E%20t_0%20+%20t%20%5Cmid%20T%20%3E%20t_0)%20=%20%5Cfrac%7BP(T%20%3E%20t_0%20+%20t)%7D%7BP(T%20%3E%20t_0)%7D"></p>
+<p>Substituting the survival function for the Exponential distribution, we get:</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(T%20%3E%20t_0%20+%20t%20%5Cmid%20T%20%3E%20t_0)%20=%20%5Cfrac%7Be%5E%7B-%5Clambda(t_0%20+%20t)%7D%7D%7Be%5E%7B-%5Clambda%20t_0%7D%7D%20=%20e%5E%7B-%5Clambda%20t%7D%20=%20P(T%20%3E%20t)"></p>
+<p>What does this mean? It means that the probability of surviving for an additional time <img src="https://latex.codecogs.com/png.latex?t"> does not depend on how long the system has already survived. In other words, the system has no memory of its past survival time. This is a unique property of the Exponential distribution and is not shared by any other continuous distribution. In fact, it can be shown that the Exponential distribution is the only continuous distribution that is memoryless.</p>
+<p>Let’s look at a simple example to illustrate this. Suppose we have a light bulb that has an Exponential lifetime with a rate of <img src="https://latex.codecogs.com/png.latex?%5Clambda%20=%200.1"> failures per hour. The mean lifetime of the light bulb is <img src="https://latex.codecogs.com/png.latex?1/%5Clambda%20=%2010"> hours. If the light bulb has already been on for 5 hours, what is the probability that it will last for another 5 hours? Using the memoryless property, we can compute this as:</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(T%20%3E%2010%20%7C%20T%20%3E%205)%20=%20P(T%20%3E%205)%20=%20e%5E%7B-0.1%20%5Ccdot%205%7D%20=%20e%5E%7B-0.5%7D%20%5Capprox%200.6065"></p>
+<p>This means that even though the light bulb has already lasted for 5 hours, it still has a 60.65% chance of lasting for another 5 hours. Taking this further, if the light bulb has already lasted for 1000 hours, the probability that it will last for another 5 hours is still 60.65%. This is a direct consequence of the memoryless property of the Exponential distribution.</p>
+<p>This is clearly unrealistic for most real-world systems. For example, if a machine has been running for 10 years, it is likely to be more prone to failure than a brand new machine. But it makes the Exponential distribution a useful starting point for understanding survival analysis and serves as a building block for more complex distributions. When your data looks like it has a constant hazard, the Exponential distribution is a good first choice for modeling it.</p>
+<p>Here is how an Exponential distribution looks like.</p>
+<div id="cell-fig-exponential" class="cell" data-execution_count="1">
+<div class="cell-output cell-output-display">
+<div id="fig-exponential" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-exponential-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://madhavpr191221.github.io/blog/posts/part2-distributions-in-survival-analysis/index_files/figure-html/fig-exponential-output-1.png" width="1718" height="469" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-exponential-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Exponential survival functions for different rate parameters
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 
 
+</section>
+</section>
 
  ]]></description>
-  <category>news</category>
-  <category>code</category>
-  <category>analysis</category>
-  <guid>https://your-website-url.example.com/posts/post-with-code/</guid>
-  <pubDate>Fri, 03 Apr 2026 18:30:00 GMT</pubDate>
-  <media:content url="https://your-website-url.example.com/posts/post-with-code/image.jpg" medium="image" type="image/jpeg"/>
+  <category>survival analysis</category>
+  <category>statistics</category>
+  <category>python</category>
+  <guid>https://madhavpr191221.github.io/blog/posts/part2-distributions-in-survival-analysis/</guid>
+  <pubDate>Fri, 17 Apr 2026 18:30:00 GMT</pubDate>
 </item>
 <item>
-  <title>Welcome To My Blog</title>
-  <dc:creator>Tristan O&#39;Malley</dc:creator>
-  <link>https://your-website-url.example.com/posts/welcome/</link>
+  <title>Part 1: Introduction to Survival Analysis</title>
+  <dc:creator>Madhav Prashanth Ramachandran</dc:creator>
+  <link>https://madhavpr191221.github.io/blog/posts/part-1-why-survival-analysis-exists/</link>
   <description><![CDATA[ 
 
 
 
 
 
-<p>This is the first post in a Quarto blog. Welcome!</p>
-<p><img src="https://your-website-url.example.com/posts/welcome/thumbnail.jpg" class="img-fluid"></p>
-<p>Since this post doesn’t specify an explicit <code>image</code>, the first image in the post will be used in the listing page of posts.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>A note on platform and process.</strong> Part 0 of this series was published on <a href="https://medium.com/@madhavwas/a-survival-guide-to-survival-analysis-1ed6faaf8fea">Medium</a>. Starting from Part 1, I have moved to Quarto on GitHub Pages for one reason: proper LaTeX rendering. A series this mathematical deserves a math-native home.</p>
+<p>This article is not AI generated. I used Claude for proofreading, LaTeX syntax, and occasional structural feedback. Every derivation, example, and word is mine.</p>
+</div>
+</div>
+<p>Time = 0 has passed. There’s a machine fresh off the assembly line, there’s a patient that got a second shot at life after a surgery, there’s a customer who just signed up with your services. The question is not whether — machines fail, patients die, customers leave. The question is <strong>when</strong>, and what we can say about that when, given everything we know. The branch of statistics that deals with answering this and other related questions is called survival analysis.</p>
+<p>If you are trained in basic statistics and machine learning methods, your first instinct would probably be to reach for regression. Time is a continuous variable and (linear) regression — the workhorse of statistics — is the best fit for dealing with continuous variables. Right? No.&nbsp;Wrong. Here are the reasons regression breaks.</p>
+<p><strong>1.</strong> Regression does not place any constraints on the range of the response variable whereas the time to failure is always non-negative.</p>
+<p><strong>2.</strong> In the linear regression setup, the response variable is an estimate of its conditional expectation given the covariates, i.e <img src="https://latex.codecogs.com/png.latex?E%5BY%20%5Cmid%20X%5D">. For survival analysis, conditional expectation is sometimes not the right quantity to estimate. In a clinical setting, you might care about “What fraction of patients survive beyond 10 years post surgery?” In a predictive maintenance setting, an engineer might ask “At what rate are machines failing after 10,000 hours of operation?” These are fundamentally different questions from “what is the average time to failure given these covariates?” — and regression, by construction, can only answer the latter.</p>
+<p><strong>3.</strong> And here comes the most important part. Imagine you are studying the time-to-failure of 10 machines. You run the study for 10,000 hours and stop. At the end of your study, 6 machines have failed and you know their exact failure times. The 4 machines that survived are, well, still running and all you know is that their survival time is greater than 10,000. If you naively regress on the six machines that failed and discard the ones that did not, your estimate of the time to failure is biased downward — because the machines you discarded are precisely the most durable ones in your sample. There is a name for this situation which we will get to very shortly.</p>
+<section id="the-setup" class="level2">
+<h2 class="anchored" data-anchor-id="the-setup">The Setup</h2>
+<p>From here on, let’s fix our language. We’ll talk about the lifetime <img src="https://latex.codecogs.com/png.latex?T"> of a system — a machine, a patient, a customer — and the results will be general enough to apply to all of them.</p>
+<p>Let <img src="https://latex.codecogs.com/png.latex?T"> be the lifetime of a system — a non-negative continuous random variable with Probability Density Function (PDF) <img src="https://latex.codecogs.com/png.latex?f"> and Cumulative Distribution Function (CDF) <img src="https://latex.codecogs.com/png.latex?F">, which is the probability that the system’s lifetime is at most <img src="https://latex.codecogs.com/png.latex?t"> units. <img src="https://latex.codecogs.com/png.latex?%0AF(t)%20=%20P(T%20%5Cleq%20t)%0A"></p>
+<p>The Survival Function of <img src="https://latex.codecogs.com/png.latex?T">, denoted <img src="https://latex.codecogs.com/png.latex?S(t)">, is the probability that the system survives at least <img src="https://latex.codecogs.com/png.latex?t"> units of time:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AS(t)%20=%20P(T%20%3E%20t)%0A"></p>
+<p>The CDF and the Survival Function are related by the following simple relationship:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AS(t)%20+%20F(t)%20=%201%0A"></p>
+</section>
+<section id="censoring" class="level2">
+<h2 class="anchored" data-anchor-id="censoring">Censoring</h2>
+<p>Censoring is the reason survival analysis exists as a separate field of statistics. It is a situation where the exact time-to-event is unknown for the subject. All we know is that the failure had not occurred by the time we stopped observing — either because the study ended, or the subject was lost to follow-up. Going back to our machine example, the four machines that are still running after 10,000 hours are censored machines.</p>
+<p>Censoring has three types.</p>
+<ol type="1">
+<li><strong>Right censoring</strong> — the most common. The study ends before the event of interest occurs. The four machines that are still running after 10,000 hours are right censored.</li>
+<li><strong>Left censoring</strong> — The failure happened before you started observing. You inspect a machine for the first time and find it has already failed — you know failure occurred, but not when. Or a patient comes in with a disease that has already progressed to a certain stage — you know the disease started but not when.</li>
+<li><strong>Interval censoring</strong> — You don’t know when the system failed but it happened between two inspection times.</li>
+</ol>
+<p>We will work with right censored data for pretty much the entire 12 part series.</p>
+<blockquote class="blockquote">
+<p><strong>Censoring vs.&nbsp;Missing Data.</strong> A missing value tells you nothing about a variable whereas a censored value conveys partial but concrete information. A machine that survived beyond 10,000 hours tells you exactly that — it lasted <em>at least</em> that long. That lower bound is real, and throwing it away is a statistical crime.</p>
+</blockquote>
+<p>Here is a formal mathematical setup of right censored data. We have <img src="https://latex.codecogs.com/png.latex?n"> independent and identically distributed samples of the form <img src="https://latex.codecogs.com/png.latex?(Y_i,%20%5Cdelta_i)"> where <img src="https://latex.codecogs.com/png.latex?Y_i%20=%20%5Cmin(T_i,%20C_i)"> and <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i%20=%20%5Cmathbb%7B1%7D%5C%7BT_i%20%5Cleq%20C_i%5C%7D">. Here <img src="https://latex.codecogs.com/png.latex?T_i"> is the lifetime of the <img src="https://latex.codecogs.com/png.latex?i">-th system and <img src="https://latex.codecogs.com/png.latex?C_i"> is the censoring time for that system. <img src="https://latex.codecogs.com/png.latex?%5Cdelta"> is an indicator variable which is 1 if failure happened before censoring, 0 otherwise. <img src="https://latex.codecogs.com/png.latex?Y_i"> is the observed time, which is the minimum of the true lifetime and the censoring time.</p>
+<p>You never observe <img src="https://latex.codecogs.com/png.latex?T_i"> and <img src="https://latex.codecogs.com/png.latex?C_i"> separately — only their minimum and whether the event got there first. Here’s what you know about the <img src="https://latex.codecogs.com/png.latex?i">-th system based on the observed data:</p>
+<ul>
+<li>If <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i%20=%201">, failure happened before the study ended. You know exactly when.</li>
+<li>If <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i%20=%200">, the unit was still alive when you stopped watching. You only know that <img src="https://latex.codecogs.com/png.latex?T_i%20%3E%20Y_i">.</li>
+</ul>
+<p>Here is what a survival analysis dataset looks like in the real world. Each row is one machine — you never see <img src="https://latex.codecogs.com/png.latex?T"> and <img src="https://latex.codecogs.com/png.latex?C"> separately, only their minimum and whether the event occurred.</p>
+<table class="caption-top table">
+<caption>Survival data for 10 machines. <img src="https://latex.codecogs.com/png.latex?%5Cdelta%20=%201"> indicates failure observed; <img src="https://latex.codecogs.com/png.latex?%5Cdelta%20=%200"> indicates censoring.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Machine ID</th>
+<th style="text-align: center;"><img src="https://latex.codecogs.com/png.latex?Y%20=%20%5Cmin(T,%20C)"> (hours)</th>
+<th style="text-align: center;"><img src="https://latex.codecogs.com/png.latex?%5Cdelta"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">M01</td>
+<td style="text-align: center;">2,341</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">M02</td>
+<td style="text-align: center;">10,000</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">M03</td>
+<td style="text-align: center;">7,823</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">M04</td>
+<td style="text-align: center;">10,000</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">M05</td>
+<td style="text-align: center;">1,205</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">M06</td>
+<td style="text-align: center;">9,441</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">M07</td>
+<td style="text-align: center;">10,000</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">M08</td>
+<td style="text-align: center;">4,678</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">M09</td>
+<td style="text-align: center;">10,000</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">M10</td>
+<td style="text-align: center;">6,102</td>
+<td style="text-align: center;">1</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="the-hazard-function" class="level2">
+<h2 class="anchored" data-anchor-id="the-hazard-function">The Hazard Function</h2>
+<p>We have established that <img src="https://latex.codecogs.com/png.latex?S(t)"> tells us the probability of surviving past time <img src="https://latex.codecogs.com/png.latex?t">. But consider a different and more pointed question: given that a system has already survived until time <img src="https://latex.codecogs.com/png.latex?t_0">, how likely is it to fail in the next small instant?</p>
+<p>Let <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t"> be a small time interval. The probability that a system which has survived at least <img src="https://latex.codecogs.com/png.latex?t_0"> units of time fails in <img src="https://latex.codecogs.com/png.latex?%5Bt_0,%20t_0%20+%20%5CDelta%20t%5D"> is, by the definition of conditional probability:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AP(t_0%20%5Cleq%20T%20%5Cleq%20t_0%20+%20%5CDelta%20t%20%5Cmid%20T%20%3E%20t_0)%20=%20%5Cfrac%7BP(t_0%20%3C%20T%20%5Cleq%20t_0%20+%20%5CDelta%20t)%7D%7BP(T%20%3E%20t_0)%7D%20=%20%5Cfrac%7BF(t_0%20+%20%5CDelta%20t)%20-%20F(t_0)%7D%7BS(t_0)%7D%0A"></p>
+<p>Let us call this quantity <img src="https://latex.codecogs.com/png.latex?G(t_0)">. Dividing both sides by <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7BG(t_0)%7D%7B%5CDelta%20t%7D%20=%20%5Cfrac%7B1%7D%7BS(t_0)%7D%20%5Ccdot%20%5Cfrac%7BF(t_0%20+%20%5CDelta%20t)%20-%20F(t_0)%7D%7B%5CDelta%20t%7D%0A"></p>
+<p>Now, where have you seen an expression of the form <img src="https://latex.codecogs.com/png.latex?(f(a%20+%20h)%20-%20f(a))%20/%20h"> where <img src="https://latex.codecogs.com/png.latex?h"> is small? That’s right — calculus. As <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t%20%5Cto%200">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7BF(t_0%20+%20%5CDelta%20t)%20-%20F(t_0)%7D%7B%5CDelta%20t%7D%20%5Cto%20f(t_0)%0A"></p>
+<p>because the derivative of the CDF is the PDF. So in the limit:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Clim_%7B%5CDelta%20t%20%5Cto%200%7D%20%5Cfrac%7BG(t_0)%7D%7B%5CDelta%20t%7D%20=%20%5Cfrac%7Bf(t_0)%7D%7BS(t_0)%7D%0A"></p>
+<p>This quantity has a name. It is the <strong>hazard function</strong> of <img src="https://latex.codecogs.com/png.latex?T"> evaluated at <img src="https://latex.codecogs.com/png.latex?t_0">, denoted <img src="https://latex.codecogs.com/png.latex?%5Clambda(t_0)">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cboxed%7B%5Clambda(t_0)%20=%20%5Cfrac%7Bf(t_0)%7D%7BS(t_0)%7D%7D%0A"></p>
+<p>Now I know what you’re thinking. The math is straightforward but why in the world would I care about this silly expression?</p>
+<section id="what-does-lambdat-actually-mean" class="level3">
+<h3 class="anchored" data-anchor-id="what-does-lambdat-actually-mean">What does <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)"> actually mean?</h3>
+<p>Recall that for a continuous random variable, probabilities over small intervals can be approximated using the PDF:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AP(t_0%20%5Cleq%20T%20%5Cleq%20t_0%20+%20%5CDelta%20t)%20=%20%5Cint_%7Bt_0%7D%5E%7Bt_0%20+%20%5CDelta%20t%7D%20f(x)%5C,%20dx%20%5Capprox%20f(t_0)%20%5Ccdot%20%5CDelta%20t%0A"></p>
+<p>So the conditional probability of failure in <img src="https://latex.codecogs.com/png.latex?%5Bt_0,%20t_0%20+%20%5CDelta%20t%5D"> becomes:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7BP(t_0%20%5Cleq%20T%20%5Cleq%20t_0%20+%20%5CDelta%20t)%7D%7BS(t_0)%7D%20%5Capprox%20%5Cfrac%7Bf(t_0)%20%5Ccdot%20%5CDelta%20t%7D%7BS(t_0)%7D%20=%20%5Clambda(t_0)%20%5Ccdot%20%5CDelta%20t%0A"></p>
+<p>This is the key insight. <img src="https://latex.codecogs.com/png.latex?%5Clambda(t_0)%20%5Ccdot%20%5CDelta%20t"> is approximately the conditional probability that a machine which has survived until <img src="https://latex.codecogs.com/png.latex?t_0"> will fail in the next <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t"> hours. This is why <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)"> is called the <strong>rate of failure per unit time</strong> — it tells you, at every moment, how risky the next instant is for a system that has made it this far.</p>
+<p>Let us clear any confusion between the probability density function <img src="https://latex.codecogs.com/png.latex?f(t)"> and the hazard function <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)">. The probability density function <img src="https://latex.codecogs.com/png.latex?f(t)"> is the <strong>unconditional density</strong> of failure at <img src="https://latex.codecogs.com/png.latex?t">. <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)"> conditions on survival. To make it more explicit, <img src="https://latex.codecogs.com/png.latex?f(t)"> is a probability <em>density</em>, not a probability. <img src="https://latex.codecogs.com/png.latex?f(5000)%20=%200.0001"> does not mean “the probability of failure at exactly 5000 hours is 0.0001.” It means the probability of failure in a small interval around 5000 hours is approximately <img src="https://latex.codecogs.com/png.latex?f(5000)%20%5Ccdot%20%5CDelta%20t%20=%0A0.0001%20%5Ccdot%20%5CDelta%20t">. Here is a concrete example to illustrate the difference.</p>
+<p>Consider two machines — call them <strong>Machine A</strong> and <strong>Machine B</strong>. At <img src="https://latex.codecogs.com/png.latex?t_0%20=%205000"> hours, both have the same unconditional failure density: <img src="https://latex.codecogs.com/png.latex?f(5000)%20=%200.0001">. A naive reading suggests they are equally “failure-prone” at this moment. They are not.</p>
+<ul>
+<li><strong>Machine A</strong> has <img src="https://latex.codecogs.com/png.latex?S(5000)%20=%200.9"> — 90% of such machines survive to 5000 hours. Reaching this point is unremarkable.</li>
+<li><strong>Machine B</strong> has <img src="https://latex.codecogs.com/png.latex?S(5000)%20=%200.1"> — only 10% of such machines survive to 5000 hours. This machine is a true survivor against the odds.</li>
+</ul>
+<p>Their hazard rates at <img src="https://latex.codecogs.com/png.latex?t_0%20=%205000">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Clambda_A(5000)%20=%20%5Cfrac%7Bf(5000)%7D%7BS_A(5000)%7D%20=%20%5Cfrac%7B0.0001%7D%7B0.9%7D%20%5Capprox%200.000111%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Clambda_B(5000)%20=%20%5Cfrac%7Bf(5000)%7D%7BS_B(5000)%7D%20=%20%5Cfrac%7B0.0001%7D%7B0.1%7D%20=%200.001%0A"></p>
+<p>Machine B’s hazard rate is <strong>9 times higher</strong> than Machine A’s at the exact same moment, despite having the same <img src="https://latex.codecogs.com/png.latex?f(5000)">. The reason is simple: Machine B has survived longer than 90% of its kind. The few that remain are under severe stress — and the hazard function knows this. <img src="https://latex.codecogs.com/png.latex?f(t)"> does not. This is the power of conditioning on survival. The hazard function carries information that the PDF simply cannot.</p>
+</section>
+<section id="another-way-to-write-lambdat-an-introduction-to-the-cumulative-hazard-function" class="level3">
+<h3 class="anchored" data-anchor-id="another-way-to-write-lambdat-an-introduction-to-the-cumulative-hazard-function">Another way to write <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)">, an introduction to the cumulative hazard function</h3>
+<p>The hazard function can also be expressed in terms of the survival function. Starting from the definition: <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)%20=%20%5Cfrac%7Bf(t)%7D%7BS(t)%7D%0A"> We can rewrite the PDF in terms of the survival function:</p>
+<p>As we know, the survival function is related to the CDF by <img src="https://latex.codecogs.com/png.latex?S(t)%20=%201%20-%20F(t)">. Differentiating both sides with respect to <img src="https://latex.codecogs.com/png.latex?t"> gives us <img src="https://latex.codecogs.com/png.latex?f(t)%20=%20-%5Cfrac%7Bd%7D%7Bdt%7DS(t)"></p>
+<p>Substituting this into the hazard function: <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)%20=%20%5Cfrac%7B-%5Cfrac%7Bd%7D%7Bdt%7DS(t)%7D%7BS(t)%7D%20=%20-%5Cfrac%7B1%7D%7BS(t)%7D%20%5Ccdot%20%5Cfrac%7Bd%7D%7Bdt%7DS(t)"> This can be rewritten as: <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)%20=%20-%5Cfrac%7Bd%7D%7Bdt%7D%5Clog%20S(t)"></p>
+<p>This expression shows that the hazard function is the negative derivative of the logarithm of the survival function. Integrating both sides with respect to <img src="https://latex.codecogs.com/png.latex?t"> gives us:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cboxed%7B%5CLambda(t)%20=%20%5Cint_0%5Et%20%5Clambda(u)%5C,du%20=%20-%5Clog%20S(t)%7D"></p>
+<p>This integral is known as the <strong>cumulative hazard function</strong>, often denoted by <img src="https://latex.codecogs.com/png.latex?%5CLambda(t)"> or <img src="https://latex.codecogs.com/png.latex?H(t)">. This relationship between the cumulative hazard function and the survival function is fundamental in survival analysis. We can express the survival function in terms of the cumulative hazard function as follows:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cboxed%7BS(t)%20=%20e%5E%7B-%5CLambda(t)%7D%7D"></p>
+</section>
+<section id="what-does-the-cumulative-hazard-function-lambdat-mean" class="level3">
+<h3 class="anchored" data-anchor-id="what-does-the-cumulative-hazard-function-lambdat-mean">What does the cumulative hazard function <img src="https://latex.codecogs.com/png.latex?%5CLambda(t)"> mean?</h3>
+<p>The cumulative hazard function <img src="https://latex.codecogs.com/png.latex?%5CLambda(t)"> can be interpreted as the accumulated risk of failure or death up to time <img src="https://latex.codecogs.com/png.latex?t"> since the start of observation. Think of it as a “risk score” that increases over time. The higher <img src="https://latex.codecogs.com/png.latex?%5CLambda(t)"> is, the more likely the system is to fail by time <img src="https://latex.codecogs.com/png.latex?t">.</p>
+<p>However, the most important consequence of the relationship between the cumulative hazard and the survival function is that the probability of survival decays exponentially with the cumulative hazard. This means that if the cumulative hazard increases linearly over time, the survival function will decay exponentially. If the cumulative hazard increases more rapidly, the survival function will decay even faster. This exponential relationship is the bridge between the hazard function (which can be estimated from data as we will see in the later sections) and the survival function (which is often what engineers or clinicians care about).</p>
+</section>
+<section id="the-unified-framework-of-survival-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="the-unified-framework-of-survival-analysis">The Unified Framework of Survival Analysis</h3>
+<p>We have met three key functions in survival analysis: the PDF <img src="https://latex.codecogs.com/png.latex?f(t)">, the survival function <img src="https://latex.codecogs.com/png.latex?S(t)">, and the hazard function <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)">. These functions are not independent of each other. Know any one of them — you know them all.</p>
+<p><img src="https://latex.codecogs.com/png.latex?f(t)%20%5Clongleftrightarrow%20S(t)%20%5Clongleftrightarrow%20%5CLambda(t)%20%5Clongleftrightarrow%20%5Clambda(t)"></p>
+<p>Here’s how:</p>
+<p><strong>From <img src="https://latex.codecogs.com/png.latex?f(t)">:</strong> <img src="https://latex.codecogs.com/png.latex?S(t)%20=%201%20-%20%5Cint_0%5Et%20f(u)%5C,du,%20%5Cqquad%20%5Clambda(t)%20=%20%5Cfrac%7Bf(t)%7D%7BS(t)%7D"></p>
+<p><strong>From <img src="https://latex.codecogs.com/png.latex?S(t)">:</strong> <img src="https://latex.codecogs.com/png.latex?f(t)%20=%20-%5Cfrac%7Bd%7D%7Bdt%7DS(t),%20%5Cqquad%20%5Clambda(t)%20=%20-%5Cfrac%7Bd%7D%7Bdt%7D%5Clog%20S(t)"></p>
+<p><strong>From <img src="https://latex.codecogs.com/png.latex?%5Clambda(t)">:</strong> <img src="https://latex.codecogs.com/png.latex?%5CLambda(t)%20=%20%5Cint_0%5Et%20%5Clambda(u)%5C,du,%20%5Cqquad%20S(t)%20=%20e%5E%7B-%5CLambda(t)%7D,%20%5Cqquad%20f(t)%20=%20%5Clambda(t)%5Ccdot%20e%5E%7B-%5CLambda(t)%7D"></p>
+<p>In survival analysis, we can choose to work with any of these functions depending on the context and the question at hand. The Cox Proportional Hazards model, for example, is a regression model that directly models the hazard function. The Kaplan-Meier estimator is a non-parametric estimator of the survival function. The choice of which function to work with is often guided by the nature of the data and the specific research question being addressed.</p>
+</section>
+<section id="whats-next" class="level3">
+<h3 class="anchored" data-anchor-id="whats-next">What’s next?</h3>
+<p>We now have the language of survival analysis. We know what the key functions are and how they relate to each other. In the next part, we will meet some commonly used distributions of survival analysis and how they are characterized purely by their hazard functions. We will start with the simplest one- the distribution with a constant hazard function, which is the well known <strong>Exponential distribution</strong>. We will understand the memorylessness property of the exponential distribution and its consequences. We will then move on to the linearly increasing hazard function- the <strong>Rayleigh distribution</strong>, and the linearly decreasing hazard function, which is the <strong>Pareto distribution</strong>. We will see how the shape of the hazard function dictates the shape of the survival curve and what that means in real life. And finally, we will meet the workhorse of survival analysis and reliability engineering — the <strong>Weibull distribution</strong>, which can model a wide variety of hazard shapes and is used in a huge range of applications. We will also see how to estimate the parameters of these distributions from data and how to use them for prediction. The clock is still ticking. See you in Part 2.</p>
 
 
+</section>
+</section>
 
  ]]></description>
-  <category>news</category>
-  <guid>https://your-website-url.example.com/posts/welcome/</guid>
-  <pubDate>Tue, 31 Mar 2026 18:30:00 GMT</pubDate>
+  <category>survival analysis</category>
+  <category>statistics</category>
+  <guid>https://madhavpr191221.github.io/blog/posts/part-1-why-survival-analysis-exists/</guid>
+  <pubDate>Fri, 03 Apr 2026 18:30:00 GMT</pubDate>
+  <media:content url="https://madhavpr191221.github.io/blog/posts/part-1-why-survival-analysis-exists/cover.png" medium="image" type="image/png" height="86" width="144"/>
 </item>
 </channel>
 </rss>

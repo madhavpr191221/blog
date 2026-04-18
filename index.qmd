@@ -1,5 +1,5 @@
 ---
-title: "A Survival Guide to Survival Analysis"
+title: "Articles"
 listing:
   contents: posts
   feed: true

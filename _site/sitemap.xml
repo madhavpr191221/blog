@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://your-website-url.example.com/posts/welcome/index.html</loc>
-    <lastmod>2026-04-04T00:31:53.578Z</lastmod>
+    <loc>https://madhavpr191221.github.io/blog/posts/part-1-why-survival-analysis-exists/index.html</loc>
+    <lastmod>2026-04-18T01:32:40.519Z</lastmod>
   </url>
   <url>
-    <loc>https://your-website-url.example.com/index.html</loc>
-    <lastmod>2026-04-04T00:31:53.578Z</lastmod>
+    <loc>https://madhavpr191221.github.io/blog/about.html</loc>
+    <lastmod>2026-04-04T00:38:26.491Z</lastmod>
   </url>
   <url>
-    <loc>https://your-website-url.example.com/about.html</loc>
-    <lastmod>2026-04-04T00:31:53.578Z</lastmod>
+    <loc>https://madhavpr191221.github.io/blog/index.html</loc>
+    <lastmod>2026-04-04T11:34:14.826Z</lastmod>
   </url>
   <url>
-    <loc>https://your-website-url.example.com/posts/post-with-code/index.html</loc>
-    <lastmod>2026-04-04T00:31:53.578Z</lastmod>
+    <loc>https://madhavpr191221.github.io/blog/posts/part2-distributions-in-survival-analysis/index.html</loc>
+    <lastmod>2026-04-18T02:05:47.623Z</lastmod>
   </url>
 </urlset>
