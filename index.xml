@@ -10,7 +10,67 @@
 <atom:link href="https://madhavpr191221.github.io/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description>A blog built with Quarto</description>
 <generator>quarto-1.9.36</generator>
-<lastBuildDate>Fri, 17 Apr 2026 18:30:00 GMT</lastBuildDate>
+<lastBuildDate>Sat, 18 Apr 2026 18:30:00 GMT</lastBuildDate>
+<item>
+  <title>Part 3: Fitting Survival Distributions to Data</title>
+  <dc:creator>Madhav Prashanth Ramachandran</dc:creator>
+  <link>https://madhavpr191221.github.io/blog/posts/part-3-fitting-survival-distributions/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<section id="recap-of-part-2-and-whats-coming-in-part-3" class="level2">
+<h2 class="anchored" data-anchor-id="recap-of-part-2-and-whats-coming-in-part-3">Recap of Part 2 and What’s Coming in Part 3</h2>
+<p>In <strong>Part 2</strong>, we built a vocabulary of survival distributions — the Exponential for constant hazard, the Rayleigh for linearly increasing hazard, and the Weibull as the unifying family that contains both as special cases. Along the way we took a detour through the connection between the Rayleigh, Normal, and Exponential distributions, and ended with the bathtub curve — the most common failure pattern in real engineered systems.</p>
+<p>But a distribution is not a model until it is fit to data. In <strong>Part 3</strong>, we ask: given a dataset of failure times — some exact, some censored — how do we estimate the parameters of these distributions? We will derive the likelihood function under censoring from first principles, apply maximum likelihood estimation, and assess the quality of our fits using diagnostic tools. Python code throughout using <code>lifelines</code>.</p>
+<section id="maximum-likelihood-estimation" class="level3">
+<h3 class="anchored" data-anchor-id="maximum-likelihood-estimation">Maximum Likelihood Estimation</h3>
+<p>We will review the maximum likelihood estimation (MLE) framework with a simple example. We will then extend this framework to handle censored data, which is what makes survival analysis different from classical statistical inference. We will derive the likelihood function for censored data, and then apply MLE to estimate the parameters of the distributions we have discussed. We will simulate some synthetic data to demonstrate the MLE process in practice. If you are new to MLE and feel lost, you can consult any standard statistics textbook or an online resource for a more detailed introduction. The key idea is that MLE provides a systematic way to estimate the parameters of a statistical model by finding the parameter values that maximize the likelihood of observing the given data.</p>
+<section id="the-likelihood-function" class="level4">
+<h4 class="anchored" data-anchor-id="the-likelihood-function">The Likelihood Function</h4>
+<p>This is the heart of the matter. Likelihoods often are confused with probabilities – they look similar, their forms are similar but they are conceptually different. In probability, we ask: given a model with known parameters, what is the chance of observing the data? In likelihood, we ask: given the observed data, what is the chance that the data came from a model with certain parameters? To give a concrete example, suppose we observe a failure time of 5 hours. Let’s suppose we have a model that says the failure time follows an exponential distribution with a mean of 10 hours. Probability asks: What is the probability of observing a failure between 4 and 6 hours given this model? Likelihood asks: Across all possible values of the mean (or rate) parameter, for which value does the observed time of 5 hours seems most plausible?</p>
+<p>Here is the setup. We have a sequence of observed failure times <img src="https://latex.codecogs.com/png.latex?t_1,%20t_2,%20%5Cldots,%20t_n"> that we assume are independent and identically distributed (i.i.d.) samples from some distribution with a parameter <img src="https://latex.codecogs.com/png.latex?%5Ctheta">. The likelihood function is defined as the joint probability of observing this data given the parameter <img src="https://latex.codecogs.com/png.latex?%5Ctheta">: In the simplest setup, we will assume that all observations are exact failure times (no censoring). In that case, the likelihood function is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?L(%5Ctheta)%20=%20P(t_1,%20t_2,%20%5Cldots,%20t_n%20;%20%5Ctheta)"></p>
+<p>Note that this is a function of <img src="https://latex.codecogs.com/png.latex?%5Ctheta"> - we are treating the data as fixed and asking how likely different values of <img src="https://latex.codecogs.com/png.latex?%5Ctheta"> are to have generated this data. Since most of our work will involve continuous distributions, we will often work with the probability density function (pdf) instead of the probability mass function (pmf). In that case, the likelihood becomes:</p>
+<p><img src="https://latex.codecogs.com/png.latex?L(%5Ctheta)%20=%20f(t_1%20;%20%5Ctheta)%20%5Ccdot%20f(t_2%20;%20%5Ctheta)%20%5Ccdot%20%5Cldots%20%5Ccdot%20f(t_n%20;%20%5Ctheta)%20=%20%5Cprod_%7Bi=1%7D%5En%20f(t_i%20;%20%5Ctheta)"></p>
+<p>Note that some authors use the conditional probability notation <img src="https://latex.codecogs.com/png.latex?P(t_i%20%7C%20%5Ctheta)"> instead of the joint probability notation <img src="https://latex.codecogs.com/png.latex?P(t_1,%20t_2,%20%5Cldots,%20t_n%20;%20%5Ctheta)">, but the meaning is the same. The likelihood function captures how well the model with parameter <img src="https://latex.codecogs.com/png.latex?%5Ctheta"> explains the observed data. The MLE process will involve finding the value of <img src="https://latex.codecogs.com/png.latex?%5Ctheta"> that maximizes this likelihood function. We will use the semicolons in the notation to emphasize that we are treating the data as fixed and the parameter as fixed but unknown constant. If the parameter is itself a random variable with a prior distribution, then we are in the realm of Bayesian inference, which is a different framework. In MLE, we do not assign a prior distribution to the parameter; we simply find the value that maximizes the likelihood of the observed data.</p>
+</section>
+<section id="the-maximum-likelihood-estimation-process" class="level4">
+<h4 class="anchored" data-anchor-id="the-maximum-likelihood-estimation-process">The Maximum Likelihood Estimation Process</h4>
+<p>The MLE process involves finding the value of <img src="https://latex.codecogs.com/png.latex?%5Ctheta"> that maximizes the likelihood function <img src="https://latex.codecogs.com/png.latex?L(%5Ctheta)">. In practice, it is often easier to work with the log-likelihood function, which is the natural logarithm of the likelihood:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cell(%5Ctheta)%20=%20%5Clog%20L(%5Ctheta)%20=%20%5Csum_%7Bi=1%7D%5En%20%5Clog%20f(t_i%20;%20%5Ctheta)"></p>
+<p>The MLE estimate <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctheta%7D"> is the value of <img src="https://latex.codecogs.com/png.latex?%5Ctheta"> that maximizes <img src="https://latex.codecogs.com/png.latex?%5Cell(%5Ctheta)">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Ctheta%7D%20=%20%5Carg%5Cmax_%7B%5Ctheta%7D%20%5Cell(%5Ctheta)"></p>
+<p>If the likelihood function is well-behaved (e.g., it is differentiable), we can find the MLE estimate by taking the derivative of the log-likelihood with respect to <img src="https://latex.codecogs.com/png.latex?%5Ctheta">, setting it equal to zero, and solving for <img src="https://latex.codecogs.com/png.latex?%5Ctheta">. This gives us the critical points of the log-likelihood function, which we can then evaluate to find the maximum. To show that the critical point we find is indeed a maximum, we can check the second derivative or use other methods if necessary. Let’s see how this works in practice with a simple example.</p>
+<p>Suppose we have a dataset of failure times that we believe follows an exponential distribution. The exponential distribution has a single parameter <img src="https://latex.codecogs.com/png.latex?%5Clambda"> (the rate), and its pdf is given by:</p>
+<p><img src="https://latex.codecogs.com/png.latex?f(t%20;%20%5Clambda)%20=%20%5Clambda%20e%5E%7B-%5Clambda%20t%7D"></p>
+<p>Given a dataset of failure times <img src="https://latex.codecogs.com/png.latex?t_1,%20t_2,%20%5Cldots,%20t_n">, the likelihood function for the exponential distribution is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?L(%5Clambda)%20=%20%5Cprod_%7Bi=1%7D%5En%20%5Clambda%20e%5E%7B-%5Clambda%20t_i%7D%20=%20%5Clambda%5En%20e%5E%7B-%5Clambda%20%5Csum_%7Bi=1%7D%5En%20t_i%7D"></p>
+<p>The log-likelihood function is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cell(%5Clambda)%20=%20n%20%5Clog%20%5Clambda%20-%20%5Clambda%20%5Csum_%7Bi=1%7D%5En%20t_i"></p>
+<p>To find the MLE estimate <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Clambda%7D">, we take the derivative of <img src="https://latex.codecogs.com/png.latex?%5Cell(%5Clambda)"> with respect to <img src="https://latex.codecogs.com/png.latex?%5Clambda">, set it equal to zero, and solve for <img src="https://latex.codecogs.com/png.latex?%5Clambda">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cfrac%7Bd%5Cell%7D%7Bd%5Clambda%7D%20=%20%5Cfrac%7Bn%7D%7B%5Clambda%7D%20-%20%5Csum_%7Bi=1%7D%5En%20t_i%20=%200"></p>
+<p>Solving for <img src="https://latex.codecogs.com/png.latex?%5Clambda"> gives us: <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Clambda_%7BMLE%7D%7D%20=%20%5Cfrac%7Bn%7D%7B%5Csum_%7Bi=1%7D%5En%20t_i%7D"></p>
+<p>This is the MLE estimate for the rate parameter of the exponential distribution based on our observed failure times. Notice that this estimate is simply the reciprocal of the sample mean of the failure times, which makes intuitive sense given the properties of the exponential distribution. We can verify that this critical point is indeed a maximum by checking the second derivative of the log-likelihood function evaluated at <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Clambda_%7BMLE%7D%7D">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cfrac%7Bd%5E2%5Cell%7D%7Bd%5Clambda%5E2%7D%20=%20-%5Cfrac%7Bn%7D%7B%5Clambda%5E2%7D"></p>
+<p>which is negative for all <img src="https://latex.codecogs.com/png.latex?%5Clambda%20%3E%200">. Therefore, we have a maximum at <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Clambda_%7BMLE%7D%7D">. In fact, the (only) critical point we find is a global maximum.</p>
+<p>For a vector of parameters <img src="https://latex.codecogs.com/png.latex?%5Cboldsymbol%7B%5Ctheta%7D"> with components <img src="https://latex.codecogs.com/png.latex?%5Ctheta_1,%20%5Ctheta_2,%20%5Cldots,%20%5Ctheta_p">, the MLE process is similar but we take the gradient of the log-likelihood with respect to the vector of parameters and set it equal to the zero vector to find the critical points. We can then use the Hessian matrix to check whether we have a maximum, minimum, or saddle point. For instance, the Weibull distribution has two parameters, the shape <img src="https://latex.codecogs.com/png.latex?%5Cgamma"> and the scale <img src="https://latex.codecogs.com/png.latex?%5Ctheta">. The MLE process would involve taking the gradient of the log-likelihood with respect to both <img src="https://latex.codecogs.com/png.latex?%5Cgamma"> and <img src="https://latex.codecogs.com/png.latex?%5Ctheta">, setting it equal to zero, and solving for both parameters simultaneously. For the Weibull distribution, the MLE equations do not have a closed-form solution, so we would need to use numerical optimization methods to find the MLE estimates. This is what libraries like <code>lifelines</code> do under the hood when we call their fitting functions. We will see how to use these libraries in practice later in this part.</p>
+
+
+</section>
+</section>
+</section>
+
+ ]]></description>
+  <category>survival analysis</category>
+  <category>statistics</category>
+  <category>python</category>
+  <category>MLE</category>
+  <guid>https://madhavpr191221.github.io/blog/posts/part-3-fitting-survival-distributions/</guid>
+  <pubDate>Sat, 18 Apr 2026 18:30:00 GMT</pubDate>
+</item>
 <item>
   <title>Part 2: Distributions in Survival Analysis</title>
   <dc:creator>Madhav Prashanth Ramachandran</dc:creator>

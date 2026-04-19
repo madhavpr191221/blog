@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/part-3-fitting-survival-distributions/index.html",
       "/posts/part2-distributions-in-survival-analysis/index.html",
       "/posts/part-1-why-survival-analysis-exists/index.html"
     ]

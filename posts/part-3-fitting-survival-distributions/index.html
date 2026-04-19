@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Madhav Prashanth Ramachandran">
+<meta name="dcterms.date" content="2026-04-19">
 
-<title>Articles – Madhav’s Blog</title>
+<title>Part 3: Fitting Survival Distributions to Data – Madhav’s Blog</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -26,25 +28,23 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-a0f9fd0d421825b736dc1bbcbcba2219.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-a0f9fd0d421825b736dc1bbcbcba2219.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -72,35 +72,6 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
-
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -132,17 +103,17 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="styles.css">
-<link rel="alternate" type="application/rss+xml" title="Madhav's Blog" href="index.xml" data-external="1"></head>
+<link rel="stylesheet" href="../../styles.css">
+</head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed fullcontent quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top quarto-banner">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Madhav’s Blog</span>
     </a>
   </div>
@@ -153,7 +124,7 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
+    <a class="nav-link" href="../../about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
@@ -176,144 +147,92 @@ window.Quarto = {
 <!-- content -->
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
-    <div class="quarto-title column-page-left">
-      <h1 class="title">Articles</h1>
-                      </div>
+    <div class="quarto-title column-body">
+      <h1 class="title">Part 3: Fitting Survival Distributions to Data</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">survival analysis</div>
+                <div class="quarto-category">statistics</div>
+                <div class="quarto-category">python</div>
+                <div class="quarto-category">MLE</div>
+              </div>
+                  </div>
   </div>
     
   
-  <div class="quarto-title-meta column-page-left">
+  <div class="quarto-title-meta">
 
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Madhav Prashanth Ramachandran </p>
+            </div>
+    </div>
       
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">April 19, 2026</p>
+      </div>
+    </div>
     
       
     </div>
     
   
-  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(3)</span></div><div class="category" data-category="TUxF">MLE <span class="quarto-category-count">(1)</span></div><div class="category" data-category="cHl0aG9u">python <span class="quarto-category-count">(2)</span></div><div class="category" data-category="c3RhdGlzdGljcw==">statistics <span class="quarto-category-count">(3)</span></div><div class="category" data-category="c3Vydml2YWwlMjBhbmFseXNpcw==">survival analysis <span class="quarto-category-count">(3)</span></div></div></div>
+    
 <!-- main -->
-<main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
+<main class="content quarto-banner-title-block" id="quarto-document-content">
 
 
 
 
 
+<section id="recap-of-part-2-and-whats-coming-in-part-3" class="level2">
+<h2 class="anchored" data-anchor-id="recap-of-part-2-and-whats-coming-in-part-3">Recap of Part 2 and What’s Coming in Part 3</h2>
+<p>In <strong>Part 2</strong>, we built a vocabulary of survival distributions — the Exponential for constant hazard, the Rayleigh for linearly increasing hazard, and the Weibull as the unifying family that contains both as special cases. Along the way we took a detour through the connection between the Rayleigh, Normal, and Exponential distributions, and ended with the bathtub curve — the most common failure pattern in real engineered systems.</p>
+<p>But a distribution is not a model until it is fit to data. In <strong>Part 3</strong>, we ask: given a dataset of failure times — some exact, some censored — how do we estimate the parameters of these distributions? We will derive the likelihood function under censoring from first principles, apply maximum likelihood estimation, and assess the quality of our fits using diagnostic tools. Python code throughout using <code>lifelines</code>.</p>
+<section id="maximum-likelihood-estimation" class="level3">
+<h3 class="anchored" data-anchor-id="maximum-likelihood-estimation">Maximum Likelihood Estimation</h3>
+<p>We will review the maximum likelihood estimation (MLE) framework with a simple example. We will then extend this framework to handle censored data, which is what makes survival analysis different from classical statistical inference. We will derive the likelihood function for censored data, and then apply MLE to estimate the parameters of the distributions we have discussed. We will simulate some synthetic data to demonstrate the MLE process in practice. If you are new to MLE and feel lost, you can consult any standard statistics textbook or an online resource for a more detailed introduction. The key idea is that MLE provides a systematic way to estimate the parameters of a statistical model by finding the parameter values that maximize the likelihood of observing the given data.</p>
+<section id="the-likelihood-function" class="level4">
+<h4 class="anchored" data-anchor-id="the-likelihood-function">The Likelihood Function</h4>
+<p>This is the heart of the matter. Likelihoods often are confused with probabilities – they look similar, their forms are similar but they are conceptually different. In probability, we ask: given a model with known parameters, what is the chance of observing the data? In likelihood, we ask: given the observed data, what is the chance that the data came from a model with certain parameters? To give a concrete example, suppose we observe a failure time of 5 hours. Let’s suppose we have a model that says the failure time follows an exponential distribution with a mean of 10 hours. Probability asks: What is the probability of observing a failure between 4 and 6 hours given this model? Likelihood asks: Across all possible values of the mean (or rate) parameter, for which value does the observed time of 5 hours seems most plausible?</p>
+<p>Here is the setup. We have a sequence of observed failure times <span class="math inline">\(t_1, t_2, \ldots, t_n\)</span> that we assume are independent and identically distributed (i.i.d.) samples from some distribution with a parameter <span class="math inline">\(\theta\)</span>. The likelihood function is defined as the joint probability of observing this data given the parameter <span class="math inline">\(\theta\)</span>: In the simplest setup, we will assume that all observations are exact failure times (no censoring). In that case, the likelihood function is:</p>
+<p><span class="math display">\[L(\theta) = P(t_1, t_2, \ldots, t_n ; \theta)\]</span></p>
+<p>Note that this is a function of <span class="math inline">\(\theta\)</span> - we are treating the data as fixed and asking how likely different values of <span class="math inline">\(\theta\)</span> are to have generated this data. Since most of our work will involve continuous distributions, we will often work with the probability density function (pdf) instead of the probability mass function (pmf). In that case, the likelihood becomes:</p>
+<p><span class="math display">\[L(\theta) = f(t_1 ; \theta) \cdot f(t_2 ; \theta) \cdot \ldots \cdot f(t_n ; \theta) = \prod_{i=1}^n f(t_i ; \theta)\]</span></p>
+<p>Note that some authors use the conditional probability notation <span class="math inline">\(P(t_i | \theta)\)</span> instead of the joint probability notation <span class="math inline">\(P(t_1, t_2, \ldots, t_n ; \theta)\)</span>, but the meaning is the same. The likelihood function captures how well the model with parameter <span class="math inline">\(\theta\)</span> explains the observed data. The MLE process will involve finding the value of <span class="math inline">\(\theta\)</span> that maximizes this likelihood function. We will use the semicolons in the notation to emphasize that we are treating the data as fixed and the parameter as fixed but unknown constant. If the parameter is itself a random variable with a prior distribution, then we are in the realm of Bayesian inference, which is a different framework. In MLE, we do not assign a prior distribution to the parameter; we simply find the value that maximizes the likelihood of the observed data.</p>
+</section>
+<section id="the-maximum-likelihood-estimation-process" class="level4">
+<h4 class="anchored" data-anchor-id="the-maximum-likelihood-estimation-process">The Maximum Likelihood Estimation Process</h4>
+<p>The MLE process involves finding the value of <span class="math inline">\(\theta\)</span> that maximizes the likelihood function <span class="math inline">\(L(\theta)\)</span>. In practice, it is often easier to work with the log-likelihood function, which is the natural logarithm of the likelihood:</p>
+<p><span class="math display">\[\ell(\theta) = \log L(\theta) = \sum_{i=1}^n \log f(t_i ; \theta)\]</span></p>
+<p>The MLE estimate <span class="math inline">\(\hat{\theta}\)</span> is the value of <span class="math inline">\(\theta\)</span> that maximizes <span class="math inline">\(\ell(\theta)\)</span>:</p>
+<p><span class="math display">\[\hat{\theta} = \arg\max_{\theta} \ell(\theta)\]</span></p>
+<p>If the likelihood function is well-behaved (e.g., it is differentiable), we can find the MLE estimate by taking the derivative of the log-likelihood with respect to <span class="math inline">\(\theta\)</span>, setting it equal to zero, and solving for <span class="math inline">\(\theta\)</span>. This gives us the critical points of the log-likelihood function, which we can then evaluate to find the maximum. To show that the critical point we find is indeed a maximum, we can check the second derivative or use other methods if necessary. Let’s see how this works in practice with a simple example.</p>
+<p>Suppose we have a dataset of failure times that we believe follows an exponential distribution. The exponential distribution has a single parameter <span class="math inline">\(\lambda\)</span> (the rate), and its pdf is given by:</p>
+<p><span class="math display">\[f(t ; \lambda) = \lambda e^{-\lambda t}\]</span></p>
+<p>Given a dataset of failure times <span class="math inline">\(t_1, t_2, \ldots, t_n\)</span>, the likelihood function for the exponential distribution is:</p>
+<p><span class="math display">\[L(\lambda) = \prod_{i=1}^n \lambda e^{-\lambda t_i} = \lambda^n e^{-\lambda \sum_{i=1}^n t_i}\]</span></p>
+<p>The log-likelihood function is:</p>
+<p><span class="math display">\[\ell(\lambda) = n \log \lambda - \lambda \sum_{i=1}^n t_i\]</span></p>
+<p>To find the MLE estimate <span class="math inline">\(\hat{\lambda}\)</span>, we take the derivative of <span class="math inline">\(\ell(\lambda)\)</span> with respect to <span class="math inline">\(\lambda\)</span>, set it equal to zero, and solve for <span class="math inline">\(\lambda\)</span>:</p>
+<p><span class="math display">\[\frac{d\ell}{d\lambda} = \frac{n}{\lambda} - \sum_{i=1}^n t_i = 0\]</span></p>
+<p>Solving for <span class="math inline">\(\lambda\)</span> gives us: <span class="math display">\[\hat{\lambda_{MLE}} = \frac{n}{\sum_{i=1}^n t_i}\]</span></p>
+<p>This is the MLE estimate for the rate parameter of the exponential distribution based on our observed failure times. Notice that this estimate is simply the reciprocal of the sample mean of the failure times, which makes intuitive sense given the properties of the exponential distribution. We can verify that this critical point is indeed a maximum by checking the second derivative of the log-likelihood function evaluated at <span class="math inline">\(\hat{\lambda_{MLE}}\)</span>:</p>
+<p><span class="math display">\[\frac{d^2\ell}{d\lambda^2} = -\frac{n}{\lambda^2}\]</span></p>
+<p>which is negative for all <span class="math inline">\(\lambda &gt; 0\)</span>. Therefore, we have a maximum at <span class="math inline">\(\hat{\lambda_{MLE}}\)</span>. In fact, the (only) critical point we find is a global maximum.</p>
+<p>For a vector of parameters <span class="math inline">\(\boldsymbol{\theta}\)</span> with components <span class="math inline">\(\theta_1, \theta_2, \ldots, \theta_p\)</span>, the MLE process is similar but we take the gradient of the log-likelihood with respect to the vector of parameters and set it equal to the zero vector to find the critical points. We can then use the Hessian matrix to check whether we have a maximum, minimum, or saddle point. For instance, the Weibull distribution has two parameters, the shape <span class="math inline">\(\gamma\)</span> and the scale <span class="math inline">\(\theta\)</span>. The MLE process would involve taking the gradient of the log-likelihood with respect to both <span class="math inline">\(\gamma\)</span> and <span class="math inline">\(\theta\)</span>, setting it equal to zero, and solving for both parameters simultaneously. For the Weibull distribution, the MLE equations do not have a closed-form solution, so we would need to use numerical optimization methods to find the MLE estimates. This is what libraries like <code>lifelines</code> do under the hood when we call their fitting functions. We will see how to use these libraries in practice later in this part.</p>
 
 
+</section>
+</section>
+</section>
 
-
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="c3Vydml2YWwlMjBhbmFseXNpcyUyQ3N0YXRpc3RpY3MlMkNweXRob24lMkNNTEU=" data-listing-date-sort="1776537000000" data-listing-file-modified-sort="1776598580858" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7" data-listing-word-count-sort="1239">
-<div class="thumbnail"><a href="./posts/part-3-fitting-survival-distributions/index.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/part-3-fitting-survival-distributions/index.html" class="no-external">Part 3: Fitting Survival Distributions to Data</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('c3Vydml2YWwlMjBhbmFseXNpcw=='); return false;">survival analysis</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('c3RhdGlzdGljcw=='); return false;">statistics</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('cHl0aG9u'); return false;">python</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('TUxF'); return false;">MLE</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/part-3-fitting-survival-distributions/index.html" class="no-external">
-In <strong>Part 2</strong>, we built a vocabulary of survival distributions — the Exponential for constant hazard, the Rayleigh for linearly increasing hazard, and the Weibull as the…
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/part-3-fitting-survival-distributions/index.html" class="no-external">
-<div class="listing-date">
-Apr 19, 2026
-</div>
-<div class="listing-author">
-Madhav Prashanth Ramachandran
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="c3Vydml2YWwlMjBhbmFseXNpcyUyQ3N0YXRpc3RpY3MlMkNweXRob24=" data-listing-date-sort="1776450600000" data-listing-file-modified-sort="1776596117441" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="22" data-listing-word-count-sort="4328">
-<div class="thumbnail"><a href="./posts/part2-distributions-in-survival-analysis/index.html" class="no-external">
-
-<p class="card-img-top"><img loading='lazy' src="posts\part2-distributions-in-survival-analysis\index_files\figure-html\fig-exponential-output-1.png"  class="thumbnail-image card-img"/></p>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/part2-distributions-in-survival-analysis/index.html" class="no-external">Part 2: Distributions in Survival Analysis</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('c3Vydml2YWwlMjBhbmFseXNpcw=='); return false;">survival analysis</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('c3RhdGlzdGljcw=='); return false;">statistics</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('cHl0aG9u'); return false;">python</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/part2-distributions-in-survival-analysis/index.html" class="no-external">
-In the first part of this series, we established why survival analysis exists as a separate field- regression breaks, censoring is real and the functions we care about for…<span class="math inline"></span>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/part2-distributions-in-survival-analysis/index.html" class="no-external">
-<div class="listing-date">
-Apr 18, 2026
-</div>
-<div class="listing-author">
-Madhav Prashanth Ramachandran
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-categories="c3Vydml2YWwlMjBhbmFseXNpcyUyQ3N0YXRpc3RpY3M=" data-listing-date-sort="1775241000000" data-listing-file-modified-sort="1776475960519" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="14" data-listing-word-count-sort="2693">
-<div class="thumbnail"><a href="./posts/part-1-why-survival-analysis-exists/index.html" class="no-external">
-
-<img loading="lazy" src="./posts/part-1-why-survival-analysis-exists/cover.png" class="thumbnail-image">
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/part-1-why-survival-analysis-exists/index.html" class="no-external">Part 1: Introduction to Survival Analysis</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('c3Vydml2YWwlMjBhbmFseXNpcw=='); return false;">survival analysis</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('c3RhdGlzdGljcw=='); return false;">statistics</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/part-1-why-survival-analysis-exists/index.html" class="no-external">
-<strong>A note on platform and process.</strong> Part 0 of this series was published on Medium. Starting from Part 1, I have moved to Quarto on GitHub Pages for one reason: proper LaTeX…
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/part-1-why-survival-analysis-exists/index.html" class="no-external">
-<div class="listing-date">
-Apr 4, 2026
-</div>
-<div class="listing-author">
-Madhav Prashanth Ramachandran
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">No matching items</div>
-</div></main> <!-- /main -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
