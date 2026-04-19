@@ -223,9 +223,32 @@ Figure&nbsp;1: Exponential survival functions for different rate parameters
 <p>What does this mean? It means that the probability of surviving for an additional time <span class="math inline">\(t\)</span> does not depend on how long the system has already survived. In other words, the system has no memory of its past survival time. This is a unique property of the exponential distribution and is not shared by any other continuous distribution. In fact, the only memoryless continuous distribution is exponential.</p>
 <p>Let’s look at a simple example to illustrate this. Suppose we have a light bulb that has an Exponential lifetime with a rate of <span class="math inline">\(\lambda = 0.1\)</span> failures per hour. The mean lifetime of the light bulb is <span class="math inline">\(1/\lambda = 10\)</span> hours. If the light bulb has already been on for 5 hours, what is the probability that it will last for another 5 hours? Using the memoryless property, we can compute this as:</p>
 <p><span class="math display">\[P(T &gt; 10 | T &gt; 5) = P(T &gt; 5) = e^{-0.1 \cdot 5} = e^{-0.5} \approx 0.6065\]</span></p>
-<p>This means that even though the light bulb has already lasted for 5 hours, it still has a 60.65% chance of lasting for another 5 hours. Taking this further, if the light bulb has already lasted for 1000 hours, the probability that it will last for another 5 hours is still 60.65%. This is a direct consequence of the memoryless property of the exponential distribution.</p>
+<p>This means that even though the light bulb has already lasted for 5 hours, it still has a 60.65% chance of lasting for another 5 hours. Taking this to the extreme, if the light bulb has already lasted for 1000 hours, the probability that it will last for another 5 hours is still 60.65%. This is a direct consequence of the memoryless property of the exponential distribution.</p>
 <p>This is clearly unrealistic for most real-world systems. For example, if a machine has been running for 10 years, it is likely to be more prone to failure than a brand new machine. But it makes the exponential distribution a useful starting point for understanding survival analysis and serves as a building block for more complex distributions. When your data looks like it has a constant hazard, the exponential distribution is a good first choice for modeling it.</p>
 <p>Next, we will look at what happens when the hazard function is not constant, but instead increases linearly with time. This leads us to the Rayleigh distribution, which has some surprising properties.</p>
+</section>
+<section id="linearly-increasing-hazard-the-rayleigh-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="linearly-increasing-hazard-the-rayleigh-distribution">Linearly Increasing Hazard: The Rayleigh Distribution</h3>
+<p>Suppose for a fixed constant <span class="math inline">\(\lambda &gt; 0\)</span>, the hazard function increases linearly with time as <span class="math inline">\(\lambda(t) = \lambda t\)</span>. This means that the probability of failure in a small time interval <span class="math inline">\(\Delta t\)</span> increases with time. This is a more realistic assumption for many real-world systems, as they tend to wear out over time. Let’s derive the corresponding distribution (if it exists) and explore its properties. The cumulative hazard function is given by <span class="math inline">\(\Lambda(t) = \int_0^t \lambda(s)\, ds =
+\int_0^t \lambda s\, ds = \frac{\lambda t^2}{2}\)</span>. Using the relationship between the survival function and the cumulative hazard function, we have <span class="math inline">\(S(t) = e^{-\Lambda(t)} =
+e^{-\frac{\lambda t^2}{2}}\)</span>. The CDF is then <span class="math inline">\(F(t) = 1 - S(t) = 1 - e^{-\frac{\lambda t^2}{2}}\)</span>. The PDF is the derivative of the CDF, which gives us <span class="math inline">\(f(t) = \lambda t e^{-\frac{\lambda t^2}{2}}\)</span>. This distribution is known as the Rayleigh distribution, and we write <span class="math inline">\(T \sim \text{Rayleigh}\left(\frac{1}{\sqrt{\lambda}}\right)\)</span>. The mean and variance are:</p>
+<p><span class="math display">\[E[T] = \sqrt{\frac{\pi}{2\lambda}}, \qquad \text{Var}[T] = \frac{2}{\lambda}\left(1 - \frac{\pi}{4}\right)\]</span></p>
+<p>The mode of the Rayleigh distribution is at <span class="math inline">\(t = \sqrt{\frac{1}{\lambda}}\)</span>, which is the time at which the PDF is maximized. The median can be computed by solving <span class="math inline">\(F(t) = 0.5\)</span>, which gives us <span class="math inline">\(t_{1/2} = \sqrt{\frac{2\ln(2)}{\lambda}}\)</span>.</p>
+<p>As we will see shortly, the Rayleigh distribution is a special case of the Weibull distribution — nature’s way of telling us that linearly increasing hazard and Weibull are secretly the same thing. But before we get there, let’s look at how the Rayleigh distribution looks like for different values of <span class="math inline">\(\lambda\)</span>.</p>
+<div id="cell-fig-rayleigh" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<div id="fig-rayleigh" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rayleigh-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-rayleigh-output-1.png" width="1718" height="469" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rayleigh-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Rayleigh distribution: survival function, density, and hazard for different rate parameters λ
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 
 
 </section>
