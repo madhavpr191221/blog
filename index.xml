@@ -244,6 +244,9 @@ Figure&nbsp;1
 </figure>
 </div>
 </div>
+<p><code>lifelines</code> uses <code>lambda_</code> for the scale parameter <img src="https://latex.codecogs.com/png.latex?%5Ctheta"> and <code>rho_</code> for the shape parameter <img src="https://latex.codecogs.com/png.latex?%5Cgamma"> — different notation, same parameters. With <img src="https://latex.codecogs.com/png.latex?n%20=%20200"> observations, the estimated parameters are already close to the true values:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Cgamma%7D%20=%201.99%20%5Capprox%202.0%20=%20%5Cgamma_%7B%5Ctext%7Btrue%7D%7D,%20%5Cqquad%20%5Chat%7B%5Ctheta%7D%20=%2097.18%20%5Capprox%20100.0%20=%20%5Ctheta_%7B%5Ctext%7Btrue%7D%7D"></p>
+<p>MLE recovers the true parameters with high accuracy even at modest sample sizes.</p>
 <div id="cell-fig-weibull-fit" class="cell" data-execution_count="2">
 <div class="cell-output cell-output-display">
 <div id="fig-weibull-fit" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -258,6 +261,8 @@ Figure&nbsp;2: Fitted Weibull survival curve vs empirical survival curve
 </div>
 </div>
 </div>
+<p>The fitted Weibull survival curve (gold) closely tracks the empirical survival function (blue) across the entire time range. The empirical survival function is simply the fraction of systems still surviving at each time point — no distributional assumptions, just the raw data speaking for itself. The fact that the fitted curve hugs it so tightly tells us two things: MLE found good parameter estimates, and the Weibull is a reasonable model for this data. We will make this “goodness of fit” assessment more rigorous later using diagnostic tools.</p>
+<p>But there is a catch — this was the easy case. All 200 observations were exact failure times. In practice, not all machines will have failed by the end of the study — some will still be running when the study ends. How do we modify the likelihood function to account for censoring? This is the key question that makes survival analysis different from classical statistical inference. We derive it from first principles next.</p>
 
 
 </section>
