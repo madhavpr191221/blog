@@ -312,9 +312,33 @@ Figure&nbsp;3: Weibull distribution: effect of shape parameter γ on survival fu
 </div>
 </div>
 </div>
-
-
 </section>
+</section>
+<section id="the-bathtub-curve-a-common-failure-pattern-in-real-life" class="level3">
+<h3 class="anchored" data-anchor-id="the-bathtub-curve-a-common-failure-pattern-in-real-life">The Bathtub Curve: A Common Failure Pattern in Real Life</h3>
+<p>Unfortunately, real-world failures are often more complex than what can be captured by (a single) parametric distribution like the Weibull. One common pattern observed in many systems is the <strong>bathtub curve</strong>, which describes a failure rate that has three distinct phases:</p>
+<ol type="1">
+<li><p><strong>Phase 1: Infant Mortality (Decreasing Hazard, <span class="math inline">\(\gamma &lt; 1\)</span>).</strong>: In the early life of a system, there is a high failure rate due to manufacturing defects, installation errors or weak components. Systems that survive this phase are typically more robust and have a lower failure rate.</p></li>
+<li><p><strong>Phase 2: Useful Life (Constant Hazard, <span class="math inline">\(\gamma \approx 1\)</span>).</strong>: After the initial phase, the failure rate stabilizes and remains relatively constant. This is the “useful life” phase where failures are mostly random and not due to wear-out. This is the exponential regime- memorylessness is a good approximation here.</p></li>
+<li><p><strong>Phase 3: Wear-Out (Increasing Hazard, <span class="math inline">\(\gamma &gt; 1\)</span>).</strong>: As the system ages, components wear out and the failure rate increases. This is the wear-out phase where failures are more likely to occur as time goes on. The older the system, the more dangerous the next instant.</p></li>
+</ol>
+<p>Here is a schematic of the bathtub curve:</p>
+<div id="cell-fig-bathtub" class="cell" data-execution_count="4">
+<div class="cell-output cell-output-display">
+<div id="fig-bathtub" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bathtub-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-bathtub-output-1.png" width="852" height="374" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bathtub-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: The bathtub curve: three phases of failure
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+
+
 </section>
 </section>
 
