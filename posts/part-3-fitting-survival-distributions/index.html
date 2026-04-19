@@ -25,10 +25,45 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -72,6 +107,12 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -231,7 +272,134 @@ window.Quarto = {
 <p><span class="math display">\[L(\gamma, \theta) = \prod_{i=1}^n \frac{\gamma}{\theta} \left( \frac{t_i}{\theta} \right)^{\gamma - 1} e^{-(t_i/\theta)^\gamma}\]</span></p>
 <p>The log-likelihood function is:</p>
 <p><span class="math display">\[\ell(\gamma, \theta) = n\log\gamma - n\gamma\log\theta + (\gamma - 1)\sum_{i=1}^n \log t_i - \sum_{i=1}^n \left(\frac{t_i}{\theta}\right)^\gamma\]</span></p>
-<p>To find the MLE estimates <span class="math inline">\(\hat{\gamma}\)</span> and <span class="math inline">\(\hat{\theta}\)</span>, we take the gradient of <span class="math inline">\(\ell(\gamma, \theta)\)</span> with respect to both parameters, set it equal to zero, and solve for <span class="math inline">\(\gamma\)</span> and <span class="math inline">\(\theta\)</span>. This will give us a system of equations that we can solve numerically to find the MLE estimates. The resulting equations are nonlinear and do not have a closed-form solution, which is why we need numerical optimization methods to find the MLE estimates for the Weibull distribution. We will see how to do this in practice using <code>lifelines</code> later in this part.</p>
+<p>To find the MLE estimates <span class="math inline">\(\hat{\gamma}\)</span> and <span class="math inline">\(\hat{\theta}\)</span>, we take the gradient of <span class="math inline">\(\ell(\gamma, \theta)\)</span> with respect to both parameters, set it equal to zero, and solve for <span class="math inline">\(\gamma\)</span> and <span class="math inline">\(\theta\)</span>. This will give us a system of equations that we can solve numerically to find the MLE estimates. The resulting equations are nonlinear and do not have a closed-form solution, which is why we need numerical optimization methods to find the MLE estimates for the Weibull distribution. We will see how to do this in practice using <code>lifelines</code> in the simulation below.</p>
+<div id="cell-fig-weibull-mle" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> lifelines <span class="im">import</span> WeibullFitter</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate synthetic Weibull data</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>true_gamma <span class="op">=</span> <span class="fl">2.0</span>   <span class="co"># shape</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>true_theta <span class="op">=</span> <span class="fl">100.0</span>  <span class="co"># scale</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">200</span>  <span class="co"># number of samples</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Weibull random samples using inverse CDF</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>u <span class="op">=</span> np.random.uniform(<span class="dv">0</span>, <span class="dv">1</span>, n)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> true_theta <span class="op">*</span> (<span class="op">-</span>np.log(<span class="dv">1</span> <span class="op">-</span> u))<span class="op">**</span>(<span class="dv">1</span><span class="op">/</span>true_gamma)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># All observed (no censoring yet)</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>event_observed <span class="op">=</span> np.ones(n)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>wf <span class="op">=</span> WeibullFitter()</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>wf.fit(t, event_observed<span class="op">=</span>event_observed)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>wf.print_summary()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="fig-weibull-mle" class="cell-output cell-output-display quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-weibull-mle-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">model</th>
+<td>lifelines.WeibullFitter</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">number of observations</th>
+<td>200</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">number of events observed</th>
+<td>200</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">log-likelihood</th>
+<td>-1035.10</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">hypothesis</th>
+<td>lambda_ != 1, rho_ != 1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th" style="min-width: 12px"></th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">coef</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">se(coef)</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">coef lower 95%</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">coef upper 95%</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">cmp to</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">z</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">p</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">-log2(p)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">lambda_</th>
+<td>97.18</td>
+<td>3.63</td>
+<td>90.06</td>
+<td>104.29</td>
+<td>1.00</td>
+<td>26.50</td>
+<td>&lt;0.005</td>
+<td>511.45</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">rho_</th>
+<td>1.99</td>
+<td>0.11</td>
+<td>1.78</td>
+<td>2.21</td>
+<td>1.00</td>
+<td>8.93</td>
+<td>&lt;0.005</td>
+<td>60.96</td>
+</tr>
+</tbody>
+</table>
+<br><div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">AIC</th>
+<td>2074.19</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-weibull-mle-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1
+</figcaption>
+</figure>
+</div>
+</div>
+<div id="cell-fig-weibull-fit" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<div id="fig-weibull-fit" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-weibull-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-weibull-fit-output-1.png" width="853" height="470" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-weibull-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Fitted Weibull survival curve vs empirical survival curve
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 
 
 </section>
