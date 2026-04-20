@@ -1013,9 +1013,6 @@ font-style: inherit;">'event_observed'</span>])</span>
 <h3 class="anchored" data-anchor-id="diagnostic-tool-q-q-plot">Diagnostic Tool: Q-Q Plot</h3>
 <p>The Q-Q plot is a graphical method to display whether a dataset follows a particular distribution or whether two datasets come from the same population. For our purposes, we are testing if the dataset comes from a particular Weibull or not. Note that the game is rigged- we simulated data to follow a particular Weibull, so we already know the answer. But the Q-Q plot is a diagnostic tool we will use repeatedly on real data where we do not know the answer.</p>
 <p>The basic idea of the Q-Q plot is to compare theoretical quantiles vs empirical quantiles. If the data fits a particular Weibull, these quantiles should match and the points should fall on a straight line. Here is how we’ll build the Q-Q plot for the Weibull step by step.</p>
-<section id="step-1-theoretical-quantile" class="level4">
-<h4 class="anchored" data-anchor-id="step-1-theoretical-quantile">Step 1: Theoretical Quantile</h4>
-</section>
 <section id="step-1-theoretical-quantiles" class="level4">
 <h4 class="anchored" data-anchor-id="step-1-theoretical-quantiles">Step 1: Theoretical Quantiles</h4>
 <p>Recall that the <img src="https://latex.codecogs.com/png.latex?p">-th quantile of a probability distribution is the value <img src="https://latex.codecogs.com/png.latex?t_p"> such that <img src="https://latex.codecogs.com/png.latex?P(T%20%5Cleq%20t_p)%20=%20p"> where <img src="https://latex.codecogs.com/png.latex?p%20%5Cin%20%5B0,%201%5D">. For instance, the 0.5 quantile (also called the 50th percentile) is the median. Let’s derive the theoretical quantiles of the Weibull distribution.</p>
@@ -1032,6 +1029,16 @@ font-style: inherit;">'event_observed'</span>])</span>
 <p>Here is a special value: <img src="https://latex.codecogs.com/png.latex?p%20=%201%20-%20%5Cfrac%7B1%7D%7Be%7D">. Substituting into the quantile function:</p>
 <p><img src="https://latex.codecogs.com/png.latex?t_p%20=%20%5Ctheta%20%5Cleft%5B%5Cln%5Cleft(%5Cfrac%7B1%7D%7B1-(1-%5Cfrac%7B1%7D%7Be%7D)%7D%5Cright)%5Cright%5D%5E%7B1/%5Cgamma%7D%20=%20%5Ctheta%20%5Cleft%5B%5Cln%5Cleft(%5Cfrac%7B1%7D%7B%5Cfrac%7B1%7D%7Be%7D%7D%5Cright)%5Cright%5D%5E%7B1/%5Cgamma%7D%20=%20%5Ctheta%20%5Cleft%5B%5Cln(e)%5Cright%5D%5E%7B1/%5Cgamma%7D%20=%20%5Ctheta%20%5Ccdot%201%5E%7B1/%5Cgamma%7D%20=%20%5Ctheta"></p>
 <p>So <img src="https://latex.codecogs.com/png.latex?t_%7B1-1/e%7D%20=%20%5Ctheta"> — the scale parameter <img src="https://latex.codecogs.com/png.latex?%5Ctheta"> is exactly the <img src="https://latex.codecogs.com/png.latex?(1%20-%201/e)%20%5Capprox%2063.2">th percentile of the Weibull distribution, regardless of the shape parameter <img src="https://latex.codecogs.com/png.latex?%5Cgamma">. This confirms what we noted earlier: by time <img src="https://latex.codecogs.com/png.latex?%5Ctheta">, approximately 63.2% of systems will have failed.</p>
+</section>
+<section id="step-2-empirical-quantiles" class="level4">
+<h4 class="anchored" data-anchor-id="step-2-empirical-quantiles">Step 2: Empirical Quantiles</h4>
+<p>The empirical quantiles are the ones you get directly from your dataset.</p>
+<p><strong>Step 2a: Sort your data.</strong> Arrange the observed failure times in ascending order:</p>
+<p><img src="https://latex.codecogs.com/png.latex?t_%7B(1)%7D%20%5Cleq%20t_%7B(2)%7D%20%5Cleq%20%5Ccdots%20%5Cleq%20t_%7B(n)%7D"></p>
+<p>The notation <img src="https://latex.codecogs.com/png.latex?t_%7B(i)%7D"> denotes the <img src="https://latex.codecogs.com/png.latex?i">-th order statistic — <img src="https://latex.codecogs.com/png.latex?t_%7B(1)%7D"> is the smallest observed failure time, <img src="https://latex.codecogs.com/png.latex?t_%7B(2)%7D"> is the next smallest, and <img src="https://latex.codecogs.com/png.latex?t_%7B(n)%7D"> is the largest.</p>
+<p><strong>Step 2b: Assign plotting positions.</strong> The <img src="https://latex.codecogs.com/png.latex?i">-th order statistic <img src="https://latex.codecogs.com/png.latex?t_%7B(i)%7D"> corresponds to an approximate quantile level:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Chat%7Bp%7D_i%20=%20%5Cfrac%7Bi%20-%200.3%7D%7Bn%20+%200.4%7D"></p>
+<p>This is known as the <strong>median rank formula</strong> (or Blom plotting position). It estimates the probability level associated with the <img src="https://latex.codecogs.com/png.latex?i">-th smallest observation. The corrections <img src="https://latex.codecogs.com/png.latex?-0.3"> and <img src="https://latex.codecogs.com/png.latex?+0.4"> reduce bias compared to the naive estimate <img src="https://latex.codecogs.com/png.latex?%5Chat%7Bp%7D_i%20=%20i/n">, particularly in the tails of the distribution.</p>
 
 
 </section>

@@ -677,9 +677,6 @@ Dataset saved to ../../data/machine_fleet.csv</code></pre>
 <h3 class="anchored" data-anchor-id="diagnostic-tool-q-q-plot">Diagnostic Tool: Q-Q Plot</h3>
 <p>The Q-Q plot is a graphical method to display whether a dataset follows a particular distribution or whether two datasets come from the same population. For our purposes, we are testing if the dataset comes from a particular Weibull or not. Note that the game is rigged- we simulated data to follow a particular Weibull, so we already know the answer. But the Q-Q plot is a diagnostic tool we will use repeatedly on real data where we do not know the answer.</p>
 <p>The basic idea of the Q-Q plot is to compare theoretical quantiles vs empirical quantiles. If the data fits a particular Weibull, these quantiles should match and the points should fall on a straight line. Here is how we’ll build the Q-Q plot for the Weibull step by step.</p>
-<section id="step-1-theoretical-quantile" class="level4">
-<h4 class="anchored" data-anchor-id="step-1-theoretical-quantile">Step 1: Theoretical Quantile</h4>
-</section>
 <section id="step-1-theoretical-quantiles" class="level4">
 <h4 class="anchored" data-anchor-id="step-1-theoretical-quantiles">Step 1: Theoretical Quantiles</h4>
 <p>Recall that the <span class="math inline">\(p\)</span>-th quantile of a probability distribution is the value <span class="math inline">\(t_p\)</span> such that <span class="math inline">\(P(T \leq t_p) = p\)</span> where <span class="math inline">\(p \in [0, 1]\)</span>. For instance, the 0.5 quantile (also called the 50th percentile) is the median. Let’s derive the theoretical quantiles of the Weibull distribution.</p>
@@ -696,6 +693,16 @@ Dataset saved to ../../data/machine_fleet.csv</code></pre>
 <p>Here is a special value: <span class="math inline">\(p = 1 - \frac{1}{e}\)</span>. Substituting into the quantile function:</p>
 <p><span class="math display">\[t_p = \theta \left[\ln\left(\frac{1}{1-(1-\frac{1}{e})}\right)\right]^{1/\gamma} = \theta \left[\ln\left(\frac{1}{\frac{1}{e}}\right)\right]^{1/\gamma} = \theta \left[\ln(e)\right]^{1/\gamma} = \theta \cdot 1^{1/\gamma} = \theta\]</span></p>
 <p>So <span class="math inline">\(t_{1-1/e} = \theta\)</span> — the scale parameter <span class="math inline">\(\theta\)</span> is exactly the <span class="math inline">\((1 - 1/e) \approx 63.2\)</span>th percentile of the Weibull distribution, regardless of the shape parameter <span class="math inline">\(\gamma\)</span>. This confirms what we noted earlier: by time <span class="math inline">\(\theta\)</span>, approximately 63.2% of systems will have failed.</p>
+</section>
+<section id="step-2-empirical-quantiles" class="level4">
+<h4 class="anchored" data-anchor-id="step-2-empirical-quantiles">Step 2: Empirical Quantiles</h4>
+<p>The empirical quantiles are the ones you get directly from your dataset.</p>
+<p><strong>Step 2a: Sort your data.</strong> Arrange the observed failure times in ascending order:</p>
+<p><span class="math display">\[t_{(1)} \leq t_{(2)} \leq \cdots \leq t_{(n)}\]</span></p>
+<p>The notation <span class="math inline">\(t_{(i)}\)</span> denotes the <span class="math inline">\(i\)</span>-th order statistic — <span class="math inline">\(t_{(1)}\)</span> is the smallest observed failure time, <span class="math inline">\(t_{(2)}\)</span> is the next smallest, and <span class="math inline">\(t_{(n)}\)</span> is the largest.</p>
+<p><strong>Step 2b: Assign plotting positions.</strong> The <span class="math inline">\(i\)</span>-th order statistic <span class="math inline">\(t_{(i)}\)</span> corresponds to an approximate quantile level:</p>
+<p><span class="math display">\[\hat{p}_i = \frac{i - 0.3}{n + 0.4}\]</span></p>
+<p>This is known as the <strong>median rank formula</strong> (or Blom plotting position). It estimates the probability level associated with the <span class="math inline">\(i\)</span>-th smallest observation. The corrections <span class="math inline">\(-0.3\)</span> and <span class="math inline">\(+0.4\)</span> reduce bias compared to the naive estimate <span class="math inline">\(\hat{p}_i = i/n\)</span>, particularly in the tails of the distribution.</p>
 
 
 </section>
