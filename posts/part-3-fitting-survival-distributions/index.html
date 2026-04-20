@@ -437,13 +437,13 @@ Figure&nbsp;2: Fitted Weibull survival curve vs empirical survival curve
 <section id="the-log-likelihood-function-with-censoring" class="level4">
 <h4 class="anchored" data-anchor-id="the-log-likelihood-function-with-censoring">The Log-Likelihood Function with Censoring</h4>
 <p>The full censored likelihood function is:</p>
-<p><span class="math display">\[L(\theta) = \prod_{i=1}^n [f(Y_i ; \theta)]^{\delta_i} [S(Y_i ; \theta)]^{1-\delta_i}\]</span></p>
+<p><span class="math display">\[L(\theta) = \prod_{i=1}^n [f(y_i ; \theta)]^{\delta_i} [S(y_i ; \theta)]^{1-\delta_i}\]</span></p>
 <p>Taking the natural logarithm of the likelihood function gives us the log-likelihood function:</p>
-<p><span class="math display">\[\ell(\theta) = \sum_{i=1}^n \left[ \delta_i \log f(Y_i ; \theta) + (1 - \delta_i) \log S(Y_i ; \theta) \right]\]</span></p>
+<p><span class="math display">\[\ell(\theta) = \sum_{i=1}^n \left[ \delta_i \log f(y_i ; \theta) + (1 - \delta_i) \log S(y_i ; \theta) \right]\]</span></p>
 <p>Based on our previous study of the relationship between the pdf and the survival function, we can express the log-likelihood function in terms of the hazard function <span class="math inline">\(\lambda(t ; \theta)\)</span>. Recall that the pdf can be expressed as <span class="math inline">\(f(t ; \theta) = \lambda(t ; \theta) S(t ; \theta)\)</span>, so we can rewrite the log-likelihood function as:</p>
-<p><span class="math display">\[\ell(\theta) = \sum_{i=1}^n \left[ \delta_i \log \lambda(Y_i ; \theta) + \log S(Y_i ; \theta) \right]\]</span></p>
-<p>Notice that <span class="math inline">\(\log S(Y_i;\theta)\)</span> appears for <strong>every</strong> observation regardless of whether it failed or was censored — survival information contributes to the likelihood for all units. The hazard term <span class="math inline">\(\delta_i \log \lambda(Y_i;\theta)\)</span> only contributes for observed failures. This is the elegance of the censored likelihood. Finally, we can express the log-likelihood function in terms of the cumulative hazard function <span class="math inline">\(\Lambda(t ; \theta)\)</span> using the relationship <span class="math inline">\(S(t ; \theta) = e^{-\Lambda(t ; \theta)}\)</span>:</p>
-<p><span class="math display">\[\ell(\theta) = \sum_{i=1}^n \left[ \delta_i \log \lambda(Y_i ; \theta) - \Lambda(Y_i ; \theta) \right]\]</span></p>
+<p><span class="math display">\[\ell(\theta) = \sum_{i=1}^n \left[ \delta_i \log \lambda(y_i ; \theta) + \log S(y_i ; \theta) \right]\]</span></p>
+<p>Notice that <span class="math inline">\(\log S(y_i;\theta)\)</span> appears for <strong>every</strong> observation regardless of whether it failed or was censored — survival information contributes to the likelihood for all units. The hazard term <span class="math inline">\(\delta_i \log \lambda(y_i;\theta)\)</span> only contributes for observed failures. This is the elegance of the censored likelihood. Finally, we can express the log-likelihood function in terms of the cumulative hazard function <span class="math inline">\(\Lambda(t ; \theta)\)</span> using the relationship <span class="math inline">\(S(t ; \theta) = e^{-\Lambda(t ; \theta)}\)</span>:</p>
+<p><span class="math display">\[\ell(\theta) = \sum_{i=1}^n \left[ \delta_i \log \lambda(y_i ; \theta) - \Lambda(y_i ; \theta) \right]\]</span></p>
 <p>Now we use our calculus machinery to find the MLE estimates. Taking the derivative of the log-likelihood function with respect to <span class="math inline">\(\theta\)</span> and setting it equal to zero gives us the MLE equations that we can solve to find the parameter estimates. The specific forms of these equations will depend on the distribution we are fitting. And sometimes, these equations will be so nonlinear and complex that we won’t be able to solve them analytically. We will see how to handle this in practice using numerical optimization methods in <code>lifelines</code> when we fit the Weibull distribution with censored data in the next section.</p>
 <p>But first, let’s calculate the analytical MLE estimates for the exponential distribution with censored data to see how the presence of censoring modifies the MLE equations. The exponential distribution has a single parameter <span class="math inline">\(\lambda\)</span> (the rate), and its pdf and survival function are given by:</p>
 <p><span class="math display">\[f(t ; \lambda) = \lambda e^{-\lambda t}\]</span> <span class="math display">\[S(t ; \lambda) = e^{-\lambda t}\]</span></p>
@@ -456,7 +456,126 @@ Figure&nbsp;2: Fitted Weibull survival curve vs empirical survival curve
 <p>Solving for <span class="math inline">\(\lambda\)</span> gives us the MLE estimate for the exponential distribution with censored data:</p>
 <p><span class="math display">\[\hat{\lambda}_{\text{MLE}} = \frac{\sum_{i=1}^n \delta_i}{\sum_{i=1}^n y_i}\]</span></p>
 <p>The quantity <span class="math inline">\(\sum_{i=1}^n y_i\)</span> is known as the <strong>total time at risk</strong>, which is the sum of the observed times for all units, regardless of whether they failed or were censored. Each unit contributes to the total time at risk based on its observed duration. The quantity <span class="math inline">\(\sum_{i=1}^n \delta_i\)</span> is the total number of observed failures.</p>
-<p>Isn’t this marvelous? The MLE estimate for the rate parameter <span class="math inline">\(\lambda\)</span> in the presence of censoring is simply the total number of observed failures (the sum of <span class="math inline">\(\delta_i\)</span>) divided by the total time at risk (the sum of <span class="math inline">\(y_i\)</span>). If the data were fully observed with no censoring, then <span class="math inline">\(\sum_{i=1}^n \delta_i = n\)</span> and we would recover the MLE estimate for the exponential distribution without censoring: <span class="math inline">\(\hat{\lambda}_{\text{MLE}} = \frac{n}{\sum_{i=1}^n y_i}\)</span> (I have used y_i instead of t_i for consistency with the current topic). The presence of censoring effectively reduces the number of observed failures and increases the total time at risk, which leads to a different MLE estimate that accounts for the incomplete information in the data. This is the power of the censored likelihood function — it allows us to make valid inferences about the parameters of the failure distribution even when we have incomplete data due to censoring. It is left an exercise for the reader to verify that the MLE estimate for the exponential distribution with censored data is indeed a maximum by checking the second derivative of the log-likelihood function evaluated at <span class="math inline">\(\hat{\lambda}_{\text{MLE}}\)</span>.</p>
+<p>Isn’t this marvelous? The MLE estimate for the rate parameter <span class="math inline">\(\lambda\)</span> in the presence of censoring is simply the total number of observed failures (the sum of <span class="math inline">\(\delta_i\)</span>) divided by the total time at risk (the sum of <span class="math inline">\(y_i\)</span>). If the data were fully observed with no censoring, then <span class="math inline">\(\sum_{i=1}^n \delta_i = n\)</span> and we would recover the MLE estimate for the exponential distribution without censoring: <span class="math inline">\(\hat{\lambda}_{\text{MLE}} = \frac{n}{\sum_{i=1}^n y_i}\)</span> (I have used <span class="math inline">\(y_i\)</span> instead of <span class="math inline">\(t_i\)</span> for consistency with the current topic). The presence of censoring effectively reduces the number of observed failures and increases the total time at risk, which leads to a different MLE estimate that accounts for the incomplete information in the data. This is the power of the censored likelihood function — it allows us to make valid inferences about the parameters of the failure distribution even when we have incomplete data due to censoring. It is left an exercise for the reader to verify that the MLE estimate for the exponential distribution with censored data is indeed a maximum by checking the second derivative of the log-likelihood function evaluated at <span class="math inline">\(\hat{\lambda}_{\text{MLE}}\)</span>.</p>
+</section>
+<section id="mle-with-censoring-a-synthetic-data-example" class="level4">
+<h4 class="anchored" data-anchor-id="mle-with-censoring-a-synthetic-data-example">MLE with Censoring: A synthetic data example</h4>
+<p>Rather than working with abstract numbers and symbols, let’s build a dataset that will accompany us for the rest of the series- a synthetic fleet of 1000 machines, each with its own age, operating conditions, and failure history.</p>
+<div id="dataset-generation" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Continuous covariates ---</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>machine_age        <span class="op">=</span> np.random.uniform(<span class="dv">0</span>, <span class="dv">15</span>, n)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>usage_intensity    <span class="op">=</span> np.random.uniform(<span class="fl">0.5</span>, <span class="fl">2.0</span>, n)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>operating_temp     <span class="op">=</span> np.random.uniform(<span class="dv">60</span>, <span class="dv">120</span>, n)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>load_factor        <span class="op">=</span> np.random.uniform(<span class="fl">0.3</span>, <span class="fl">1.0</span>, n)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>rpm                <span class="op">=</span> np.random.uniform(<span class="dv">500</span>, <span class="dv">3000</span>, n)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>vibration_level    <span class="op">=</span> np.random.uniform(<span class="fl">0.5</span>, <span class="dv">10</span>, n)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>oil_quality        <span class="op">=</span> np.random.uniform(<span class="dv">0</span>, <span class="dv">1</span>, n)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>maintenance_count  <span class="op">=</span> np.random.randint(<span class="dv">0</span>, <span class="dv">21</span>, n).astype(<span class="bu">float</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Categorical covariates ---</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>environment  <span class="op">=</span> np.random.choice([<span class="st">'indoor'</span>, <span class="st">'outdoor'</span>, <span class="st">'harsh'</span>], n, p<span class="op">=</span>[<span class="fl">0.4</span>, <span class="fl">0.4</span>, <span class="fl">0.2</span>])</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>manufacturer <span class="op">=</span> np.random.choice([<span class="st">'A'</span>, <span class="st">'B'</span>, <span class="st">'C'</span>], n, p<span class="op">=</span>[<span class="fl">0.4</span>, <span class="fl">0.35</span>, <span class="fl">0.25</span>])</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Encode categoricals for survival time generation ---</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>env_effect <span class="op">=</span> np.where(environment <span class="op">==</span> <span class="st">'indoor'</span>, <span class="fl">1.0</span>,</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>             np.where(environment <span class="op">==</span> <span class="st">'outdoor'</span>, <span class="fl">0.85</span>, <span class="fl">0.65</span>))</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>mfr_effect <span class="op">=</span> np.where(manufacturer <span class="op">==</span> <span class="st">'A'</span>, <span class="fl">1.0</span>,</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>             np.where(manufacturer <span class="op">==</span> <span class="st">'B'</span>, <span class="fl">0.9</span>, <span class="fl">0.75</span>))</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="co"># --- True Weibull parameters ---</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Scale theta depends on covariates</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Higher stress covariates -&gt; smaller theta -&gt; shorter survival</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>gamma_true <span class="op">=</span> <span class="fl">2.0</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>theta_true <span class="op">=</span> (</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    <span class="dv">300</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span> env_effect</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span> mfr_effect</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    <span class="op">/</span> (</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>        <span class="dv">1</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> <span class="fl">0.03</span> <span class="op">*</span> machine_age</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> <span class="fl">0.15</span> <span class="op">*</span> usage_intensity</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> <span class="fl">0.008</span> <span class="op">*</span> operating_temp</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> <span class="fl">0.10</span> <span class="op">*</span> load_factor</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> <span class="fl">0.0001</span> <span class="op">*</span> rpm</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> <span class="fl">0.05</span> <span class="op">*</span> vibration_level</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> <span class="fl">0.10</span> <span class="op">*</span> oil_quality</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>        <span class="op">-</span> <span class="fl">0.02</span> <span class="op">*</span> maintenance_count  <span class="co"># more maintenance -&gt; longer survival</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Generate Weibull failure times via inverse CDF ---</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>u <span class="op">=</span> np.random.uniform(<span class="dv">0</span>, <span class="dv">1</span>, n)</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>T <span class="op">=</span> theta_true <span class="op">*</span> (<span class="op">-</span>np.log(<span class="dv">1</span> <span class="op">-</span> u))<span class="op">**</span>(<span class="dv">1</span> <span class="op">/</span> gamma_true)</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Random right censoring ---</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>C <span class="op">=</span> np.random.uniform(<span class="dv">50</span>, <span class="dv">400</span>, n)</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Observed time and event indicator ---</span></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>Y     <span class="op">=</span> np.minimum(T, C)</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>delta <span class="op">=</span> (T <span class="op">&lt;=</span> C).astype(<span class="bu">int</span>)</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Build dataframe ---</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>    <span class="st">'machine_id'</span>:         [<span class="ss">f'M</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">:04d}</span><span class="ss">'</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n)],</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>    <span class="st">'machine_age'</span>:        machine_age.<span class="bu">round</span>(<span class="dv">2</span>),</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>    <span class="st">'usage_intensity'</span>:    usage_intensity.<span class="bu">round</span>(<span class="dv">2</span>),</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>    <span class="st">'operating_temp'</span>:     operating_temp.<span class="bu">round</span>(<span class="dv">2</span>),</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>    <span class="st">'load_factor'</span>:        load_factor.<span class="bu">round</span>(<span class="dv">2</span>),</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>    <span class="st">'rpm'</span>:                rpm.<span class="bu">round</span>(<span class="dv">0</span>).astype(<span class="bu">int</span>),</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>    <span class="st">'vibration_level'</span>:    vibration_level.<span class="bu">round</span>(<span class="dv">3</span>),</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>    <span class="st">'oil_quality'</span>:        oil_quality.<span class="bu">round</span>(<span class="dv">3</span>),</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>    <span class="st">'maintenance_count'</span>:  maintenance_count.astype(<span class="bu">int</span>),</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>    <span class="st">'environment'</span>:        environment,</span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>    <span class="st">'manufacturer'</span>:       manufacturer,</span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>    <span class="st">'observed_time'</span>:      Y.<span class="bu">round</span>(<span class="dv">2</span>),</span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>    <span class="st">'event_observed'</span>:     delta</span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Summary ---</span></span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Total machines    : </span><span class="sc">{</span>n<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Observed failures : </span><span class="sc">{</span>delta<span class="sc">.</span><span class="bu">sum</span>()<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span><span class="dv">100</span><span class="op">*</span>delta<span class="sc">.</span>mean()<span class="sc">:.1f}</span><span class="ss">%)"</span>)</span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Censored          : </span><span class="sc">{</span>(<span class="dv">1</span><span class="op">-</span>delta)<span class="sc">.</span><span class="bu">sum</span>()<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span><span class="dv">100</span><span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>delta)<span class="sc">.</span>mean()<span class="sc">:.1f}</span><span class="ss">%)"</span>)</span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Mean observed time: </span><span class="sc">{</span>Y<span class="sc">.</span>mean()<span class="sc">:.1f}</span><span class="ss"> hours"</span>)</span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">First 10 rows:"</span>)</span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.head(<span class="dv">10</span>).to_string(index<span class="op">=</span><span class="va">False</span>))</span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Save ---</span></span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>os.makedirs(<span class="st">'../../data'</span>, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>df.to_csv(<span class="st">'../../data/machine_fleet.csv'</span>, index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Dataset saved to ../../data/machine_fleet.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Total machines    : 1000
+Observed failures : 886 (88.6%)
+Censored          : 114 (11.4%)
+Mean observed time: 81.4 hours
+
+First 10 rows:
+machine_id  machine_age  usage_intensity  operating_temp  load_factor  rpm  vibration_level  oil_quality  maintenance_count environment manufacturer  observed_time  event_observed
+     M0001         5.62             0.78           75.70         0.77 1930            4.240        0.648                 10     outdoor            A         111.39               1
+     M0002        14.26             1.31           74.82         0.86 2514            4.998        0.172                 16     outdoor            A          68.56               1
+     M0003        10.98             1.81          114.38         0.48 2400            8.618        0.872                  4      indoor            C          49.03               1
+     M0004         8.98             1.60           74.97         0.74  885            3.730        0.613                  6       harsh            A          88.65               1
+     M0005         2.34             1.71           76.32         0.70  873            8.762        0.157                 18      indoor            B         205.67               1
+     M0006         2.34             1.49          105.56         0.88 1170            1.337        0.962                 14       harsh            B          69.69               1
+     M0007         0.87             1.54           86.98         0.93 1403            7.880        0.518                  2     outdoor            B          79.77               0
+     M0008        12.99             1.77          106.60         0.31 1521            8.552        0.073                 14      indoor            B          28.99               1
+     M0009         9.02             0.87           63.92         0.77 2199            2.227        0.627                  4       harsh            B          37.09               1
+     M0010        10.62             1.23           89.25         0.34  642            4.588        0.253                 11      indoor            A         106.60               1
+
+Dataset saved to ../../data/machine_fleet.csv</code></pre>
+</div>
+</div>
+<p>We generate a synthetic fleet of 1000 machines, each with 8 continuous and 2 categorical covariates representing realistic machine characteristics — age, operating temperature, vibration level, manufacturer, and so on. The true failure times are drawn from a Weibull distribution with shape <span class="math inline">\(\gamma = 2.0\)</span> and a scale parameter <span class="math inline">\(\theta\)</span> that depends on the covariates — higher stress (temperature, vibration, load) shrinks <span class="math inline">\(\theta\)</span> and shortens expected lifetime, while more maintenance history extends it.</p>
+<p>For now, we work only with the observed times — whether the machine failed or was censored. But in reality, a machine’s lifetime depends on its physical characteristics — how old it is, how hard it runs, the temperature it operates at, how well it has been maintained. Modeling the relationship between these characteristics and the failure time is exactly what survival regression models like the Cox Proportional Hazards model are built to do — and that is where we are headed.</p>
 
 
 </section>

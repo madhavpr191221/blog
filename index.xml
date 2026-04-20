@@ -295,13 +295,13 @@ Figure&nbsp;2: Fitted Weibull survival curve vs empirical survival curve
 <section id="the-log-likelihood-function-with-censoring" class="level4">
 <h4 class="anchored" data-anchor-id="the-log-likelihood-function-with-censoring">The Log-Likelihood Function with Censoring</h4>
 <p>The full censored likelihood function is:</p>
-<p><img src="https://latex.codecogs.com/png.latex?L(%5Ctheta)%20=%20%5Cprod_%7Bi=1%7D%5En%20%5Bf(Y_i%20;%20%5Ctheta)%5D%5E%7B%5Cdelta_i%7D%20%5BS(Y_i%20;%20%5Ctheta)%5D%5E%7B1-%5Cdelta_i%7D"></p>
+<p><img src="https://latex.codecogs.com/png.latex?L(%5Ctheta)%20=%20%5Cprod_%7Bi=1%7D%5En%20%5Bf(y_i%20;%20%5Ctheta)%5D%5E%7B%5Cdelta_i%7D%20%5BS(y_i%20;%20%5Ctheta)%5D%5E%7B1-%5Cdelta_i%7D"></p>
 <p>Taking the natural logarithm of the likelihood function gives us the log-likelihood function:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%5Cell(%5Ctheta)%20=%20%5Csum_%7Bi=1%7D%5En%20%5Cleft%5B%20%5Cdelta_i%20%5Clog%20f(Y_i%20;%20%5Ctheta)%20+%20(1%20-%20%5Cdelta_i)%20%5Clog%20S(Y_i%20;%20%5Ctheta)%20%5Cright%5D"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cell(%5Ctheta)%20=%20%5Csum_%7Bi=1%7D%5En%20%5Cleft%5B%20%5Cdelta_i%20%5Clog%20f(y_i%20;%20%5Ctheta)%20+%20(1%20-%20%5Cdelta_i)%20%5Clog%20S(y_i%20;%20%5Ctheta)%20%5Cright%5D"></p>
 <p>Based on our previous study of the relationship between the pdf and the survival function, we can express the log-likelihood function in terms of the hazard function <img src="https://latex.codecogs.com/png.latex?%5Clambda(t%20;%20%5Ctheta)">. Recall that the pdf can be expressed as <img src="https://latex.codecogs.com/png.latex?f(t%20;%20%5Ctheta)%20=%20%5Clambda(t%20;%20%5Ctheta)%20S(t%20;%20%5Ctheta)">, so we can rewrite the log-likelihood function as:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%5Cell(%5Ctheta)%20=%20%5Csum_%7Bi=1%7D%5En%20%5Cleft%5B%20%5Cdelta_i%20%5Clog%20%5Clambda(Y_i%20;%20%5Ctheta)%20+%20%5Clog%20S(Y_i%20;%20%5Ctheta)%20%5Cright%5D"></p>
-<p>Notice that <img src="https://latex.codecogs.com/png.latex?%5Clog%20S(Y_i;%5Ctheta)"> appears for <strong>every</strong> observation regardless of whether it failed or was censored — survival information contributes to the likelihood for all units. The hazard term <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i%20%5Clog%20%5Clambda(Y_i;%5Ctheta)"> only contributes for observed failures. This is the elegance of the censored likelihood. Finally, we can express the log-likelihood function in terms of the cumulative hazard function <img src="https://latex.codecogs.com/png.latex?%5CLambda(t%20;%20%5Ctheta)"> using the relationship <img src="https://latex.codecogs.com/png.latex?S(t%20;%20%5Ctheta)%20=%20e%5E%7B-%5CLambda(t%20;%20%5Ctheta)%7D">:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%5Cell(%5Ctheta)%20=%20%5Csum_%7Bi=1%7D%5En%20%5Cleft%5B%20%5Cdelta_i%20%5Clog%20%5Clambda(Y_i%20;%20%5Ctheta)%20-%20%5CLambda(Y_i%20;%20%5Ctheta)%20%5Cright%5D"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cell(%5Ctheta)%20=%20%5Csum_%7Bi=1%7D%5En%20%5Cleft%5B%20%5Cdelta_i%20%5Clog%20%5Clambda(y_i%20;%20%5Ctheta)%20+%20%5Clog%20S(y_i%20;%20%5Ctheta)%20%5Cright%5D"></p>
+<p>Notice that <img src="https://latex.codecogs.com/png.latex?%5Clog%20S(y_i;%5Ctheta)"> appears for <strong>every</strong> observation regardless of whether it failed or was censored — survival information contributes to the likelihood for all units. The hazard term <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i%20%5Clog%20%5Clambda(y_i;%5Ctheta)"> only contributes for observed failures. This is the elegance of the censored likelihood. Finally, we can express the log-likelihood function in terms of the cumulative hazard function <img src="https://latex.codecogs.com/png.latex?%5CLambda(t%20;%20%5Ctheta)"> using the relationship <img src="https://latex.codecogs.com/png.latex?S(t%20;%20%5Ctheta)%20=%20e%5E%7B-%5CLambda(t%20;%20%5Ctheta)%7D">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cell(%5Ctheta)%20=%20%5Csum_%7Bi=1%7D%5En%20%5Cleft%5B%20%5Cdelta_i%20%5Clog%20%5Clambda(y_i%20;%20%5Ctheta)%20-%20%5CLambda(y_i%20;%20%5Ctheta)%20%5Cright%5D"></p>
 <p>Now we use our calculus machinery to find the MLE estimates. Taking the derivative of the log-likelihood function with respect to <img src="https://latex.codecogs.com/png.latex?%5Ctheta"> and setting it equal to zero gives us the MLE equations that we can solve to find the parameter estimates. The specific forms of these equations will depend on the distribution we are fitting. And sometimes, these equations will be so nonlinear and complex that we won’t be able to solve them analytically. We will see how to handle this in practice using numerical optimization methods in <code>lifelines</code> when we fit the Weibull distribution with censored data in the next section.</p>
 <p>But first, let’s calculate the analytical MLE estimates for the exponential distribution with censored data to see how the presence of censoring modifies the MLE equations. The exponential distribution has a single parameter <img src="https://latex.codecogs.com/png.latex?%5Clambda"> (the rate), and its pdf and survival function are given by:</p>
 <p><img src="https://latex.codecogs.com/png.latex?f(t%20;%20%5Clambda)%20=%20%5Clambda%20e%5E%7B-%5Clambda%20t%7D"> <img src="https://latex.codecogs.com/png.latex?S(t%20;%20%5Clambda)%20=%20e%5E%7B-%5Clambda%20t%7D"></p>
@@ -314,7 +314,584 @@ Figure&nbsp;2: Fitted Weibull survival curve vs empirical survival curve
 <p>Solving for <img src="https://latex.codecogs.com/png.latex?%5Clambda"> gives us the MLE estimate for the exponential distribution with censored data:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Clambda%7D_%7B%5Ctext%7BMLE%7D%7D%20=%20%5Cfrac%7B%5Csum_%7Bi=1%7D%5En%20%5Cdelta_i%7D%7B%5Csum_%7Bi=1%7D%5En%20y_i%7D"></p>
 <p>The quantity <img src="https://latex.codecogs.com/png.latex?%5Csum_%7Bi=1%7D%5En%20y_i"> is known as the <strong>total time at risk</strong>, which is the sum of the observed times for all units, regardless of whether they failed or were censored. Each unit contributes to the total time at risk based on its observed duration. The quantity <img src="https://latex.codecogs.com/png.latex?%5Csum_%7Bi=1%7D%5En%20%5Cdelta_i"> is the total number of observed failures.</p>
-<p>Isn’t this marvelous? The MLE estimate for the rate parameter <img src="https://latex.codecogs.com/png.latex?%5Clambda"> in the presence of censoring is simply the total number of observed failures (the sum of <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i">) divided by the total time at risk (the sum of <img src="https://latex.codecogs.com/png.latex?y_i">). If the data were fully observed with no censoring, then <img src="https://latex.codecogs.com/png.latex?%5Csum_%7Bi=1%7D%5En%20%5Cdelta_i%20=%20n"> and we would recover the MLE estimate for the exponential distribution without censoring: <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Clambda%7D_%7B%5Ctext%7BMLE%7D%7D%20=%20%5Cfrac%7Bn%7D%7B%5Csum_%7Bi=1%7D%5En%20y_i%7D"> (I have used y_i instead of t_i for consistency with the current topic). The presence of censoring effectively reduces the number of observed failures and increases the total time at risk, which leads to a different MLE estimate that accounts for the incomplete information in the data. This is the power of the censored likelihood function — it allows us to make valid inferences about the parameters of the failure distribution even when we have incomplete data due to censoring. It is left an exercise for the reader to verify that the MLE estimate for the exponential distribution with censored data is indeed a maximum by checking the second derivative of the log-likelihood function evaluated at <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Clambda%7D_%7B%5Ctext%7BMLE%7D%7D">.</p>
+<p>Isn’t this marvelous? The MLE estimate for the rate parameter <img src="https://latex.codecogs.com/png.latex?%5Clambda"> in the presence of censoring is simply the total number of observed failures (the sum of <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i">) divided by the total time at risk (the sum of <img src="https://latex.codecogs.com/png.latex?y_i">). If the data were fully observed with no censoring, then <img src="https://latex.codecogs.com/png.latex?%5Csum_%7Bi=1%7D%5En%20%5Cdelta_i%20=%20n"> and we would recover the MLE estimate for the exponential distribution without censoring: <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Clambda%7D_%7B%5Ctext%7BMLE%7D%7D%20=%20%5Cfrac%7Bn%7D%7B%5Csum_%7Bi=1%7D%5En%20y_i%7D"> (I have used <img src="https://latex.codecogs.com/png.latex?y_i"> instead of <img src="https://latex.codecogs.com/png.latex?t_i"> for consistency with the current topic). The presence of censoring effectively reduces the number of observed failures and increases the total time at risk, which leads to a different MLE estimate that accounts for the incomplete information in the data. This is the power of the censored likelihood function — it allows us to make valid inferences about the parameters of the failure distribution even when we have incomplete data due to censoring. It is left an exercise for the reader to verify that the MLE estimate for the exponential distribution with censored data is indeed a maximum by checking the second derivative of the log-likelihood function evaluated at <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Clambda%7D_%7B%5Ctext%7BMLE%7D%7D">.</p>
+</section>
+<section id="mle-with-censoring-a-synthetic-data-example" class="level4">
+<h4 class="anchored" data-anchor-id="mle-with-censoring-a-synthetic-data-example">MLE with Censoring: A synthetic data example</h4>
+<p>Rather than working with abstract numbers and symbols, let’s build a dataset that will accompany us for the rest of the series- a synthetic fleet of 1000 machines, each with its own age, operating conditions, and failure history.</p>
+<div id="dataset-generation" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> numpy <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> np</span>
+<span id="cb2-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> pd</span>
+<span id="cb2-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> os</span>
+<span id="cb2-4"></span>
+<span id="cb2-5">np.random.seed(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">42</span>)</span>
+<span id="cb2-6">n <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span></span>
+<span id="cb2-7"></span>
+<span id="cb2-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- Continuous covariates ---</span></span>
+<span id="cb2-9">machine_age        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.uniform(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>, n)</span>
+<span id="cb2-10">usage_intensity    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.uniform(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2.0</span>, n)</span>
+<span id="cb2-11">operating_temp     <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.uniform(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">60</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">120</span>, n)</span>
+<span id="cb2-12">load_factor        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.uniform(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.0</span>, n)</span>
+<span id="cb2-13">rpm                <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.uniform(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3000</span>, n)</span>
+<span id="cb2-14">vibration_level    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.uniform(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, n)</span>
+<span id="cb2-15">oil_quality        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.uniform(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, n)</span>
+<span id="cb2-16">maintenance_count  <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.randint(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">21</span>, n).astype(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">float</span>)</span>
+<span id="cb2-17"></span>
+<span id="cb2-18"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- Categorical covariates ---</span></span>
+<span id="cb2-19">environment  <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.choice([<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'indoor'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'outdoor'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'harsh'</span>], n, p<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.4</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.4</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>])</span>
+<span id="cb2-20">manufacturer <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.choice([<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'A'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'B'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'C'</span>], n, p<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.4</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.35</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.25</span>])</span>
+<span id="cb2-21"></span>
+<span id="cb2-22"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- Encode categoricals for survival time generation ---</span></span>
+<span id="cb2-23">env_effect <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.where(environment <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'indoor'</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.0</span>,</span>
+<span id="cb2-24">             np.where(environment <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'outdoor'</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.85</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.65</span>))</span>
+<span id="cb2-25"></span>
+<span id="cb2-26">mfr_effect <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.where(manufacturer <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'A'</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.0</span>,</span>
+<span id="cb2-27">             np.where(manufacturer <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'B'</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.9</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.75</span>))</span>
+<span id="cb2-28"></span>
+<span id="cb2-29"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- True Weibull parameters ---</span></span>
+<span id="cb2-30"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Scale theta depends on covariates</span></span>
+<span id="cb2-31"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Higher stress covariates -&gt; smaller theta -&gt; shorter survival</span></span>
+<span id="cb2-32">gamma_true <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2.0</span></span>
+<span id="cb2-33"></span>
+<span id="cb2-34">theta_true <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (</span>
+<span id="cb2-35">    <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">300</span></span>
+<span id="cb2-36">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> env_effect</span>
+<span id="cb2-37">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> mfr_effect</span>
+<span id="cb2-38">    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> (</span>
+<span id="cb2-39">        <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb2-40">        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.03</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> machine_age</span>
+<span id="cb2-41">        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.15</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> usage_intensity</span>
+<span id="cb2-42">        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.008</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> operating_temp</span>
+<span id="cb2-43">        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.10</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> load_factor</span>
+<span id="cb2-44">        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.0001</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> rpm</span>
+<span id="cb2-45">        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.05</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> vibration_level</span>
+<span id="cb2-46">        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.10</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> oil_quality</span>
+<span id="cb2-47">        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.02</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> maintenance_count  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># more maintenance -&gt; longer survival</span></span>
+<span id="cb2-48">    )</span>
+<span id="cb2-49">)</span>
+<span id="cb2-50"></span>
+<span id="cb2-51"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- Generate Weibull failure times via inverse CDF ---</span></span>
+<span id="cb2-52">u <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.uniform(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, n)</span>
+<span id="cb2-53">T <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> theta_true <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>np.log(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> u))<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> gamma_true)</span>
+<span id="cb2-54"></span>
+<span id="cb2-55"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- Random right censoring ---</span></span>
+<span id="cb2-56">C <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.random.uniform(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">50</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">400</span>, n)</span>
+<span id="cb2-57"></span>
+<span id="cb2-58"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- Observed time and event indicator ---</span></span>
+<span id="cb2-59">Y     <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.minimum(T, C)</span>
+<span id="cb2-60">delta <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (T <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span> C).astype(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>)</span>
+<span id="cb2-61"></span>
+<span id="cb2-62"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- Build dataframe ---</span></span>
+<span id="cb2-63">df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.DataFrame({</span>
+<span id="cb2-64">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'machine_id'</span>:         [<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'M</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>i<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:04d}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(n)],</span>
+<span id="cb2-65">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'machine_age'</span>:        machine_age.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>),</span>
+<span id="cb2-66">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'usage_intensity'</span>:    usage_intensity.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>),</span>
+<span id="cb2-67">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'operating_temp'</span>:     operating_temp.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>),</span>
+<span id="cb2-68">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'load_factor'</span>:        load_factor.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>),</span>
+<span id="cb2-69">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'rpm'</span>:                rpm.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>).astype(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>),</span>
+<span id="cb2-70">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'vibration_level'</span>:    vibration_level.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>),</span>
+<span id="cb2-71">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'oil_quality'</span>:        oil_quality.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>),</span>
+<span id="cb2-72">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'maintenance_count'</span>:  maintenance_count.astype(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>),</span>
+<span id="cb2-73">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'environment'</span>:        environment,</span>
+<span id="cb2-74">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'manufacturer'</span>:       manufacturer,</span>
+<span id="cb2-75">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'observed_time'</span>:      Y.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>),</span>
+<span id="cb2-76">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'event_observed'</span>:     delta</span>
+<span id="cb2-77">})</span>
+<span id="cb2-78"></span>
+<span id="cb2-79"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- Summary ---</span></span>
+<span id="cb2-80"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Total machines    : </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>n<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb2-81"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Observed failures : </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>delta<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> (</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>delta<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>mean()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.1f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">%)"</span>)</span>
+<span id="cb2-82"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Censored          : </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>delta)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> (</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>delta)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>mean()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.1f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">%)"</span>)</span>
+<span id="cb2-83"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Mean observed time: </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>Y<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>mean()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.1f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> hours"</span>)</span>
+<span id="cb2-84"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">First 10 rows:"</span>)</span>
+<span id="cb2-85"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(df.head(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>).to_string(index<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>))</span>
+<span id="cb2-86"></span>
+<span id="cb2-87"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- Save ---</span></span>
+<span id="cb2-88">os.makedirs(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'../../data'</span>, exist_ok<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>)</span>
+<span id="cb2-89">df.to_csv(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'../../data/machine_fleet.csv'</span>, index<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>)</span>
+<span id="cb2-90"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">Dataset saved to ../../data/machine_fleet.csv"</span>)</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Total machines    : 1000
+Observed failures : 886 (88.6%)
+Censored          : 114 (11.4%)
+Mean observed time: 81.4 hours
+
+First 10 rows:
+machine_id  machine_age  usage_intensity  operating_temp  load_factor  rpm  vibration_level  oil_quality  maintenance_count environment manufacturer  observed_time  event_observed
+     M0001         5.62             0.78           75.70         0.77 1930            4.240        0.648                 10     outdoor            A         111.39               1
+     M0002        14.26             1.31           74.82         0.86 2514            4.998        0.172                 16     outdoor            A          68.56               1
+     M0003        10.98             1.81          114.38         0.48 2400            8.618        0.872                  4      indoor            C          49.03               1
+     M0004         8.98             1.60           74.97         0.74  885            3.730        0.613                  6       harsh            A          88.65               1
+     M0005         2.34             1.71           76.32         0.70  873            8.762        0.157                 18      indoor            B         205.67               1
+     M0006         2.34             1.49          105.56         0.88 1170            1.337        0.962                 14       harsh            B          69.69               1
+     M0007         0.87             1.54           86.98         0.93 1403            7.880        0.518                  2     outdoor            B          79.77               0
+     M0008        12.99             1.77          106.60         0.31 1521            8.552        0.073                 14      indoor            B          28.99               1
+     M0009         9.02             0.87           63.92         0.77 2199            2.227        0.627                  4       harsh            B          37.09               1
+     M0010        10.62             1.23           89.25         0.34  642            4.588        0.253                 11      indoor            A         106.60               1
+
+Dataset saved to ../../data/machine_fleet.csv</code></pre>
+</div>
+</div>
+<p>We generate a synthetic fleet of 1000 machines, each with 8 continuous and 2 categorical covariates representing realistic machine characteristics — age, operating temperature, vibration level, manufacturer, and so on. The true failure times are drawn from a Weibull distribution with shape <img src="https://latex.codecogs.com/png.latex?%5Cgamma%20=%202.0"> and a scale parameter <img src="https://latex.codecogs.com/png.latex?%5Ctheta"> that depends on the covariates — higher stress (temperature, vibration, load) shrinks <img src="https://latex.codecogs.com/png.latex?%5Ctheta"> and shortens expected lifetime, while more maintenance history extends it.</p>
+<p>For now, we work only with the observed times — whether the machine failed or was censored. But in reality, a machine’s lifetime depends on its physical characteristics — how old it is, how hard it runs, the temperature it operates at, how well it has been maintained. Modeling the relationship between these characteristics and the failure time is exactly what survival regression models like the Cox Proportional Hazards model are built to do — and that is where we are headed.</p>
 
 
 </section>
