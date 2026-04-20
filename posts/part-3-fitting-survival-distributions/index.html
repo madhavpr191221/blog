@@ -576,6 +576,126 @@ Dataset saved to ../../data/machine_fleet.csv</code></pre>
 </div>
 <p>We generate a synthetic fleet of 1000 machines, each with 8 continuous and 2 categorical covariates representing realistic machine characteristics — age, operating temperature, vibration level, manufacturer, and so on. The true failure times are drawn from a Weibull distribution with shape <span class="math inline">\(\gamma = 2.0\)</span> and a scale parameter <span class="math inline">\(\theta\)</span> that depends on the covariates — higher stress (temperature, vibration, load) shrinks <span class="math inline">\(\theta\)</span> and shortens expected lifetime, while more maintenance history extends it.</p>
 <p>For now, we work only with the observed times — whether the machine failed or was censored. But in reality, a machine’s lifetime depends on its physical characteristics — how old it is, how hard it runs, the temperature it operates at, how well it has been maintained. Modeling the relationship between these characteristics and the failure time is exactly what survival regression models like the Cox Proportional Hazards model are built to do — and that is where we are headed.</p>
+<p>Now, we will fit a Weibull to the observed times with <code>lifelines</code>. Here is the piece of code.</p>
+<div id="cell-weibull-fit-censored" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> lifelines <span class="im">import</span> WeibullFitter</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>wf <span class="op">=</span> WeibullFitter()</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'../../data/machine_fleet.csv'</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>wf.fit(df[<span class="st">'observed_time'</span>], event_observed<span class="op">=</span>df[<span class="st">'event_observed'</span>])</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>wf.print_summary()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="weibull-fit-censored" class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">model</th>
+<td>lifelines.WeibullFitter</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">number of observations</th>
+<td>1000</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">number of events observed</th>
+<td>886</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">log-likelihood</th>
+<td>-4684.21</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">hypothesis</th>
+<td>lambda_ != 1, rho_ != 1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th" style="min-width: 12px"></th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">coef</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">se(coef)</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">coef lower 95%</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">coef upper 95%</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">cmp to</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">z</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">p</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">-log2(p)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">lambda_</th>
+<td>97.26</td>
+<td>1.80</td>
+<td>93.72</td>
+<td>100.79</td>
+<td>1.00</td>
+<td>53.41</td>
+<td>&lt;0.005</td>
+<td>inf</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">rho_</th>
+<td>1.86</td>
+<td>0.05</td>
+<td>1.76</td>
+<td>1.95</td>
+<td>1.00</td>
+<td>17.69</td>
+<td>&lt;0.005</td>
+<td>230.18</td>
+</tr>
+</tbody>
+</table>
+<br><div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">AIC</th>
+<td>9372.42</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>886 out of 1000 machines failed during the study- an 88.6% event rate with 11.4% censored. The fitted shape parameter <span class="math inline">\(\hat{\gamma} = 1.86\)</span> is close to but not exactly the true value of <span class="math inline">\(\gamma = 2.0\)</span>. This is expected — we are fitting a single Weibull to all 1000 machines while ignoring the fact that each machine has a different <span class="math inline">\(\theta\)</span> driven by its covariates. By fitting a single Weibull, we are forcing one distribution to describe a heterogeneous fleet of machines. This is precisely why survival regression methods exist- to model how machine characteristics influence lifetime. We will get there eventually. But first, let’s assess how well this naive fit describes the data using diagnostic tools.</p>
+</section>
+</section>
+<section id="diagnostic-tool-q-q-plot" class="level3">
+<h3 class="anchored" data-anchor-id="diagnostic-tool-q-q-plot">Diagnostic Tool: Q-Q Plot</h3>
+<p>The Q-Q plot is a graphical method to display whether a dataset follows a particular distribution or whether two datasets come from the same population. For our purposes, we are testing if the dataset comes from a particular Weibull or not. Note that the game is rigged- we simulated data to follow a particular Weibull, so we already know the answer. But the Q-Q plot is a diagnostic tool we will use repeatedly on real data where we do not know the answer.</p>
+<p>The basic idea of the Q-Q plot is to compare theoretical quantiles vs empirical quantiles. If the data fits a particular Weibull, these quantiles should match and the points should fall on a straight line. Here is how we’ll build the Q-Q plot for the Weibull step by step.</p>
+<section id="step-1-theoretical-quantile" class="level4">
+<h4 class="anchored" data-anchor-id="step-1-theoretical-quantile">Step 1: Theoretical Quantile</h4>
+</section>
+<section id="step-1-theoretical-quantiles" class="level4">
+<h4 class="anchored" data-anchor-id="step-1-theoretical-quantiles">Step 1: Theoretical Quantiles</h4>
+<p>Recall that the <span class="math inline">\(p\)</span>-th quantile of a probability distribution is the value <span class="math inline">\(t_p\)</span> such that <span class="math inline">\(P(T \leq t_p) = p\)</span> where <span class="math inline">\(p \in [0, 1]\)</span>. For instance, the 0.5 quantile (also called the 50th percentile) is the median. Let’s derive the theoretical quantiles of the Weibull distribution.</p>
+<p>We want to find <span class="math inline">\(t_p\)</span> such that <span class="math inline">\(F(t_p) = p\)</span>. If <span class="math inline">\(T \sim \text{Weibull}(\theta, \gamma)\)</span>, then:</p>
+<p><span class="math display">\[1 - \exp\left\{-\left(\frac{t_p}{\theta}\right)^\gamma\right\} = p\]</span></p>
+<p>Rearranging:</p>
+<p><span class="math display">\[1 - p = \exp\left\{-\left(\frac{t_p}{\theta}\right)^\gamma\right\}\]</span></p>
+<p>Taking logarithms of both sides:</p>
+<p><span class="math display">\[-\ln(1-p) = \left(\frac{t_p}{\theta}\right)^\gamma\]</span></p>
+<p><span class="math display">\[\ln\left(\frac{1}{1-p}\right) = \left(\frac{t_p}{\theta}\right)^\gamma\]</span></p>
+<p>Taking the <span class="math inline">\(\gamma\)</span>-th root:</p>
+<p><span class="math display">\[\boxed{t_p = \theta \left[\ln\left(\frac{1}{1-p}\right)\right]^{1/\gamma}}\]</span></p>
+<p>This is the quantile function (inverse CDF) of the Weibull distribution. Given a probability <span class="math inline">\(p\)</span>, it tells us the time by which a fraction <span class="math inline">\(p\)</span> of systems are expected to have failed.</p>
+<p>Here is a special value: <span class="math inline">\(p = 1 - \frac{1}{e}\)</span>. Substituting into the quantile function:</p>
+<p><span class="math display">\[t_p = \theta \left[\ln\left(\frac{1}{1-(1-\frac{1}{e})}\right)\right]^{1/\gamma} = \theta \left[\ln\left(\frac{1}{\frac{1}{e}}\right)\right]^{1/\gamma} = \theta \left[\ln(e)\right]^{1/\gamma} = \theta \cdot 1^{1/\gamma} = \theta\]</span></p>
+<p>So <span class="math inline">\(t_{1-1/e} = \theta\)</span> — the scale parameter <span class="math inline">\(\theta\)</span> is exactly the <span class="math inline">\((1 - 1/e) \approx 63.2\)</span>th percentile of the Weibull distribution, regardless of the shape parameter <span class="math inline">\(\gamma\)</span>. This confirms what we noted earlier: by time <span class="math inline">\(\theta\)</span>, approximately 63.2% of systems will have failed.</p>
 
 
 </section>
