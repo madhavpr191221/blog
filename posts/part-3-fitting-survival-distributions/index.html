@@ -791,8 +791,46 @@ Figure&nbsp;3: Q-Q plot: fitted Weibull vs observed failure times (machine fleet
 </div>
 </div>
 </div>
+<p>Here is a simple example. Consider five observed failure times: <span class="math inline">\(t_1 = 200,\ t_2 = 350,\ t_3 = 400,\ t_4 = 550,\ t_5 = 600\)</span> hours.</p>
+<ul>
+<li>For <span class="math inline">\(t &lt; 200\)</span>: no failures yet, so <span class="math inline">\(\hat{F}_5(t) = 0\)</span></li>
+<li>For <span class="math inline">\(200 \leq t &lt; 350\)</span>: one failure observed, so <span class="math inline">\(\hat{F}_5(t) = \frac{1}{5} = 0.20\)</span></li>
+<li>For <span class="math inline">\(350 \leq t &lt; 400\)</span>: two failures observed, so <span class="math inline">\(\hat{F}_5(t) = \frac{2}{5} = 0.40\)</span></li>
+<li>For <span class="math inline">\(400 \leq t &lt; 550\)</span>: three failures observed, so <span class="math inline">\(\hat{F}_5(t) = \frac{3}{5} = 0.60\)</span></li>
+<li>For <span class="math inline">\(550 \leq t &lt; 600\)</span>: four failures observed, so <span class="math inline">\(\hat{F}_5(t) = \frac{4}{5} = 0.80\)</span></li>
+<li>For <span class="math inline">\(t \geq 600\)</span>: all five failures observed, so <span class="math inline">\(\hat{F}_5(t) = \frac{5}{5} = 1.0\)</span></li>
+</ul>
+<p>The empirical CDF is a step function — it jumps by <span class="math inline">\(\frac{1}{n}\)</span> at each observed failure time and stays flat in between. Here is a plot showing the empirical CDF with these examples.</p>
+<div id="cell-fig-ecdf-example" class="cell" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<div id="fig-ecdf-example" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ecdf-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-ecdf-example-output-1.png" width="756" height="470" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ecdf-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Empirical CDF for a simple example with 5 failure times
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Each jump represents one observed failure. The empirical CDF makes no assumptions about the underlying distribution — it simply counts. This is what makes it so powerful as a diagnostic tool, and as you will see in Part 4, it is also the foundation of the Kaplan-Meier estimator.</p>
+<section id="the-binomial-connection" class="level4">
+<h4 class="anchored" data-anchor-id="the-binomial-connection">The Binomial Connection</h4>
+<p>Fix a time value <span class="math inline">\(t\)</span>. For the <span class="math inline">\(i\)</span>-th observation, with corresponding random variable <span class="math inline">\(T_i\)</span>, define the indicator random variable:</p>
+<p><span class="math display">\[X_i = \begin{cases} 1 &amp; \text{if } T_i \leq t \\ 0 &amp; \text{otherwise} \end{cases}\]</span></p>
+<p>Since <span class="math inline">\(X_i\)</span> is a random variable, it has an associated probability. What is <span class="math inline">\(P(X_i = 1)\)</span>? It is simply the probability that <span class="math inline">\(T_i \leq t\)</span>, which is exactly the CDF of <span class="math inline">\(T_i\)</span> evaluated at <span class="math inline">\(t\)</span>:</p>
+<p><span class="math display">\[P(X_i = 1) = P(T_i \leq t) = F(t)\]</span></p>
+<p>Doesn’t this remind you of a coin toss? If we think of “failure by time <span class="math inline">\(t\)</span>” as analogous to obtaining heads, then <span class="math inline">\(F(t)\)</span> plays the role of the probability of heads. The indicator <span class="math inline">\(X_i\)</span> is therefore a Bernoulli random variable with parameter <span class="math inline">\(F(t)\)</span>:</p>
+<p><span class="math display">\[X_i \sim \text{Bernoulli}(F(t))\]</span></p>
+<p>Now let <span class="math inline">\(X = \sum_{i=1}^n X_i\)</span>. This counts the total number of observations that have failed by time <span class="math inline">\(t\)</span>. Since the failure times <span class="math inline">\(T_1, T_2, \ldots, T_n\)</span> are independent and identically distributed, the indicators <span class="math inline">\(X_1, X_2, \ldots, X_n\)</span> are independent Bernoulli<span class="math inline">\((F(t))\)</span> random variables. A sum of <span class="math inline">\(n\)</span> independent Bernoulli<span class="math inline">\((p)\)</span> random variables follows a Binomial<span class="math inline">\((n, p)\)</span> distribution, so:</p>
+<p><span class="math display">\[X \sim \text{Binomial}(n,\ F(t))\]</span></p>
+<p>The expectation and variance of <span class="math inline">\(X\)</span> are:</p>
+<p><span class="math display">\[E[X] = n \cdot F(t), \qquad \text{Var}[X] = n \cdot F(t) \cdot (1 - F(t)) = n \cdot F(t) \cdot S(t)\]</span></p>
 
 
+</section>
 </section>
 </section>
 

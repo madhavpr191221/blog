@@ -1127,8 +1127,46 @@ Figure&nbsp;3: Q-Q plot: fitted Weibull vs observed failure times (machine fleet
 </div>
 </div>
 </div>
+<p>Here is a simple example. Consider five observed failure times: <img src="https://latex.codecogs.com/png.latex?t_1%20=%20200,%5C%20t_2%20=%20350,%5C%20t_3%20=%20400,%5C%20t_4%20=%20550,%5C%20t_5%20=%20600"> hours.</p>
+<ul>
+<li>For <img src="https://latex.codecogs.com/png.latex?t%20%3C%20200">: no failures yet, so <img src="https://latex.codecogs.com/png.latex?%5Chat%7BF%7D_5(t)%20=%200"></li>
+<li>For <img src="https://latex.codecogs.com/png.latex?200%20%5Cleq%20t%20%3C%20350">: one failure observed, so <img src="https://latex.codecogs.com/png.latex?%5Chat%7BF%7D_5(t)%20=%20%5Cfrac%7B1%7D%7B5%7D%20=%200.20"></li>
+<li>For <img src="https://latex.codecogs.com/png.latex?350%20%5Cleq%20t%20%3C%20400">: two failures observed, so <img src="https://latex.codecogs.com/png.latex?%5Chat%7BF%7D_5(t)%20=%20%5Cfrac%7B2%7D%7B5%7D%20=%200.40"></li>
+<li>For <img src="https://latex.codecogs.com/png.latex?400%20%5Cleq%20t%20%3C%20550">: three failures observed, so <img src="https://latex.codecogs.com/png.latex?%5Chat%7BF%7D_5(t)%20=%20%5Cfrac%7B3%7D%7B5%7D%20=%200.60"></li>
+<li>For <img src="https://latex.codecogs.com/png.latex?550%20%5Cleq%20t%20%3C%20600">: four failures observed, so <img src="https://latex.codecogs.com/png.latex?%5Chat%7BF%7D_5(t)%20=%20%5Cfrac%7B4%7D%7B5%7D%20=%200.80"></li>
+<li>For <img src="https://latex.codecogs.com/png.latex?t%20%5Cgeq%20600">: all five failures observed, so <img src="https://latex.codecogs.com/png.latex?%5Chat%7BF%7D_5(t)%20=%20%5Cfrac%7B5%7D%7B5%7D%20=%201.0"></li>
+</ul>
+<p>The empirical CDF is a step function — it jumps by <img src="https://latex.codecogs.com/png.latex?%5Cfrac%7B1%7D%7Bn%7D"> at each observed failure time and stays flat in between. Here is a plot showing the empirical CDF with these examples.</p>
+<div id="cell-fig-ecdf-example" class="cell" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<div id="fig-ecdf-example" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ecdf-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://madhavpr191221.github.io/blog/posts/part-3-fitting-survival-distributions/index_files/figure-html/fig-ecdf-example-output-1.png" width="756" height="470" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ecdf-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Empirical CDF for a simple example with 5 failure times
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Each jump represents one observed failure. The empirical CDF makes no assumptions about the underlying distribution — it simply counts. This is what makes it so powerful as a diagnostic tool, and as you will see in Part 4, it is also the foundation of the Kaplan-Meier estimator.</p>
+<section id="the-binomial-connection" class="level4">
+<h4 class="anchored" data-anchor-id="the-binomial-connection">The Binomial Connection</h4>
+<p>Fix a time value <img src="https://latex.codecogs.com/png.latex?t">. For the <img src="https://latex.codecogs.com/png.latex?i">-th observation, with corresponding random variable <img src="https://latex.codecogs.com/png.latex?T_i">, define the indicator random variable:</p>
+<p><img src="https://latex.codecogs.com/png.latex?X_i%20=%20%5Cbegin%7Bcases%7D%201%20&amp;%20%5Ctext%7Bif%20%7D%20T_i%20%5Cleq%20t%20%5C%5C%200%20&amp;%20%5Ctext%7Botherwise%7D%20%5Cend%7Bcases%7D"></p>
+<p>Since <img src="https://latex.codecogs.com/png.latex?X_i"> is a random variable, it has an associated probability. What is <img src="https://latex.codecogs.com/png.latex?P(X_i%20=%201)">? It is simply the probability that <img src="https://latex.codecogs.com/png.latex?T_i%20%5Cleq%20t">, which is exactly the CDF of <img src="https://latex.codecogs.com/png.latex?T_i"> evaluated at <img src="https://latex.codecogs.com/png.latex?t">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(X_i%20=%201)%20=%20P(T_i%20%5Cleq%20t)%20=%20F(t)"></p>
+<p>Doesn’t this remind you of a coin toss? If we think of “failure by time <img src="https://latex.codecogs.com/png.latex?t">” as analogous to obtaining heads, then <img src="https://latex.codecogs.com/png.latex?F(t)"> plays the role of the probability of heads. The indicator <img src="https://latex.codecogs.com/png.latex?X_i"> is therefore a Bernoulli random variable with parameter <img src="https://latex.codecogs.com/png.latex?F(t)">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?X_i%20%5Csim%20%5Ctext%7BBernoulli%7D(F(t))"></p>
+<p>Now let <img src="https://latex.codecogs.com/png.latex?X%20=%20%5Csum_%7Bi=1%7D%5En%20X_i">. This counts the total number of observations that have failed by time <img src="https://latex.codecogs.com/png.latex?t">. Since the failure times <img src="https://latex.codecogs.com/png.latex?T_1,%20T_2,%20%5Cldots,%20T_n"> are independent and identically distributed, the indicators <img src="https://latex.codecogs.com/png.latex?X_1,%20X_2,%20%5Cldots,%20X_n"> are independent Bernoulli<img src="https://latex.codecogs.com/png.latex?(F(t))"> random variables. A sum of <img src="https://latex.codecogs.com/png.latex?n"> independent Bernoulli<img src="https://latex.codecogs.com/png.latex?(p)"> random variables follows a Binomial<img src="https://latex.codecogs.com/png.latex?(n,%20p)"> distribution, so:</p>
+<p><img src="https://latex.codecogs.com/png.latex?X%20%5Csim%20%5Ctext%7BBinomial%7D(n,%5C%20F(t))"></p>
+<p>The expectation and variance of <img src="https://latex.codecogs.com/png.latex?X"> are:</p>
+<p><img src="https://latex.codecogs.com/png.latex?E%5BX%5D%20=%20n%20%5Ccdot%20F(t),%20%5Cqquad%20%5Ctext%7BVar%7D%5BX%5D%20=%20n%20%5Ccdot%20F(t)%20%5Ccdot%20(1%20-%20F(t))%20=%20n%20%5Ccdot%20F(t)%20%5Ccdot%20S(t)"></p>
 
 
+</section>
 </section>
 </section>
 
