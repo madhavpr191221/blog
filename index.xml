@@ -1188,8 +1188,33 @@ Figure&nbsp;4: Empirical CDF for a simple example with 5 failure times
 </ul>
 <p>At every point <img src="https://latex.codecogs.com/png.latex?t">, these two curves have some vertical distance between them. The K-S test statistic is simply the largest such distance:</p>
 <p><img src="https://latex.codecogs.com/png.latex?D_n%20=%20%5Csup_t%20%5Cleft%7C%5Chat%7BF%7D_n(t)%20-%20F(t;%20%5Chat%7B%5Ctheta%7D,%20%5Chat%7B%5Cgamma%7D)%5Cright%7C"></p>
-<p>where <img src="https://latex.codecogs.com/png.latex?%5Csup"> stands for supremum — the least upper bound of a set of real numbers. If you are not familiar with supremum, replace it with maximum and you will be fine for all practical purposes.</p>
+<p><img src="https://latex.codecogs.com/png.latex?D_n%20=%20%5C%7C%5Chat%7BF%7D_n%20-%20F(%5Ccdot%5C,%20;%5Chat%7B%5Ctheta%7D,%20%5Chat%7B%5Cgamma%7D)%5C%7C_%5Cinfty"></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?%5Csup"> stands for supremum — the least upper bound of a set of real numbers that’s (at least) bounded above. (i.e., there exists some number <img src="https://latex.codecogs.com/png.latex?M"> such that every element in the set is <img src="https://latex.codecogs.com/png.latex?%5Cleq%20M">. This number M is called an upper bound). The axiom of completeness states that any set of real numbers that is bounded above has a supremum. If you are not familiar with supremum, replace it with maximum and you will be fine for all practical purposes.</p>
 <p>Intuitively, if the fit is perfect, <img src="https://latex.codecogs.com/png.latex?D_n%20=%200">. If the fit is terrible, <img src="https://latex.codecogs.com/png.latex?D_n"> is large.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The Infinity Norm
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A function <img src="https://latex.codecogs.com/png.latex?f"> on a domain <img src="https://latex.codecogs.com/png.latex?%5Cmathcal%7BD%7D"> is said to be <strong>bounded</strong> if there exists a real number <img src="https://latex.codecogs.com/png.latex?M%20%3E%200"> such that <img src="https://latex.codecogs.com/png.latex?%7Cf(x)%7C%20%5Cleq%20M"> for all <img src="https://latex.codecogs.com/png.latex?x%20%5Cin%20%5Cmathcal%7BD%7D">.</p>
+<p>The infinity norm (or sup norm) of a bounded function <img src="https://latex.codecogs.com/png.latex?f"> on a domain <img src="https://latex.codecogs.com/png.latex?%5Cmathcal%7BD%7D"> is defined as:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5C%7Cf%5C%7C_%5Cinfty%20=%20%5Csup_%7Bx%20%5Cin%20%5Cmathcal%7BD%7D%7D%20%7Cf(x)%7C"></p>
+<p>The infinity norm naturally induces a metric between two functions <img src="https://latex.codecogs.com/png.latex?f"> and <img src="https://latex.codecogs.com/png.latex?g">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5C%7Cf%20-%20g%5C%7C_%5Cinfty%20=%20%5Csup_%7Bx%20%5Cin%20%5Cmathcal%7BD%7D%7D%20%7Cf(x)%20-%20g(x)%7C"></p>
+<p>It measures the <strong>largest</strong> absolute value the function attains over its entire domain — the worst-case deviation. In our case, <img src="https://latex.codecogs.com/png.latex?%5Chat%7BF%7D_n%20-%20F(%5Ccdot%5C,;%5Chat%7B%5Ctheta%7D,%5Chat%7B%5Cgamma%7D)"> is a function of time <img src="https://latex.codecogs.com/png.latex?t">, and <img src="https://latex.codecogs.com/png.latex?D_n%20=%20%5C%7C%5Chat%7BF%7D_n%20-%20F%5C%7C_%5Cinfty"> is its largest absolute value over all <img src="https://latex.codecogs.com/png.latex?t%20%5Cgeq%200">. The infinity norm is the natural norm on the space of bounded functions <img src="https://latex.codecogs.com/png.latex?B(%5Cmathbb%7BR%7D)"> and plays a central role in functional analysis and approximation theory.</p>
+<p>The infinity norm is indeed a norm — it satisfies non-negativity, homogeneity, and the triangle inequality. Verifying these properties is a standard exercise in real analysis. The triangle inequality in particular:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5C%7Cf%20+%20g%5C%7C_%5Cinfty%20%5Cleq%20%5C%7Cf%5C%7C_%5Cinfty%20+%20%5C%7Cg%5C%7C_%5Cinfty"></p>
+<p>follows directly from <img src="https://latex.codecogs.com/png.latex?%7Cf(x)%20+%20g(x)%7C%20%5Cleq%20%7Cf(x)%7C%20+%20%7Cg(x)%7C"> and taking the supremum on both sides. In fact, the space of bounded functions on <img src="https://latex.codecogs.com/png.latex?%5Cmathbb%7BR%7D"> equipped with the infinity norm, denoted <img src="https://latex.codecogs.com/png.latex?B(%5Cmathbb%7BR%7D)">, is not just a normed vector space but a <strong>Banach space</strong> — a complete normed vector space where every Cauchy sequence converges. This completeness property is what makes the infinity norm so powerful in analysis.</p>
+</div>
+</div>
+</div>
 <section id="the-hypothesis-test" class="level4">
 <h4 class="anchored" data-anchor-id="the-hypothesis-test">The Hypothesis Test</h4>
 <p><img src="https://latex.codecogs.com/png.latex?H_0:%20%5Ctext%7Bthe%20data%20comes%20from%20%7D%20F(t;%20%5Chat%7B%5Ctheta%7D,%20%5Chat%7B%5Cgamma%7D)"> <img src="https://latex.codecogs.com/png.latex?H_1:%20%5Ctext%7Bit%20doesn't%7D"></p>
@@ -1403,7 +1428,8 @@ estimated from the same data. Use as descriptive tool only.</code></pre>
 </div>
 <p><img src="https://latex.codecogs.com/png.latex?D_n%20=%200.067"> and <img src="https://latex.codecogs.com/png.latex?p%20=%200.0007"> are both computed from the same test statistic, but they answer different questions. <img src="https://latex.codecogs.com/png.latex?D_n"> measures the size of the deviation — 6.7 percentage points at most, which is practically small. The p-value measures whether a deviation this large is surprising given the sample size. With <img src="https://latex.codecogs.com/png.latex?n%20=%20886">, even a small <img src="https://latex.codecogs.com/png.latex?D_n"> becomes highly significant — the test has enough power to confidently declare the fit imperfect. This is a well known phenomenon in hypothesis testing — with large sample sizes, even small and practically irrelevant deviations from the null become statistically significant. The test is not broken. It is doing exactly what it is designed to do: detect any deviation from <img src="https://latex.codecogs.com/png.latex?H_0">, no matter how small, given enough data. Whether that deviation matters in practice is a separate question that the p-value cannot answer.</p>
 <p>Let’s spend a few minutes to analyze the output D_n = 0.067 and p = 0.0007 in practical terms. The small p-value tells us that the observed data is unlikely to have come from the fitted Weibull. Fine. The test statistic D_n tells us that the fitted CDF and the empirical CDF are never off by more than 6.7 percent at any time point.</p>
-<p>Because, for any time t, |F_n_hat(t) - F(t; , ) | &lt;= 0.067</p>
+<p>Because for any time <img src="https://latex.codecogs.com/png.latex?t">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%7C%5Chat%7BF%7D_n(t)%20-%20F(t;%5Chat%7B%5Ctheta%7D,%20%5Chat%7B%5Cgamma%7D)%7C%20%5Cleq%20D_n%20=%200.067"></p>
 <p>Now suppose we use the fitted Weibull to make a decision: Schedule maintenance at time t* where the fitted CDF reaches 30% - i.e.&nbsp;act before 30% of the fleet has failed. Solving for t* gives,</p>
 <p><img src="https://latex.codecogs.com/png.latex?t%5E*%20=%20%5Chat%7B%5Ctheta%7D%5Cleft%5B%5Cln%5Cleft(%5Cfrac%7B1%7D%7B1-0.30%7D%5Cright)%5Cright%5D%5E%7B1/%5Chat%7B%5Cgamma%7D%7D%20%5Capprox%2071%5C%20%5Ctext%7Bhours%7D"></p>
 <p>We schedule maintenance at 71 hours. But by the K-S bound, the actual observed failure fraction at <img src="https://latex.codecogs.com/png.latex?t=71"> hours satisfies:</p>
@@ -1421,9 +1447,17 @@ estimated from the same data. Use as descriptive tool only.</code></pre>
 <p>The uncertainty from <img src="https://latex.codecogs.com/png.latex?D_n%20=%200.067"> alone translates into a cost swing of:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7B%E2%82%B921,51,50,000%7D%20-%20%5Ctext%7B%E2%82%B915,48,50,000%7D%20=%20%5Ctext%7B%E2%82%B96,03,00,000%7D"></p>
 <p>approximately ₹6 crore. And crucially — we cannot identify <em>which</em> 67 machines are driving this uncertainty without knowing their individual characteristics. That requires modeling the effect of covariates on failure time. This is precisely what survival regression is built to do — and where we are headed.</p>
-
-
 </section>
+</section>
+<section id="whats-next" class="level3">
+<h3 class="anchored" data-anchor-id="whats-next">What’s Next?</h3>
+<p>We have covered a lot of ground in Part 3. We started with the likelihood function- a truly theoretical object- and derived the censored likelihood from first principles. We then fit a Weibull to our fleet machine and assessed the fit using two diagnostic tools- the Q-Q plot, which told the story visually and the K-S test, which put a number on it.</p>
+<p>Along the way, we took a detour that went from the supremum norm of functional analysis <img src="https://latex.codecogs.com/png.latex?D_n%20=%20%5C%7C%5Chat%7BF%7D_n%20-%20F%5C%7C_%5Cinfty"> - all the way to a ₹6 crore cost swing for a fleet of 1000 machines. This is the range this series (and survival analysis) operates in: rigorous mathematics grounded in practical consequences. The K-S test is rooted in advanced concepts in stochastic processes and functional analysis but its practical meaning is completely accessible: how wrong can my model be, and what does that cost me?</p>
+<p>One thing that Part-3 has made very clear: a single Weibull is not enough for a heterogeneous fleet of machines. The Q-Q plot showed deviations from the diagonal and the K-S test rejected the null hypothesis. The cost analysis showed ₹6 crore of uncertainty. We need a better model- one that accounts for the fact that different machines have different failure characteristics.</p>
+<p>But before we get to regression, we need a better estimator of the survival function itself - one that handles censored data properly, unlike the naive empirical CDF we used in the Q-Q plot.</p>
+<p>In Part-4 we derive the most famous <strong>Kaplan-Meier estimator</strong> from first principles, prove <strong>Greenwood’s formula</strong> for its variance, handle tied failure times rigorously, and apply both to our machine fleet. Most survival analysis blogs introduce this estimator in the very beginning- like an entry point to the field. We are arriving at it in Part-4, after three parts of solid mathematical groundwork: censoring, hazard functions, parametric distributions, MLE and the empirical CDF. This is not a detour. This is the foundation that the Kaplan-Meier estimatior deserves. The clock is still ticking. See you in the next post.</p>
+
+
 </section>
 </section>
 

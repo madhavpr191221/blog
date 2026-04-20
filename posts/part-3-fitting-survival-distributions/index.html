@@ -852,8 +852,33 @@ Figure&nbsp;4: Empirical CDF for a simple example with 5 failure times
 </ul>
 <p>At every point <span class="math inline">\(t\)</span>, these two curves have some vertical distance between them. The K-S test statistic is simply the largest such distance:</p>
 <p><span class="math display">\[D_n = \sup_t \left|\hat{F}_n(t) - F(t; \hat{\theta}, \hat{\gamma})\right|\]</span></p>
-<p>where <span class="math inline">\(\sup\)</span> stands for supremum — the least upper bound of a set of real numbers. If you are not familiar with supremum, replace it with maximum and you will be fine for all practical purposes.</p>
+<p><span class="math display">\[D_n = \|\hat{F}_n - F(\cdot\, ;\hat{\theta}, \hat{\gamma})\|_\infty\]</span></p>
+<p>where <span class="math inline">\(\sup\)</span> stands for supremum — the least upper bound of a set of real numbers that’s (at least) bounded above. (i.e., there exists some number <span class="math inline">\(M\)</span> such that every element in the set is <span class="math inline">\(\leq M\)</span>. This number M is called an upper bound). The axiom of completeness states that any set of real numbers that is bounded above has a supremum. If you are not familiar with supremum, replace it with maximum and you will be fine for all practical purposes.</p>
 <p>Intuitively, if the fit is perfect, <span class="math inline">\(D_n = 0\)</span>. If the fit is terrible, <span class="math inline">\(D_n\)</span> is large.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The Infinity Norm
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A function <span class="math inline">\(f\)</span> on a domain <span class="math inline">\(\mathcal{D}\)</span> is said to be <strong>bounded</strong> if there exists a real number <span class="math inline">\(M &gt; 0\)</span> such that <span class="math inline">\(|f(x)| \leq M\)</span> for all <span class="math inline">\(x \in \mathcal{D}\)</span>.</p>
+<p>The infinity norm (or sup norm) of a bounded function <span class="math inline">\(f\)</span> on a domain <span class="math inline">\(\mathcal{D}\)</span> is defined as:</p>
+<p><span class="math display">\[\|f\|_\infty = \sup_{x \in \mathcal{D}} |f(x)|\]</span></p>
+<p>The infinity norm naturally induces a metric between two functions <span class="math inline">\(f\)</span> and <span class="math inline">\(g\)</span>:</p>
+<p><span class="math display">\[\|f - g\|_\infty = \sup_{x \in \mathcal{D}} |f(x) - g(x)|\]</span></p>
+<p>It measures the <strong>largest</strong> absolute value the function attains over its entire domain — the worst-case deviation. In our case, <span class="math inline">\(\hat{F}_n - F(\cdot\,;\hat{\theta},\hat{\gamma})\)</span> is a function of time <span class="math inline">\(t\)</span>, and <span class="math inline">\(D_n = \|\hat{F}_n - F\|_\infty\)</span> is its largest absolute value over all <span class="math inline">\(t \geq 0\)</span>. The infinity norm is the natural norm on the space of bounded functions <span class="math inline">\(B(\mathbb{R})\)</span> and plays a central role in functional analysis and approximation theory.</p>
+<p>The infinity norm is indeed a norm — it satisfies non-negativity, homogeneity, and the triangle inequality. Verifying these properties is a standard exercise in real analysis. The triangle inequality in particular:</p>
+<p><span class="math display">\[\|f + g\|_\infty \leq \|f\|_\infty + \|g\|_\infty\]</span></p>
+<p>follows directly from <span class="math inline">\(|f(x) + g(x)| \leq |f(x)| + |g(x)|\)</span> and taking the supremum on both sides. In fact, the space of bounded functions on <span class="math inline">\(\mathbb{R}\)</span> equipped with the infinity norm, denoted <span class="math inline">\(B(\mathbb{R})\)</span>, is not just a normed vector space but a <strong>Banach space</strong> — a complete normed vector space where every Cauchy sequence converges. This completeness property is what makes the infinity norm so powerful in analysis.</p>
+</div>
+</div>
+</div>
 <section id="the-hypothesis-test" class="level4">
 <h4 class="anchored" data-anchor-id="the-hypothesis-test">The Hypothesis Test</h4>
 <p><span class="math display">\[H_0: \text{the data comes from } F(t; \hat{\theta}, \hat{\gamma})\]</span> <span class="math display">\[H_1: \text{it doesn't}\]</span></p>
@@ -923,7 +948,8 @@ estimated from the same data. Use as descriptive tool only.</code></pre>
 </div>
 <p><span class="math inline">\(D_n = 0.067\)</span> and <span class="math inline">\(p = 0.0007\)</span> are both computed from the same test statistic, but they answer different questions. <span class="math inline">\(D_n\)</span> measures the size of the deviation — 6.7 percentage points at most, which is practically small. The p-value measures whether a deviation this large is surprising given the sample size. With <span class="math inline">\(n = 886\)</span>, even a small <span class="math inline">\(D_n\)</span> becomes highly significant — the test has enough power to confidently declare the fit imperfect. This is a well known phenomenon in hypothesis testing — with large sample sizes, even small and practically irrelevant deviations from the null become statistically significant. The test is not broken. It is doing exactly what it is designed to do: detect any deviation from <span class="math inline">\(H_0\)</span>, no matter how small, given enough data. Whether that deviation matters in practice is a separate question that the p-value cannot answer.</p>
 <p>Let’s spend a few minutes to analyze the output D_n = 0.067 and p = 0.0007 in practical terms. The small p-value tells us that the observed data is unlikely to have come from the fitted Weibull. Fine. The test statistic D_n tells us that the fitted CDF and the empirical CDF are never off by more than 6.7 percent at any time point.</p>
-<p>Because, for any time t, |F_n_hat(t) - F(t; , ) | &lt;= 0.067</p>
+<p>Because for any time <span class="math inline">\(t\)</span>:</p>
+<p><span class="math display">\[|\hat{F}_n(t) - F(t;\hat{\theta}, \hat{\gamma})| \leq D_n = 0.067\]</span></p>
 <p>Now suppose we use the fitted Weibull to make a decision: Schedule maintenance at time t* where the fitted CDF reaches 30% - i.e.&nbsp;act before 30% of the fleet has failed. Solving for t* gives,</p>
 <p><span class="math display">\[t^* = \hat{\theta}\left[\ln\left(\frac{1}{1-0.30}\right)\right]^{1/\hat{\gamma}} \approx 71\ \text{hours}\]</span></p>
 <p>We schedule maintenance at 71 hours. But by the K-S bound, the actual observed failure fraction at <span class="math inline">\(t=71\)</span> hours satisfies:</p>
@@ -941,9 +967,17 @@ estimated from the same data. Use as descriptive tool only.</code></pre>
 <p>The uncertainty from <span class="math inline">\(D_n = 0.067\)</span> alone translates into a cost swing of:</p>
 <p><span class="math display">\[\text{₹21,51,50,000} - \text{₹15,48,50,000} = \text{₹6,03,00,000}\]</span></p>
 <p>approximately ₹6 crore. And crucially — we cannot identify <em>which</em> 67 machines are driving this uncertainty without knowing their individual characteristics. That requires modeling the effect of covariates on failure time. This is precisely what survival regression is built to do — and where we are headed.</p>
-
-
 </section>
+</section>
+<section id="whats-next" class="level3">
+<h3 class="anchored" data-anchor-id="whats-next">What’s Next?</h3>
+<p>We have covered a lot of ground in Part 3. We started with the likelihood function- a truly theoretical object- and derived the censored likelihood from first principles. We then fit a Weibull to our fleet machine and assessed the fit using two diagnostic tools- the Q-Q plot, which told the story visually and the K-S test, which put a number on it.</p>
+<p>Along the way, we took a detour that went from the supremum norm of functional analysis <span class="math inline">\(D_n = \|\hat{F}_n - F\|_\infty\)</span> - all the way to a ₹6 crore cost swing for a fleet of 1000 machines. This is the range this series (and survival analysis) operates in: rigorous mathematics grounded in practical consequences. The K-S test is rooted in advanced concepts in stochastic processes and functional analysis but its practical meaning is completely accessible: how wrong can my model be, and what does that cost me?</p>
+<p>One thing that Part-3 has made very clear: a single Weibull is not enough for a heterogeneous fleet of machines. The Q-Q plot showed deviations from the diagonal and the K-S test rejected the null hypothesis. The cost analysis showed ₹6 crore of uncertainty. We need a better model- one that accounts for the fact that different machines have different failure characteristics.</p>
+<p>But before we get to regression, we need a better estimator of the survival function itself - one that handles censored data properly, unlike the naive empirical CDF we used in the Q-Q plot.</p>
+<p>In Part-4 we derive the most famous <strong>Kaplan-Meier estimator</strong> from first principles, prove <strong>Greenwood’s formula</strong> for its variance, handle tied failure times rigorously, and apply both to our machine fleet. Most survival analysis blogs introduce this estimator in the very beginning- like an entry point to the field. We are arriving at it in Part-4, after three parts of solid mathematical groundwork: censoring, hazard functions, parametric distributions, MLE and the empirical CDF. This is not a detour. This is the foundation that the Kaplan-Meier estimatior deserves. The clock is still ticking. See you in the next post.</p>
+
+
 </section>
 </section>
 
