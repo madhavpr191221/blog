@@ -703,6 +703,64 @@ Dataset saved to ../../data/machine_fleet.csv</code></pre>
 <p><strong>Step 2b: Assign plotting positions.</strong> The <span class="math inline">\(i\)</span>-th order statistic <span class="math inline">\(t_{(i)}\)</span> corresponds to an approximate quantile level:</p>
 <p><span class="math display">\[\hat{p}_i = \frac{i - 0.3}{n + 0.4}\]</span></p>
 <p>This is known as the <strong>median rank formula</strong> (or Blom plotting position). It estimates the probability level associated with the <span class="math inline">\(i\)</span>-th smallest observation. The corrections <span class="math inline">\(-0.3\)</span> and <span class="math inline">\(+0.4\)</span> reduce bias compared to the naive estimate <span class="math inline">\(\hat{p}_i = i/n\)</span>, particularly in the tails of the distribution.</p>
+</section>
+<section id="step-3-constructing-the-q-q-plot" class="level4">
+<h4 class="anchored" data-anchor-id="step-3-constructing-the-q-q-plot">Step 3: Constructing the Q-Q Plot</h4>
+<p><strong>Step 3a:</strong> Fit the Weibull distribution to get the estimated parameters <span class="math inline">\(\hat{\gamma}\)</span> and <span class="math inline">\(\hat{\theta}\)</span>.</p>
+<p><strong>Step 3b:</strong> For each data point <span class="math inline">\(i = 1, 2, \ldots, n\)</span>:</p>
+<ul>
+<li>The empirical quantile is <span class="math inline">\(t_{(i)}\)</span> — the <span class="math inline">\(i\)</span>-th ordered failure time from the data.</li>
+<li>The approximate quantile level is <span class="math inline">\(\hat{p}_i = \frac{i - 0.3}{n + 0.4}\)</span> from the median rank formula.</li>
+<li>The theoretical quantile is:</li>
+</ul>
+<p><span class="math display">\[q_{\hat{p}_i} = \hat{\theta}\left[\ln\left(\frac{1}{1 - \hat{p}_i}\right)\right]^{1/\hat{\gamma}}\]</span></p>
+<p><strong>Step 3c:</strong> Plot the pairs <span class="math inline">\((q_{\hat{p}_i},\ t_{(i)})\)</span> for each <span class="math inline">\(i = 1, 2, \ldots, n\)</span>.</p>
+<p><strong>What to look for:</strong></p>
+<ul>
+<li><strong>Straight line through the origin with slope 1</strong> — perfect fit. The theoretical and empirical quantiles agree at every probability level.</li>
+<li><strong>Points above the diagonal</strong> — the data has heavier tails than the Weibull predicts. Some machines lasted much longer than expected.</li>
+<li><strong>Points below the diagonal</strong> — the data has lighter tails than the Weibull predicts. Failures are happening earlier than the model expects.</li>
+<li><strong>S-shaped curve</strong> — the data comes from a mixed distribution or the shape parameter <span class="math inline">\(\gamma\)</span> is wrong.</li>
+</ul>
+<p>We will make these observations more precise and illuminating with a worked example shortly. Do not panic. For now we construct the Q-Q plot using only the observed failures, ignoring censored observations. This is a simplification — a more rigorous approach uses the Kaplan-Meier estimator for the empirical quantiles, which we will introduce in Part 4.</p>
+<p>Let’s see how well our fitted Weibull describes the machine fleet data. Here is the Q-Q plot using the 886 observed failures.</p>
+<div id="cell-fig-qqplot-fleet" class="cell" data-execution_count="5">
+<div class="cell-output cell-output-display">
+<div id="fig-qqplot-fleet" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-qqplot-fleet-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-qqplot-fleet-output-1.png" width="663" height="662" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-qqplot-fleet-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Q-Q plot: fitted Weibull vs observed failure times (machine fleet)
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The Q-Q plot tells a clear story. Most points fall below the <span class="math inline">\(y = x\)</span> diagonal — the empirical quantiles are smaller than the theoretical quantiles at the same probability level i.e <span class="math inline">\(t_{(i)} &lt; q_{\hat{p}_i}\)</span>. What does that mean mathematically? Since the CDF <span class="math inline">\(F\)</span> is monotone increasing, this implies:</p>
+<p><span class="math display">\[F(t_{(i)}) &lt; F(q_{\hat{p}_i}) = \hat{p}_i \quad \Longleftrightarrow \quad S(t_{(i)}) &gt; 1 - \hat{p}_i\]</span></p>
+<p>The fitted Weibull assigns too high a survival probability at the actual observed failure times- it thinks more machines should still be running than actually are. In simple words: the Weibull estimator is too optimistic. It predicts machines will last longer than they actually do.</p>
+<p>This is the signature of a heterogeneous fleet being forced into a single distribution. Each machine has its own true <span class="math inline">\(\theta\)</span> driven by its covariates like usage, age, temperature etc. A single Weibull cannot capture all of that simultaneously, and the Q-Q plot is telling us exactly that. This is precisely why survival regression exists and we will explore that in the later modules.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>A note on other Q-Q plot patterns
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ul>
+<li><p><strong>Points above the diagonal</strong> — <span class="math inline">\(t_{(i)} &gt; q_{\hat{p}_i}\)</span>, which implies <span class="math inline">\(F(t_{(i)}) &gt; \hat{p}_i\)</span> and <span class="math inline">\(S(t_{(i)}) &lt; 1 - \hat{p}_i\)</span>. The Weibull underestimates survival — it predicts more failures by time <span class="math inline">\(t_{(i)}\)</span> than actually occurred. The data has heavier tails than the model expects.</p></li>
+<li><p><strong>S-shaped curve</strong> — points below the diagonal in the lower tail and above in the upper tail (or vice versa). The shape parameter <span class="math inline">\(\gamma\)</span> is likely misspecified, or the data comes from a mixture of two distinct populations with different failure regimes.</p></li>
+</ul>
+</div>
+</div>
+</div>
 
 
 </section>
