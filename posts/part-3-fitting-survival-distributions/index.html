@@ -828,6 +828,119 @@ Figure&nbsp;4: Empirical CDF for a simple example with 5 failure times
 <p><span class="math display">\[X \sim \text{Binomial}(n,\ F(t))\]</span></p>
 <p>The expectation and variance of <span class="math inline">\(X\)</span> are:</p>
 <p><span class="math display">\[E[X] = n \cdot F(t), \qquad \text{Var}[X] = n \cdot F(t) \cdot (1 - F(t)) = n \cdot F(t) \cdot S(t)\]</span></p>
+</section>
+<section id="connection-with-the-empirical-cdf" class="level4">
+<h4 class="anchored" data-anchor-id="connection-with-the-empirical-cdf">Connection with the Empirical CDF</h4>
+<p>The empirical CDF is:</p>
+<p><span class="math display">\[\hat{F}_n(t) = \frac{1}{n}\sum_{i=1}^n \mathbf{1}\{t_i \leq t\} = \frac{1}{n}\sum_{i=1}^n X_i = \frac{X}{n}\]</span></p>
+<p>Since <span class="math inline">\(X \sim \text{Binomial}(n, F(t))\)</span>, we have:</p>
+<p><span class="math display">\[P(X = k) = \binom{n}{k} [F(t)]^k [1 - F(t)]^{n-k}\]</span></p>
+<p><span class="math inline">\(X\)</span> takes integer values <span class="math inline">\(\{0, 1, \ldots, n\}\)</span>, so <span class="math inline">\(\hat{F}_n(t) = X/n\)</span> takes values <span class="math inline">\(\left\{0, \frac{1}{n}, \frac{2}{n}, \ldots, 1\right\}\)</span> — and the difference between consecutive values is exactly the jump size <span class="math inline">\(\frac{1}{n}\)</span> we observed in the step function plot. The probability that the empirical CDF takes the value <span class="math inline">\(k/n\)</span> is:</p>
+<p><span class="math display">\[P\left(\hat{F}_n(t) = \frac{k}{n}\right) = P(X = k) = \binom{n}{k} [F(t)]^k [1 - F(t)]^{n-k}\]</span></p>
+<p>The moments of <span class="math inline">\(\hat{F}_n(t)\)</span> follow directly from those of <span class="math inline">\(X\)</span>:</p>
+<p><span class="math display">\[E[\hat{F}_n(t)] = \frac{E[X]}{n} = \frac{n \cdot F(t)}{n} = F(t)\]</span></p>
+<p><span class="math display">\[\text{Var}[\hat{F}_n(t)] = \frac{\text{Var}[X]}{n^2} = \frac{n \cdot F(t) \cdot S(t)}{n^2} = \frac{F(t) \cdot S(t)}{n} = \frac{F(t)(1 - F(t))}{n}\]</span></p>
+<p>Two beautiful results — the empirical CDF is an <strong>unbiased estimator</strong> of the true CDF <span class="math inline">\(F(t)\)</span>, and its variance shrinks as <span class="math inline">\(n\)</span> grows. The larger the dataset, the more precisely <span class="math inline">\(\hat{F}_n(t)\)</span> estimates <span class="math inline">\(F(t)\)</span> at every time point <span class="math inline">\(t\)</span>.</p>
+</section>
+</section>
+<section id="the-kolmogorov-smirnov-k-s-test" class="level3">
+<h3 class="anchored" data-anchor-id="the-kolmogorov-smirnov-k-s-test">The Kolmogorov-Smirnov (K-S) Test</h3>
+<p>The core idea of the K-S test is simple. You have two CDFs:</p>
+<ul>
+<li><span class="math inline">\(\hat{F}_n(t)\)</span> — the empirical CDF, computed from the data</li>
+<li><span class="math inline">\(F(t; \hat{\theta}, \hat{\gamma})\)</span> — the fitted Weibull CDF</li>
+</ul>
+<p>At every point <span class="math inline">\(t\)</span>, these two curves have some vertical distance between them. The K-S test statistic is simply the largest such distance:</p>
+<p><span class="math display">\[D_n = \sup_t \left|\hat{F}_n(t) - F(t; \hat{\theta}, \hat{\gamma})\right|\]</span></p>
+<p>where <span class="math inline">\(\sup\)</span> stands for supremum — the least upper bound of a set of real numbers. If you are not familiar with supremum, replace it with maximum and you will be fine for all practical purposes.</p>
+<p>Intuitively, if the fit is perfect, <span class="math inline">\(D_n = 0\)</span>. If the fit is terrible, <span class="math inline">\(D_n\)</span> is large.</p>
+<section id="the-hypothesis-test" class="level4">
+<h4 class="anchored" data-anchor-id="the-hypothesis-test">The Hypothesis Test</h4>
+<p><span class="math display">\[H_0: \text{the data comes from } F(t; \hat{\theta}, \hat{\gamma})\]</span> <span class="math display">\[H_1: \text{it doesn't}\]</span></p>
+<p>If <span class="math inline">\(D_n\)</span> is large enough — larger than what you would expect by chance if <span class="math inline">\(H_0\)</span> is true — you reject the null.</p>
+</section>
+<section id="distribution-of-d_n" class="level4">
+<h4 class="anchored" data-anchor-id="distribution-of-d_n">Distribution of <span class="math inline">\(D_n\)</span></h4>
+<p>Without going into the depths of hell, we simply state that under <span class="math inline">\(H_0\)</span> with <strong>known parameters</strong>, <span class="math inline">\(\sqrt{n} \cdot D_n\)</span> converges in distribution to the Kolmogorov distribution <span class="math inline">\(K\)</span>. The CDF of <span class="math inline">\(K\)</span> has the closed form:</p>
+<p><span class="math display">\[P(K \leq x) = 1 - 2\sum_{k=1}^{\infty} (-1)^{k-1} e^{-2k^2x^2}\]</span></p>
+</section>
+<section id="a-critical-caveat" class="level4">
+<h4 class="anchored" data-anchor-id="a-critical-caveat">A Critical Caveat</h4>
+<p>The standard K-S test assumes the parameters <span class="math inline">\(\theta\)</span> and <span class="math inline">\(\gamma\)</span> are <strong>known in advance</strong> — not estimated from the same data. In our case, we estimated <span class="math inline">\(\hat{\theta}\)</span> and <span class="math inline">\(\hat{\gamma}\)</span> from the machine fleet data using MLE, and then used those estimates to construct <span class="math inline">\(F(t; \hat{\theta}, \hat{\gamma})\)</span>. This makes <span class="math inline">\(D_n\)</span> artificially small — the fitted distribution has already been pulled toward the data, so the two curves are closer than they would be with truly known parameters. As a result, the standard K-S p-values are too optimistic and should not be taken at face value.</p>
+<p>For our purposes, we use the K-S test as a descriptive tool — a way to quantify how close the fit is — rather than as a strict hypothesis test. The Q-Q plot already told us the story visually. The K-S statistic puts a number on it. Let’s see via code what that number looks like.</p>
+<div id="ks-test-fleet" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> lifelines <span class="im">import</span> WeibullFitter</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> stats</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'../../data/machine_fleet.csv'</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>wf <span class="op">=</span> WeibullFitter()</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>wf.fit(df[<span class="st">'observed_time'</span>], event_observed<span class="op">=</span>df[<span class="st">'event_observed'</span>])</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>gamma_hat <span class="op">=</span> wf.rho_</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>theta_hat <span class="op">=</span> wf.lambda_</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Use only observed failures</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>t_obs <span class="op">=</span> df[df[<span class="st">'event_observed'</span>] <span class="op">==</span> <span class="dv">1</span>][<span class="st">'observed_time'</span>].values</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co"># K-S test against fitted Weibull</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co"># scipy uses the standard Weibull parameterization</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Weibull(c, scale) where c = gamma, scale = theta</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>ks_stat, p_value <span class="op">=</span> stats.kstest(</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    t_obs,</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">'weibull_min'</span>,</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    args<span class="op">=</span>(gamma_hat, <span class="dv">0</span>, theta_hat)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"K-S statistic  : </span><span class="sc">{</span>ks_stat<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"p-value        : </span><span class="sc">{</span>p_value<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Sample size    : </span><span class="sc">{</span><span class="bu">len</span>(t_obs)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Interpretation:"</span>)</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> p_value <span class="op">&lt;</span> <span class="fl">0.05</span>:</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"  D_n = </span><span class="sc">{</span>ks_stat<span class="sc">:.4f}</span><span class="ss"> — reject H0 at 5% significance."</span>)</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"  The fitted Weibull does not describe the data well."</span>)</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"  D_n = </span><span class="sc">{</span>ks_stat<span class="sc">:.4f}</span><span class="ss"> — fail to reject H0 at 5% significance."</span>)</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"  The fitted Weibull is a reasonable description of the data."</span>)</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Note: p-value is anti-conservative since parameters were"</span>)</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"estimated from the same data. Use as descriptive tool only."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>K-S statistic  : 0.0669
+p-value        : 0.0007
+Sample size    : 886
+
+Interpretation:
+  D_n = 0.0669 — reject H0 at 5% significance.
+  The fitted Weibull does not describe the data well.
+
+Note: p-value is anti-conservative since parameters were
+estimated from the same data. Use as descriptive tool only.</code></pre>
+</div>
+</div>
+<p><span class="math inline">\(D_n = 0.067\)</span> and <span class="math inline">\(p = 0.0007\)</span> are both computed from the same test statistic, but they answer different questions. <span class="math inline">\(D_n\)</span> measures the size of the deviation — 6.7 percentage points at most, which is practically small. The p-value measures whether a deviation this large is surprising given the sample size. With <span class="math inline">\(n = 886\)</span>, even a small <span class="math inline">\(D_n\)</span> becomes highly significant — the test has enough power to confidently declare the fit imperfect. This is a well known phenomenon in hypothesis testing — with large sample sizes, even small and practically irrelevant deviations from the null become statistically significant. The test is not broken. It is doing exactly what it is designed to do: detect any deviation from <span class="math inline">\(H_0\)</span>, no matter how small, given enough data. Whether that deviation matters in practice is a separate question that the p-value cannot answer.</p>
+<p>Let’s spend a few minutes to analyze the output D_n = 0.067 and p = 0.0007 in practical terms. The small p-value tells us that the observed data is unlikely to have come from the fitted Weibull. Fine. The test statistic D_n tells us that the fitted CDF and the empirical CDF are never off by more than 6.7 percent at any time point.</p>
+<p>Because, for any time t, |F_n_hat(t) - F(t; , ) | &lt;= 0.067</p>
+<p>Now suppose we use the fitted Weibull to make a decision: Schedule maintenance at time t* where the fitted CDF reaches 30% - i.e.&nbsp;act before 30% of the fleet has failed. Solving for t* gives,</p>
+<p><span class="math display">\[t^* = \hat{\theta}\left[\ln\left(\frac{1}{1-0.30}\right)\right]^{1/\hat{\gamma}} \approx 71\ \text{hours}\]</span></p>
+<p>We schedule maintenance at 71 hours. But by the K-S bound, the actual observed failure fraction at <span class="math inline">\(t=71\)</span> hours satisfies:</p>
+<p><span class="math display">\[|\hat{F}_n(71) - 0.30| \leq 0.067 \implies \hat{F}_n(71) \in [0.233,\ 0.367]\]</span></p>
+<p>Out of 1000 machines, between 233 and 367 have actually failed by the time we trigger maintenance — a swing of <span class="math inline">\(\pm 67\)</span> machines driven entirely by the model’s imprecision. Whether that uncertainty is acceptable depends on the cost of an unplanned failure vs the cost of preventive maintenance. Let’s assume:</p>
+<ul>
+<li>Cost of an <strong>unplanned failure</strong> (breakdown, emergency repair, downtime): ₹5,00,000 per machine</li>
+<li>Cost of <strong>preventive maintenance</strong> (scheduled, planned): ₹50,000 per machine</li>
+</ul>
+<p>At <span class="math inline">\(t^* = 71\)</span> hours, you service all 1000 machines regardless. The question is how many had already failed before you arrived.</p>
+<p><strong>Best case</strong> <span class="math inline">\(\left(\hat{F}_n(71) = 0.233\right)\)</span>: 233 machines had already failed, 767 are still running.</p>
+<p><span class="math display">\[\text{Total cost} = 233 \times 5{,}00{,}000 + 767 \times 50{,}000 = \text{₹11,65,00,000} + \text{₹3,83,50,000} = \text{₹15,48,50,000}\]</span></p>
+<p><strong>Worst case</strong> <span class="math inline">\(\left(\hat{F}_n(71) = 0.367\right)\)</span>: 367 machines had already failed, 633 are still running.</p>
+<p><span class="math display">\[\text{Total cost} = 367 \times 5{,}00{,}000 + 633 \times 50{,}000 = \text{₹18,35,00,000} + \text{₹3,16,50,000} = \text{₹21,51,50,000}\]</span></p>
+<p>The uncertainty from <span class="math inline">\(D_n = 0.067\)</span> alone translates into a cost swing of:</p>
+<p><span class="math display">\[\text{₹21,51,50,000} - \text{₹15,48,50,000} = \text{₹6,03,00,000}\]</span></p>
+<p>approximately ₹6 crore. And crucially — we cannot identify <em>which</em> 67 machines are driving this uncertainty without knowing their individual characteristics. That requires modeling the effect of covariates on failure time. This is precisely what survival regression is built to do — and where we are headed.</p>
 
 
 </section>
