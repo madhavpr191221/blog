@@ -1427,7 +1427,7 @@ estimated from the same data. Use as descriptive tool only.</code></pre>
 </div>
 </div>
 <p><img src="https://latex.codecogs.com/png.latex?D_n%20=%200.067"> and <img src="https://latex.codecogs.com/png.latex?p%20=%200.0007"> are both computed from the same test statistic, but they answer different questions. <img src="https://latex.codecogs.com/png.latex?D_n"> measures the size of the deviation — 6.7 percentage points at most, which is practically small. The p-value measures whether a deviation this large is surprising given the sample size. With <img src="https://latex.codecogs.com/png.latex?n%20=%20886">, even a small <img src="https://latex.codecogs.com/png.latex?D_n"> becomes highly significant — the test has enough power to confidently declare the fit imperfect. This is a well known phenomenon in hypothesis testing — with large sample sizes, even small and practically irrelevant deviations from the null become statistically significant. The test is not broken. It is doing exactly what it is designed to do: detect any deviation from <img src="https://latex.codecogs.com/png.latex?H_0">, no matter how small, given enough data. Whether that deviation matters in practice is a separate question that the p-value cannot answer.</p>
-<p>Let’s spend a few minutes to analyze the output D_n = 0.067 and p = 0.0007 in practical terms. The small p-value tells us that the observed data is unlikely to have come from the fitted Weibull. Fine. The test statistic D_n tells us that the fitted CDF and the empirical CDF are never off by more than 6.7 percent at any time point.</p>
+<p>Let’s spend a few minutes to analyze the output <img src="https://latex.codecogs.com/png.latex?D_n%20=%200.067"> and <img src="https://latex.codecogs.com/png.latex?p%20=%200.0007"> in practical terms. The small p-value tells us that the observed data is unlikely to have come from the fitted Weibull. Fine. The test statistic <img src="https://latex.codecogs.com/png.latex?D_n"> tells us that the fitted CDF and the empirical CDF are never off by more than 6.7 percent at any time point.</p>
 <p>Because for any time <img src="https://latex.codecogs.com/png.latex?t">:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%7C%5Chat%7BF%7D_n(t)%20-%20F(t;%5Chat%7B%5Ctheta%7D,%20%5Chat%7B%5Cgamma%7D)%7C%20%5Cleq%20D_n%20=%200.067"></p>
 <p>Now suppose we use the fitted Weibull to make a decision: Schedule maintenance at time t* where the fitted CDF reaches 30% - i.e.&nbsp;act before 30% of the fleet has failed. Solving for t* gives,</p>
@@ -1446,7 +1446,49 @@ estimated from the same data. Use as descriptive tool only.</code></pre>
 <p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BTotal%20cost%7D%20=%20367%20%5Ctimes%205%7B,%7D00%7B,%7D000%20+%20633%20%5Ctimes%2050%7B,%7D000%20=%20%5Ctext%7B%E2%82%B918,35,00,000%7D%20+%20%5Ctext%7B%E2%82%B93,16,50,000%7D%20=%20%5Ctext%7B%E2%82%B921,51,50,000%7D"></p>
 <p>The uncertainty from <img src="https://latex.codecogs.com/png.latex?D_n%20=%200.067"> alone translates into a cost swing of:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7B%E2%82%B921,51,50,000%7D%20-%20%5Ctext%7B%E2%82%B915,48,50,000%7D%20=%20%5Ctext%7B%E2%82%B96,03,00,000%7D"></p>
-<p>approximately ₹6 crore. And crucially — we cannot identify <em>which</em> 67 machines are driving this uncertainty without knowing their individual characteristics. That requires modeling the effect of covariates on failure time. This is precisely what survival regression is built to do — and where we are headed.</p>
+<p>approximately ₹6 crore. And crucially — we cannot identify <em>which</em> 67 machines are driving this uncertainty without knowing their individual characteristics. That requires modeling the effect of covariates on failure time. This is precisely what survival regression is built to do — and where we are headed. Let’s visualize how the cost swing and the trigger time <img src="https://latex.codecogs.com/png.latex?t%5E*"> vary across all possible thresholds from 5% to 95%.</p>
+<div id="cell-fig-cost-swing" class="cell" data-execution_count="8">
+<div class="cell-output cell-output-display">
+<div id="fig-cost-swing" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-cost-swing-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://madhavpr191221.github.io/blog/posts/part-3-fitting-survival-distributions/index_files/figure-html/fig-cost-swing-output-1.png" width="1335" height="470" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cost-swing-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Cost swing due to model uncertainty (D_n = 0.067) across maintenance thresholds
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The cost swing curve is nearly flat at ₹6 crore across all thresholds — this is not a coincidence. Since <img src="https://latex.codecogs.com/png.latex?D_n"> is a uniform bound over all <img src="https://latex.codecogs.com/png.latex?t">, the worst-case cost uncertainty is approximately:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BCost%20swing%7D%20%5Capprox%202%20D_n%20%5Ctimes%20n%20%5Ctimes%20(c_%7B%5Ctext%7Bfailure%7D%7D%20-%20c_%7B%5Ctext%7Bmaintenance%7D%7D)%0A=%202%20%5Ctimes%200.067%20%5Ctimes%201000%20%5Ctimes%204%7B,%7D50%7B,%7D000%20=%20%5Ctext%7B%E2%82%B96.03%20crore%7D"></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Derivation of the Cost Swing Formula
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>At threshold <img src="https://latex.codecogs.com/png.latex?p%5E*">, you trigger maintenance at <img src="https://latex.codecogs.com/png.latex?t%5E*"> and service all <img src="https://latex.codecogs.com/png.latex?n"> machines. Of those, <img src="https://latex.codecogs.com/png.latex?%5Chat%7BF%7D_n(t%5E*)%20%5Ctimes%20n"> had already failed and each costs <img src="https://latex.codecogs.com/png.latex?c_%7B%5Ctext%7Bfailure%7D%7D">, while <img src="https://latex.codecogs.com/png.latex?(1%20-%20%5Chat%7BF%7D_n(t%5E*))%20%5Ctimes%20n"> are still running and each costs <img src="https://latex.codecogs.com/png.latex?c_%7B%5Ctext%7Bmaintenance%7D%7D">. The total cost is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BTotal%20cost%7D%20=%20%5Chat%7BF%7D_n(t%5E*)%20%5Ccdot%20n%20%5Ccdot%20c_%7B%5Ctext%7Bfailure%7D%7D%20+%20(1%20-%20%5Chat%7BF%7D_n(t%5E*))%20%5Ccdot%20n%20%5Ccdot%20c_%7B%5Ctext%7Bmaintenance%7D%7D"></p>
+<p>By the K-S bound, <img src="https://latex.codecogs.com/png.latex?%5Chat%7BF%7D_n(t%5E*)"> lies in <img src="https://latex.codecogs.com/png.latex?%5Bp%5E*%20-%20D_n,%5C%20p%5E*%20+%20D_n%5D">, so:</p>
+<p><img src="https://latex.codecogs.com/png.latex?p_%7B%5Ctext%7Bbest%7D%7D%20=%20p%5E*%20-%20D_n,%20%5Cqquad%20p_%7B%5Ctext%7Bworst%7D%7D%20=%20p%5E*%20+%20D_n"></p>
+<p>The cost swing is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BCost%20swing%7D%20=%20%5Ctext%7BCost%7D_%7B%5Ctext%7Bworst%7D%7D%20-%20%5Ctext%7BCost%7D_%7B%5Ctext%7Bbest%7D%7D"></p>
+<p><img src="https://latex.codecogs.com/png.latex?=%20%5Cleft%5Bp_%7B%5Ctext%7Bworst%7D%7D%20%5Ccdot%20n%20%5Ccdot%20c_%7B%5Ctext%7Bfailure%7D%7D%20+%20(1-p_%7B%5Ctext%7Bworst%7D%7D)%20%5Ccdot%20n%20%5Ccdot%20c_%7B%5Ctext%7Bmaintenance%7D%7D%5Cright%5D%20-%20%5Cleft%5Bp_%7B%5Ctext%7Bbest%7D%7D%20%5Ccdot%20n%20%5Ccdot%20c_%7B%5Ctext%7Bfailure%7D%7D%20+%20(1-p_%7B%5Ctext%7Bbest%7D%7D)%20%5Ccdot%20n%20%5Ccdot%20c_%7B%5Ctext%7Bmaintenance%7D%7D%5Cright%5D"></p>
+<p><img src="https://latex.codecogs.com/png.latex?=%20n(p_%7B%5Ctext%7Bworst%7D%7D%20-%20p_%7B%5Ctext%7Bbest%7D%7D)(c_%7B%5Ctext%7Bfailure%7D%7D%20-%20c_%7B%5Ctext%7Bmaintenance%7D%7D)"></p>
+<p><img src="https://latex.codecogs.com/png.latex?=%20n%20%5Ccdot%202D_n%20%5Ccdot%20(c_%7B%5Ctext%7Bfailure%7D%7D%20-%20c_%7B%5Ctext%7Bmaintenance%7D%7D)"></p>
+<p>This is constant across all thresholds <img src="https://latex.codecogs.com/png.latex?p%5E*"> — the cost swing depends only on <img src="https://latex.codecogs.com/png.latex?D_n">, <img src="https://latex.codecogs.com/png.latex?n">, and the cost difference, not on which threshold you choose.</p>
+</div>
+</div>
+</div>
+<p>regardless of which threshold you choose. A better model — one that reduces <img src="https://latex.codecogs.com/png.latex?D_n"> — would shift this entire curve downward uniformly. The right panel shows the trigger time <img src="https://latex.codecogs.com/png.latex?t%5E*"> growing rapidly with threshold — waiting for 90% of the fleet to fail before intervening means waiting nearly 180 hours.</p>
 </section>
 </section>
 <section id="whats-next" class="level3">

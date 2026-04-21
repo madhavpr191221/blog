@@ -947,7 +947,7 @@ estimated from the same data. Use as descriptive tool only.</code></pre>
 </div>
 </div>
 <p><span class="math inline">\(D_n = 0.067\)</span> and <span class="math inline">\(p = 0.0007\)</span> are both computed from the same test statistic, but they answer different questions. <span class="math inline">\(D_n\)</span> measures the size of the deviation — 6.7 percentage points at most, which is practically small. The p-value measures whether a deviation this large is surprising given the sample size. With <span class="math inline">\(n = 886\)</span>, even a small <span class="math inline">\(D_n\)</span> becomes highly significant — the test has enough power to confidently declare the fit imperfect. This is a well known phenomenon in hypothesis testing — with large sample sizes, even small and practically irrelevant deviations from the null become statistically significant. The test is not broken. It is doing exactly what it is designed to do: detect any deviation from <span class="math inline">\(H_0\)</span>, no matter how small, given enough data. Whether that deviation matters in practice is a separate question that the p-value cannot answer.</p>
-<p>Let’s spend a few minutes to analyze the output D_n = 0.067 and p = 0.0007 in practical terms. The small p-value tells us that the observed data is unlikely to have come from the fitted Weibull. Fine. The test statistic D_n tells us that the fitted CDF and the empirical CDF are never off by more than 6.7 percent at any time point.</p>
+<p>Let’s spend a few minutes to analyze the output <span class="math inline">\(D_n = 0.067\)</span> and <span class="math inline">\(p = 0.0007\)</span> in practical terms. The small p-value tells us that the observed data is unlikely to have come from the fitted Weibull. Fine. The test statistic <span class="math inline">\(D_n\)</span> tells us that the fitted CDF and the empirical CDF are never off by more than 6.7 percent at any time point.</p>
 <p>Because for any time <span class="math inline">\(t\)</span>:</p>
 <p><span class="math display">\[|\hat{F}_n(t) - F(t;\hat{\theta}, \hat{\gamma})| \leq D_n = 0.067\]</span></p>
 <p>Now suppose we use the fitted Weibull to make a decision: Schedule maintenance at time t* where the fitted CDF reaches 30% - i.e.&nbsp;act before 30% of the fleet has failed. Solving for t* gives,</p>
@@ -966,7 +966,50 @@ estimated from the same data. Use as descriptive tool only.</code></pre>
 <p><span class="math display">\[\text{Total cost} = 367 \times 5{,}00{,}000 + 633 \times 50{,}000 = \text{₹18,35,00,000} + \text{₹3,16,50,000} = \text{₹21,51,50,000}\]</span></p>
 <p>The uncertainty from <span class="math inline">\(D_n = 0.067\)</span> alone translates into a cost swing of:</p>
 <p><span class="math display">\[\text{₹21,51,50,000} - \text{₹15,48,50,000} = \text{₹6,03,00,000}\]</span></p>
-<p>approximately ₹6 crore. And crucially — we cannot identify <em>which</em> 67 machines are driving this uncertainty without knowing their individual characteristics. That requires modeling the effect of covariates on failure time. This is precisely what survival regression is built to do — and where we are headed.</p>
+<p>approximately ₹6 crore. And crucially — we cannot identify <em>which</em> 67 machines are driving this uncertainty without knowing their individual characteristics. That requires modeling the effect of covariates on failure time. This is precisely what survival regression is built to do — and where we are headed. Let’s visualize how the cost swing and the trigger time <span class="math inline">\(t^*\)</span> vary across all possible thresholds from 5% to 95%.</p>
+<div id="cell-fig-cost-swing" class="cell" data-execution_count="8">
+<div class="cell-output cell-output-display">
+<div id="fig-cost-swing" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-cost-swing-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-cost-swing-output-1.png" width="1335" height="470" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cost-swing-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Cost swing due to model uncertainty (D_n = 0.067) across maintenance thresholds
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The cost swing curve is nearly flat at ₹6 crore across all thresholds — this is not a coincidence. Since <span class="math inline">\(D_n\)</span> is a uniform bound over all <span class="math inline">\(t\)</span>, the worst-case cost uncertainty is approximately:</p>
+<p><span class="math display">\[\text{Cost swing} \approx 2 D_n \times n \times (c_{\text{failure}} - c_{\text{maintenance}})
+= 2 \times 0.067 \times 1000 \times 4{,}50{,}000 = \text{₹6.03 crore}\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Derivation of the Cost Swing Formula
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>At threshold <span class="math inline">\(p^*\)</span>, you trigger maintenance at <span class="math inline">\(t^*\)</span> and service all <span class="math inline">\(n\)</span> machines. Of those, <span class="math inline">\(\hat{F}_n(t^*) \times n\)</span> had already failed and each costs <span class="math inline">\(c_{\text{failure}}\)</span>, while <span class="math inline">\((1 - \hat{F}_n(t^*)) \times n\)</span> are still running and each costs <span class="math inline">\(c_{\text{maintenance}}\)</span>. The total cost is:</p>
+<p><span class="math display">\[\text{Total cost} = \hat{F}_n(t^*) \cdot n \cdot c_{\text{failure}} + (1 - \hat{F}_n(t^*)) \cdot n \cdot c_{\text{maintenance}}\]</span></p>
+<p>By the K-S bound, <span class="math inline">\(\hat{F}_n(t^*)\)</span> lies in <span class="math inline">\([p^* - D_n,\ p^* + D_n]\)</span>, so:</p>
+<p><span class="math display">\[p_{\text{best}} = p^* - D_n, \qquad p_{\text{worst}} = p^* + D_n\]</span></p>
+<p>The cost swing is:</p>
+<p><span class="math display">\[\text{Cost swing} = \text{Cost}_{\text{worst}} - \text{Cost}_{\text{best}}\]</span></p>
+<p><span class="math display">\[= \left[p_{\text{worst}} \cdot n \cdot c_{\text{failure}} + (1-p_{\text{worst}}) \cdot n \cdot c_{\text{maintenance}}\right] - \left[p_{\text{best}} \cdot n \cdot c_{\text{failure}} + (1-p_{\text{best}}) \cdot n \cdot c_{\text{maintenance}}\right]\]</span></p>
+<p><span class="math display">\[= n(p_{\text{worst}} - p_{\text{best}})(c_{\text{failure}} - c_{\text{maintenance}})\]</span></p>
+<p><span class="math display">\[= n \cdot 2D_n \cdot (c_{\text{failure}} - c_{\text{maintenance}})\]</span></p>
+<p>This is constant across all thresholds <span class="math inline">\(p^*\)</span> — the cost swing depends only on <span class="math inline">\(D_n\)</span>, <span class="math inline">\(n\)</span>, and the cost difference, not on which threshold you choose.</p>
+</div>
+</div>
+</div>
+<p>regardless of which threshold you choose. A better model — one that reduces <span class="math inline">\(D_n\)</span> — would shift this entire curve downward uniformly. The right panel shows the trigger time <span class="math inline">\(t^*\)</span> growing rapidly with threshold — waiting for 90% of the fleet to fail before intervening means waiting nearly 180 hours.</p>
 </section>
 </section>
 <section id="whats-next" class="level3">
