@@ -23,7 +23,7 @@
 
 <section id="recap-of-part-2-and-whats-coming-in-part-3" class="level2">
 <h2 class="anchored" data-anchor-id="recap-of-part-2-and-whats-coming-in-part-3">Recap of Part 2 and What’s Coming in Part 3</h2>
-<p>In <strong>Part 2</strong>, we built a vocabulary of survival distributions — the Exponential for constant hazard, the Rayleigh for linearly increasing hazard, and the Weibull as the unifying family that contains both as special cases. Along the way we took a detour through the connection between the Rayleigh, Normal, and Exponential distributions, and ended with the bathtub curve — the most common failure pattern in real engineered systems.</p>
+<p>In <a href="https://madhavpr191221.github.io/blog/posts/part2-distributions-in-survival-analysis/"><strong>Part 2</strong></a>, we built a vocabulary of survival distributions — the Exponential for constant hazard, the Rayleigh for linearly increasing hazard, and the Weibull as the unifying family that contains both as special cases. Along the way we took a detour through the connection between the Rayleigh, Normal, and Exponential distributions, and ended with the bathtub curve — the most common failure pattern in real engineered systems.</p>
 <p>But a distribution is not a model until it is fit to data. In <strong>Part 3</strong>, we ask: given a dataset of failure times — some exact, some censored — how do we estimate the parameters of these distributions? We will derive the likelihood function under censoring from first principles, apply maximum likelihood estimation, and assess the quality of our fits using diagnostic tools. Python code throughout using <code>lifelines</code>.</p>
 <section id="maximum-likelihood-estimation" class="level3">
 <h3 class="anchored" data-anchor-id="maximum-likelihood-estimation">Maximum Likelihood Estimation</h3>
@@ -1462,7 +1462,7 @@ Figure&nbsp;5: Cost swing due to model uncertainty (D_n = 0.067) across maintena
 </div>
 </div>
 <p>The cost swing curve is nearly flat at ₹6 crore across all thresholds — this is not a coincidence. Since <img src="https://latex.codecogs.com/png.latex?D_n"> is a uniform bound over all <img src="https://latex.codecogs.com/png.latex?t">, the worst-case cost uncertainty is approximately:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BCost%20swing%7D%20%5Capprox%202%20D_n%20%5Ctimes%20n%20%5Ctimes%20(c_%7B%5Ctext%7Bfailure%7D%7D%20-%20c_%7B%5Ctext%7Bmaintenance%7D%7D)%0A=%202%20%5Ctimes%200.067%20%5Ctimes%201000%20%5Ctimes%204%7B,%7D50%7B,%7D000%20=%20%5Ctext%7B%E2%82%B96.03%20crore%7D"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BCost%20swing%7D%20%5Capprox%202%20D_n%20%5Ctimes%20n%20%5Ctimes%20(c_%7B%5Ctext%7Bfailure%7D%7D%20-%20c_%7B%5Ctext%7Bmaintenance%7D%7D)%0A=%202%20%5Ctimes%200.067%20%5Ctimes%201000%20%5Ctimes%204%7B,%7D50%7B,%7D000%20=%20%5Ctext%7B%E2%82%B96.03%20crore%7D"> regardless of which threshold you choose. A better model — one that reduces <img src="https://latex.codecogs.com/png.latex?D_n"> — would shift this entire curve downward uniformly. The right panel shows the trigger time <img src="https://latex.codecogs.com/png.latex?t%5E*"> growing rapidly with threshold — waiting for 90% of the fleet to fail before intervening means waiting nearly 180 hours.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -1488,7 +1488,6 @@ Figure&nbsp;5: Cost swing due to model uncertainty (D_n = 0.067) across maintena
 </div>
 </div>
 </div>
-<p>regardless of which threshold you choose. A better model — one that reduces <img src="https://latex.codecogs.com/png.latex?D_n"> — would shift this entire curve downward uniformly. The right panel shows the trigger time <img src="https://latex.codecogs.com/png.latex?t%5E*"> growing rapidly with threshold — waiting for 90% of the fleet to fail before intervening means waiting nearly 180 hours.</p>
 </section>
 </section>
 <section id="whats-next" class="level3">

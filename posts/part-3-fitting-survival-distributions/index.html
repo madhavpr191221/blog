@@ -233,7 +233,7 @@ window.Quarto = {
 
 <section id="recap-of-part-2-and-whats-coming-in-part-3" class="level2">
 <h2 class="anchored" data-anchor-id="recap-of-part-2-and-whats-coming-in-part-3">Recap of Part 2 and What’s Coming in Part 3</h2>
-<p>In <strong>Part 2</strong>, we built a vocabulary of survival distributions — the Exponential for constant hazard, the Rayleigh for linearly increasing hazard, and the Weibull as the unifying family that contains both as special cases. Along the way we took a detour through the connection between the Rayleigh, Normal, and Exponential distributions, and ended with the bathtub curve — the most common failure pattern in real engineered systems.</p>
+<p>In <a href="https://madhavpr191221.github.io/blog/posts/part2-distributions-in-survival-analysis/"><strong>Part 2</strong></a>, we built a vocabulary of survival distributions — the Exponential for constant hazard, the Rayleigh for linearly increasing hazard, and the Weibull as the unifying family that contains both as special cases. Along the way we took a detour through the connection between the Rayleigh, Normal, and Exponential distributions, and ended with the bathtub curve — the most common failure pattern in real engineered systems.</p>
 <p>But a distribution is not a model until it is fit to data. In <strong>Part 3</strong>, we ask: given a dataset of failure times — some exact, some censored — how do we estimate the parameters of these distributions? We will derive the likelihood function under censoring from first principles, apply maximum likelihood estimation, and assess the quality of our fits using diagnostic tools. Python code throughout using <code>lifelines</code>.</p>
 <section id="maximum-likelihood-estimation" class="level3">
 <h3 class="anchored" data-anchor-id="maximum-likelihood-estimation">Maximum Likelihood Estimation</h3>
@@ -983,7 +983,7 @@ Figure&nbsp;5: Cost swing due to model uncertainty (D_n = 0.067) across maintena
 </div>
 <p>The cost swing curve is nearly flat at ₹6 crore across all thresholds — this is not a coincidence. Since <span class="math inline">\(D_n\)</span> is a uniform bound over all <span class="math inline">\(t\)</span>, the worst-case cost uncertainty is approximately:</p>
 <p><span class="math display">\[\text{Cost swing} \approx 2 D_n \times n \times (c_{\text{failure}} - c_{\text{maintenance}})
-= 2 \times 0.067 \times 1000 \times 4{,}50{,}000 = \text{₹6.03 crore}\]</span></p>
+= 2 \times 0.067 \times 1000 \times 4{,}50{,}000 = \text{₹6.03 crore}\]</span> regardless of which threshold you choose. A better model — one that reduces <span class="math inline">\(D_n\)</span> — would shift this entire curve downward uniformly. The right panel shows the trigger time <span class="math inline">\(t^*\)</span> growing rapidly with threshold — waiting for 90% of the fleet to fail before intervening means waiting nearly 180 hours.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -1009,7 +1009,6 @@ Figure&nbsp;5: Cost swing due to model uncertainty (D_n = 0.067) across maintena
 </div>
 </div>
 </div>
-<p>regardless of which threshold you choose. A better model — one that reduces <span class="math inline">\(D_n\)</span> — would shift this entire curve downward uniformly. The right panel shows the trigger time <span class="math inline">\(t^*\)</span> growing rapidly with threshold — waiting for 90% of the fleet to fail before intervening means waiting nearly 180 hours.</p>
 </section>
 </section>
 <section id="whats-next" class="level3">
