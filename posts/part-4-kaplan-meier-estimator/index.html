@@ -152,8 +152,6 @@ window.Quarto = {
                                 <div class="quarto-categories">
                 <div class="quarto-category">survival analysis</div>
                 <div class="quarto-category">statistics</div>
-                <div class="quarto-category">python</div>
-                <div class="quarto-category">MLE</div>
               </div>
                   </div>
   </div>
@@ -192,7 +190,7 @@ window.Quarto = {
 
 <section id="recap-of-part-3-and-whats-coming-in-part-4" class="level2">
 <h2 class="anchored" data-anchor-id="recap-of-part-3-and-whats-coming-in-part-4">Recap of Part 3 and What’s Coming in Part 4</h2>
-<p>In <a href="link-here"><strong>Part 3</strong></a>, we derived the likelihood function for censored data from first principles, fit a Weibull distribution to our synthetic machine fleet, and assessed the quality of that fit using two diagnostic tools — the Q-Q plot, which told the story visually, and the K-S test, which put a number on it. We ended with a sobering observation: a single Weibull is not enough for a heterogeneous fleet. The K-S statistic <span class="math inline">\(D_n = 0.067\)</span> translated into a ₹6 crore cost swing — and we couldn’t identify which machines were responsible without modeling the effect of their individual characteristics on failure time.</p>
+<p>In <a href="https://madhavpr191221.github.io/blog/posts/part-3-fitting-survival-distributions/"><strong>Part 3</strong></a>, we derived the likelihood function for censored data from first principles, fit a Weibull distribution to our synthetic machine fleet, and assessed the quality of that fit using two diagnostic tools — the Q-Q plot, which told the story visually, and the K-S test, which put a number on it. We ended with a sobering observation: a single Weibull is not enough for a heterogeneous fleet. The K-S statistic <span class="math inline">\(D_n = 0.067\)</span> translated into a ₹6 crore cost swing — and we couldn’t identify which machines were responsible without modeling the effect of their individual characteristics on failure time.</p>
 <p>Before we get to regression models, we need a better estimator of the survival function itself — one that handles censored data naturally and doesn’t require us to assume any parametric form for the distribution of failure times. This is the subject of Part 4.</p>
 </section>
 <section id="the-kaplan-meier-estimator" class="level1">
