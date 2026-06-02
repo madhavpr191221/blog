@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Madhav Prashanth Ramachandran">
+<meta name="dcterms.date" content="2026-06-02">
 
-<title>Articles – Madhav’s Blog</title>
+<title>Part 4: The Kaplan-Meier Estimator – Madhav’s Blog</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -26,25 +28,23 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-a0f9fd0d421825b736dc1bbcbcba2219.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-a0f9fd0d421825b736dc1bbcbcba2219.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -72,35 +72,6 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
-
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -132,17 +103,17 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="styles.css">
-<link rel="alternate" type="application/rss+xml" title="Madhav's Blog" href="index.xml" data-external="1"></head>
+<link rel="stylesheet" href="../../styles.css">
+</head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed fullcontent quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top quarto-banner">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Madhav’s Blog</span>
     </a>
   </div>
@@ -153,7 +124,7 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
+    <a class="nav-link" href="../../about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
@@ -176,180 +147,121 @@ window.Quarto = {
 <!-- content -->
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
-    <div class="quarto-title column-page-left">
-      <h1 class="title">Articles</h1>
-                      </div>
+    <div class="quarto-title column-body">
+      <h1 class="title">Part 4: The Kaplan-Meier Estimator</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">survival analysis</div>
+                <div class="quarto-category">statistics</div>
+                <div class="quarto-category">python</div>
+                <div class="quarto-category">MLE</div>
+              </div>
+                  </div>
   </div>
     
   
-  <div class="quarto-title-meta column-page-left">
+  <div class="quarto-title-meta">
 
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Madhav Prashanth Ramachandran </p>
+            </div>
+    </div>
       
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">June 2, 2026</p>
+      </div>
+    </div>
     
       
     </div>
     
   
-  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(4)</span></div><div class="category" data-category="TUxF">MLE <span class="quarto-category-count">(2)</span></div><div class="category" data-category="cHl0aG9u">python <span class="quarto-category-count">(3)</span></div><div class="category" data-category="c3RhdGlzdGljcw==">statistics <span class="quarto-category-count">(4)</span></div><div class="category" data-category="c3Vydml2YWwlMjBhbmFseXNpcw==">survival analysis <span class="quarto-category-count">(4)</span></div></div></div>
+    
 <!-- main -->
-<main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
+<main class="content quarto-banner-title-block" id="quarto-document-content">
 
 
 
 
 
+<section id="recap-of-part-3-and-whats-coming-in-part-4" class="level2">
+<h2 class="anchored" data-anchor-id="recap-of-part-3-and-whats-coming-in-part-4">Recap of Part 3 and What’s Coming in Part 4</h2>
+<p>In <a href="link-here"><strong>Part 3</strong></a>, we derived the likelihood function for censored data from first principles, fit a Weibull distribution to our synthetic machine fleet, and assessed the quality of that fit using two diagnostic tools — the Q-Q plot, which told the story visually, and the K-S test, which put a number on it. We ended with a sobering observation: a single Weibull is not enough for a heterogeneous fleet. The K-S statistic <span class="math inline">\(D_n = 0.067\)</span> translated into a ₹6 crore cost swing — and we couldn’t identify which machines were responsible without modeling the effect of their individual characteristics on failure time.</p>
+<p>Before we get to regression models, we need a better estimator of the survival function itself — one that handles censored data naturally and doesn’t require us to assume any parametric form for the distribution of failure times. This is the subject of Part 4.</p>
+</section>
+<section id="the-kaplan-meier-estimator" class="level1">
+<h1>The Kaplan-Meier Estimator</h1>
+<p>This part introduces the OG estimator of the survival function, the <strong>Kaplan-Meier estimator</strong>, and derives it from first principles. Most survival analysis blogs introduce this estimator in the very beginning before any groundwork. But we like first principles, and this is how we will derive it. We will also prove Greenwood’s formula for the variance of the Kaplan-Meier (KM) estimator, and handle tied failure times rigorously. Finally, we will apply both to our machine fleet dataset. Let’s get started!</p>
+<p>In survival analysis/reliability engineering, we don’t see all the failure times of the units under study. Some units may still function at the end of the study, while others may be lost to follow-up. This is known as right censoring. Note that other censoring types like left and interval censoring also exist, but we will focus on right censoring as it is the most common type in survival analysis. Can you still estimate the survival function of the population with this incomplete data? The Kaplan-Meier estimator provides a way to do just that. It is a non-parametric estimator of the survival function that can handle right-censored data.</p>
+<p>Here is the setup. You have a non-negative random variable <span class="math inline">\(T\)</span> representing the time until an event of interest — failure of a machine, say. You have a sample of <span class="math inline">\(n\)</span> i.i.d. observations, but some are right-censored. Formally, you observe pairs <span class="math inline">\(\{(Y_i, \delta_i)\}\)</span> for <span class="math inline">\(i = 1, 2, \ldots, n\)</span>, where <span class="math inline">\(Y_i = \min(T_i, C_i)\)</span> is the observed time and <span class="math inline">\(\delta_i = \mathbf{1}\{T_i \leq C_i\}\)</span> is the event indicator — 1 if the failure was observed, 0 if censored.</p>
+<p>Let <span class="math inline">\(t_{(1)} &lt; t_{(2)} &lt; \cdots &lt; t_{(K)}\)</span> be the distinct failure times in the sample. For now, we assume no ties — no two units fail at exactly the same time. We will handle ties later. What we want is to estimate the survival function at any time <span class="math inline">\(t\)</span> using only the observed failure times and a counting argument. Sit tight. This is going to be fun.</p>
+<section id="derivation-of-the-kaplan-meier-estimator" class="level2">
+<h2 class="anchored" data-anchor-id="derivation-of-the-kaplan-meier-estimator">Derivation of the Kaplan-Meier Estimator</h2>
+<p>Start with the definition of the survival function:</p>
+<p><span class="math inline">\(S(t) = P(T &gt; t)\)</span> This is the probability of surviving beyond/past time t. We will break down what it means to survive past time t into a sequence of events.</p>
+<p>To survive past time t, you must 1. Survive past the first failure time <span class="math inline">\(t_{(1)}\)</span> (if it occurs before t) 2. Survive past the second failure time <span class="math inline">\(t_{(2)}\)</span> (if it occurs before t) 3. And so on, until you have survived past all the failure times that occur before t.</p>
+<p>In other words, to survive past time t, you must survive past each of the failure times that occur before t. This can be expressed mathematically as:</p>
+<p><span class="math inline">\(S(t) = P(T &gt; t) = P(T &gt; t_{(1)}, T &gt; t_{(2)}, \ldots, T &gt; t_{(k)})\)</span></p>
+<p>Let <span class="math inline">\(A_j\)</span> be the event that you survive past the j-th failure time <span class="math inline">\(t_{(j)}\)</span>. Then we can rewrite the above expression as:</p>
+<p><span class="math inline">\(S(t) = P(A_1, A_2, \ldots, A_k)\)</span></p>
+<p>By the chain rule of probability, we can express this joint probability as a product of conditional probabilities:</p>
+<p><span class="math inline">\(S(t) = P(A_1) \cdot P(A_2 | A_1) \cdot P(A_3 | A_1, A_2) \cdots P(A_k | A_1, A_2, \ldots, A_{k-1})\)</span></p>
+<p>In words, the probability of surviving past time t is the product of the probability of surviving past the first failure time, times the probability of surviving past the second failure time given that you survived past the first, times the probability of surviving past the third failure time given that you survived past the first two, and so on. This is the crux of the Kaplan-Meier estimator. The estimator is essentially a product of conditional probabilities of surviving past each failure time, given that you have survived past all the previous failure times.</p>
+<p>The big question now is: how do we estimate these conditional probabilities from our data?</p>
+<section id="estimating-the-conditional-probabilities" class="level3">
+<h3 class="anchored" data-anchor-id="estimating-the-conditional-probabilities">Estimating the Conditional Probabilities</h3>
+<p>Notice one thing: If you survived past the j-th failure time $t_{(j)}, then you surely survived past all the previous failure times <span class="math inline">\(t_{(1)}, t_{(2)}, ..., t_{(j-1)}\)</span>. This means that the conditional probability of surviving past the j-th failure time given that you survived past all the previous failure times is just the probability of surviving past the j-th failure time given that you were at risk just before the j-th failure time. In other words, we can simplify the conditional probabilities as follows:</p>
+<p><span class="math inline">\(P(A_j | A_1, A_2, \ldots, A_{j-1}) = P(A_j | A_{j-1}) = P(T &gt; t_{(j)} | T &gt; t_{(j-1)})\)</span></p>
+<p>[Note that this is not the Markov assumption (if you know what that is). It is a logical consequence of the definition of the events <span class="math inline">\(A_j\)</span>. It is just subset-superset logic. If you survived past <span class="math inline">\(t_{(j)}\)</span>, then you must have survived past <span class="math inline">\(t_{(j-1)}\)</span>, so the two events are nested. The conditional probability of surviving past <span class="math inline">\(t_{(j)}\)</span> given that you survived past all the previous failure times is just the conditional probability of surviving past <span class="math inline">\(t_{(j)}\)</span> given that you survived past <span class="math inline">\(t_{(j-1)}\)</span>.]</p>
+<p>So the probability of surviving past t_(j) can be written as a simplified conditional probability that only depends on the previous failure time. That is</p>
+<p><span class="math inline">\(S(t)= P(T &gt; t_{(1)}) \cdot P(T &gt; t_{(2)} | T &gt; t_{(1)}) \cdot P(T &gt; t_{(3)} | T &gt; t_{(2)}) \cdots P(T &gt; t_{(k)} | T &gt; t_{(k-1)}\)</span></p>
+<p>The survival function is a product of conditional probabilities — the probability of surviving past each failure time, given survival up to the previous one. The question is how to estimate each factor from the data.</p>
+</section>
+<section id="the-risk-set" class="level3">
+<h3 class="anchored" data-anchor-id="the-risk-set">The Risk Set</h3>
+<p>We need a definition. A machine or a unit is said to be “at risk” at time t if it has not yet failed or been censored by time t. In other words, it is still in the study and has the potential to fail in the future. Formally, the risk set at time t, denoted by R(t), is the set of all individuals who are at risk at time t. Mathematically, we can define the risk set as follows:</p>
+<p><span class="math inline">\(R(t) = \{i : Y_i \geq t\} = \{i: min(T_i, C_i) \geq t\} = \{i: T_i \geq t \text{ and } C_i \geq t\}\)</span></p>
+<p>That is, the risk set at time t consists of those units who are still under observation at time t and have not yet experienced the event of interest (failure) or been censored. The size of the risk set just before the <span class="math inline">\(j\)</span>-th failure time is:</p>
+<p><span class="math display">\[n_j = |R(t_{(j)})| = |\{i : Y_i \geq t_{(j)}\}|\]</span></p>
+<p>Note the <span class="math inline">\(\geq\)</span>: units that fail exactly at <span class="math inline">\(t_{(j)}\)</span> are counted as at risk just before <span class="math inline">\(t_{(j)}\)</span>. They are in the risk set, and then they leave it.</p>
+</section>
+<section id="estimating-the-conditional-probability-of-surviving-past-each-failure-time" class="level3">
+<h3 class="anchored" data-anchor-id="estimating-the-conditional-probability-of-surviving-past-each-failure-time">Estimating the Conditional Probability of Surviving Past Each Failure Time</h3>
+<p><span class="math inline">\(P(T &gt; t_{(j)} | T &gt; t_{(j-1)})\)</span> is the probability of surviving past time <span class="math inline">\(t_{(j)}\)</span> given that you survived past time <span class="math inline">\(t_{(j-1)}\)</span>. This is equivalent to 1 minus the probability of failing at time <span class="math inline">\(t_{(j)}\)</span> given that you survived past time <span class="math inline">\(t_{(j-1)}\)</span>. In other words, we can write:</p>
+<p><span class="math inline">\(P(T &gt; t_{(j)} | T &gt; t_{(j-1)}) = 1 - P(T \leq t_{(j)} | T &gt; t_{(j-1)})\)</span></p>
+<p>Using the definition of conditional probability, we can express the above probability as follows:</p>
+<p><span class="math inline">\(P(T \leq t_{(j)} \mid T &gt; t_{(j-1)}) = \frac{P(T \leq t_{(j)},\ T &gt; t_{(j-1)})}{P(T &gt; t_{(j-1)})}\)</span> = <span class="math inline">\(\frac{P(t_{(j-1)} &lt; T \leq t_{(j)})}{P(T &gt; t_{(j-1)})}\)</span></p>
+</section>
+<section id="the-counting-argument" class="level3">
+<h3 class="anchored" data-anchor-id="the-counting-argument">The Counting Argument</h3>
+<p>We are working with realizations (observed data), not the continuous random variable <span class="math inline">\(T\)</span>. We know that for any continuous random variable, the probability of it taking any specific value, say <span class="math inline">\(t_0\)</span>, is zero. So, <span class="math inline">\(P(T = t_0) = 0\)</span> for any <span class="math inline">\(t_0\)</span>. But we are working with observed data, and in our observed data, we do have some units that fail at specific times. So, we can treat the observed failure times as discrete points where the probability of failure is non-zero. This is a common approach in survival analysis when dealing with real-world data. In the data, exactly <span class="math inline">\(d_j\)</span> units failed at the recorded failure time <span class="math inline">\(t_{(j)}\)</span>. This is not a statement about the (continuous) random variable <span class="math inline">\(T\)</span>, but rather a statement about the observed data. So the event <span class="math inline">\(\{T \leq t_{(j)},\ T &gt; t_{(j-1)}\}\)</span> — failure somewhere in <span class="math inline">\((t_{(j-1)},\ t_{(j)}]\)</span> — collapses to failure exactly at <span class="math inline">\(t_{(j)}\)</span>:</p>
+<p><span class="math inline">\(P(T \leq t_{(j)},\ T &gt; t_{(j-1)}) = P(T = t_{(j)})\)</span></p>
+<p>The conditional probability becomes:</p>
+<p><span class="math inline">\(P(T \leq t_{(j)} \mid T &gt; t_{(j-1)}) = \frac{P(T = t_{(j)})}{P(T &gt; t_{(j-1)})}\)</span></p>
+<p>Now we can estimate the numerator and denominator from the data using a counting argument.</p>
+<p><strong>Numerator:</strong> <span class="math inline">\(P(T = t_{(j)})\)</span> - the probability that a randommly chosen unit fails exactly at time <span class="math inline">\(t_{j}\)</span>. In the sample of <span class="math inline">\(n\)</span> units, <span class="math inline">\(d_j\)</span> units failed at time <span class="math inline">\(t_{(j)}\)</span>. Thus, the failure probability at time <span class="math inline">\(t_{j}\)</span> is simply <span class="math inline">\(\frac{d_j}{n}\)</span>.</p>
+<p><strong>Denominator:</strong> <span class="math inline">\(P(T &gt; t_{(j-1)})\)</span>- the probability that a randomly chosen unit survives past time <span class="math inline">\(t_{(j-1)}\)</span>. Since there are no failures in the open interval <span class="math inline">\((t_{(j-1)},\ t_{(j)})\)</span>, a unit that survived past <span class="math inline">\(t_{(j-1)}\)</span> is still at risk just before <span class="math inline">\(t_{(j)}\)</span> — and vice versa. The two conditions are equivalent. In the sample, exactly <span class="math inline">\(n_j\)</span> units are at risk just before <span class="math inline">\(t_{(j)}\)</span>, so the probability of surviving past <span class="math inline">\(t_{(j-1)}\)</span> is <span class="math inline">\(\frac{n_j}{n}\)</span>.</p>
+<p>Putting it all together, we get:</p>
+<p><span class="math inline">\(P(T &gt; t_{(j)} | T &gt; t_{(j-1)}) = 1 - \frac{P(T = t_{(j)})}{P(T &gt; t_{(j-1)})} = 1 - \frac{\frac{d_j}{n}}{\frac{n_j}{n}} = 1 - \frac{d_j}{n_j}\)</span></p>
+<p>Excellent! We have an estimate for the conditional probability of surviving past each failure time. Plugging back into our expression for <span class="math inline">\(S(t)\)</span>:</p>
+</section>
+<section id="the-kaplan-meier-estimator--final-form" class="level3">
+<h3 class="anchored" data-anchor-id="the-kaplan-meier-estimator--final-form">The Kaplan-Meier Estimator- Final Form</h3>
+<p>Plugging the estimated conditional probabilities back into the product formula for <span class="math inline">\(S(t)\)</span>, we get: <span class="math display">\[\hat{S}(t) = \prod_{t_{(j)} \leq t} \left(1 - \frac{d_j}{n_j}\right)\]</span></p>
+<p>This is the <strong>Kaplan-Meier estimator</strong> — derived from nothing more than the definition of the survival function, the chain rule of probability, and a counting argument. No distributional assumptions, no parameters to fit. The hat on <span class="math inline">\(\hat{S}(t)\)</span> is a reminder that this is an estimator of the true survival function, not the truth itself. The estimator was introduced by Edward Kaplan and Paul Meier in a 1958 paper in the Journal of the American Statistical Association — one of the most cited papers in all of statistics. Worth reading if you want to see where it all started.</p>
 
 
+</section>
+</section>
+</section>
 
-
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="c3Vydml2YWwlMjBhbmFseXNpcyUyQ3N0YXRpc3RpY3MlMkNweXRob24lMkNNTEU=" data-listing-date-sort="1780338600000" data-listing-file-modified-sort="1780405977220" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="10" data-listing-word-count-sort="1816">
-<div class="thumbnail"><a href="./posts/part-4-kaplan-meier-estimator/index.html" class="no-external">
-
-<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/part-4-kaplan-meier-estimator/index.html" class="no-external">Part 4: The Kaplan-Meier Estimator</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('c3Vydml2YWwlMjBhbmFseXNpcw=='); return false;">survival analysis</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('c3RhdGlzdGljcw=='); return false;">statistics</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('cHl0aG9u'); return false;">python</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('TUxF'); return false;">MLE</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/part-4-kaplan-meier-estimator/index.html" class="no-external">
-In <strong>Part 3</strong>, we derived the likelihood function for censored data from first principles, fit a Weibull distribution to our synthetic machine fleet, and assessed the quality of…<span class="math inline"></span>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/part-4-kaplan-meier-estimator/index.html" class="no-external">
-<div class="listing-date">
-Jun 2, 2026
-</div>
-<div class="listing-author">
-Madhav Prashanth Ramachandran
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="c3Vydml2YWwlMjBhbmFseXNpcyUyQ3N0YXRpc3RpY3MlMkNweXRob24lMkNNTEU=" data-listing-date-sort="1776537000000" data-listing-file-modified-sort="1778892999848" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="46" data-listing-word-count-sort="9093">
-<div class="thumbnail"><a href="./posts/part-3-fitting-survival-distributions/index.html" class="no-external">
-
-<p class="card-img-top"><img loading='lazy' src="posts\part-3-fitting-survival-distributions\index_files\figure-html\fig-weibull-fit-output-1.png"  class="thumbnail-image card-img"/></p>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/part-3-fitting-survival-distributions/index.html" class="no-external">Part 3: Fitting Survival Distributions to Data</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('c3Vydml2YWwlMjBhbmFseXNpcw=='); return false;">survival analysis</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('c3RhdGlzdGljcw=='); return false;">statistics</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('cHl0aG9u'); return false;">python</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('TUxF'); return false;">MLE</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/part-3-fitting-survival-distributions/index.html" class="no-external">
-In <strong>Part 2</strong>, we built a vocabulary of survival distributions — the Exponential for constant hazard, the Rayleigh for linearly increasing hazard, and the Weibull as the…
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/part-3-fitting-survival-distributions/index.html" class="no-external">
-<div class="listing-date">
-Apr 19, 2026
-</div>
-<div class="listing-author">
-Madhav Prashanth Ramachandran
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-categories="c3Vydml2YWwlMjBhbmFseXNpcyUyQ3N0YXRpc3RpY3MlMkNweXRob24=" data-listing-date-sort="1776450600000" data-listing-file-modified-sort="1776733036832" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="22" data-listing-word-count-sort="4324">
-<div class="thumbnail"><a href="./posts/part2-distributions-in-survival-analysis/index.html" class="no-external">
-
-<p class="card-img-top"><img loading='lazy' src="posts\part2-distributions-in-survival-analysis\index_files\figure-html\fig-exponential-output-1.png"  class="thumbnail-image card-img"/></p>
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/part2-distributions-in-survival-analysis/index.html" class="no-external">Part 2: Distributions in Survival Analysis</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('c3Vydml2YWwlMjBhbmFseXNpcw=='); return false;">survival analysis</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('c3RhdGlzdGljcw=='); return false;">statistics</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('cHl0aG9u'); return false;">python</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/part2-distributions-in-survival-analysis/index.html" class="no-external">
-In <strong>Part 1</strong>, we established why survival analysis exists as a separate field- regression breaks, censoring is real and the functions we care about for survival analysis are…<span class="math inline"></span>
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/part2-distributions-in-survival-analysis/index.html" class="no-external">
-<div class="listing-date">
-Apr 18, 2026
-</div>
-<div class="listing-author">
-Madhav Prashanth Ramachandran
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="3" data-categories="c3Vydml2YWwlMjBhbmFseXNpcyUyQ3N0YXRpc3RpY3M=" data-listing-date-sort="1775241000000" data-listing-file-modified-sort="1776475960519" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="14" data-listing-word-count-sort="2693">
-<div class="thumbnail"><a href="./posts/part-1-why-survival-analysis-exists/index.html" class="no-external">
-
-<img loading="lazy" src="./posts/part-1-why-survival-analysis-exists/cover.png" class="thumbnail-image">
-
-</a></div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/part-1-why-survival-analysis-exists/index.html" class="no-external">Part 1: Introduction to Survival Analysis</a>
-</h3>
-<div class="listing-categories">
-
-<div class="listing-category" onclick="window.quartoListingCategory('c3Vydml2YWwlMjBhbmFseXNpcw=='); return false;">survival analysis</div>
-
-<div class="listing-category" onclick="window.quartoListingCategory('c3RhdGlzdGljcw=='); return false;">statistics</div>
-
-</div>
-<div class="delink listing-description"><a href="./posts/part-1-why-survival-analysis-exists/index.html" class="no-external">
-<strong>A note on platform and process.</strong> Part 0 of this series was published on Medium. Starting from Part 1, I have moved to Quarto on GitHub Pages for one reason: proper LaTeX…
-</a></div>
-</div>
-<div class="metadata">
-<a href="./posts/part-1-why-survival-analysis-exists/index.html" class="no-external">
-<div class="listing-date">
-Apr 4, 2026
-</div>
-<div class="listing-author">
-Madhav Prashanth Ramachandran
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">No matching items</div>
-</div></main> <!-- /main -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";

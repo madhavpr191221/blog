@@ -10,7 +10,96 @@
 <atom:link href="https://madhavpr191221.github.io/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description>A blog built with Quarto</description>
 <generator>quarto-1.9.36</generator>
-<lastBuildDate>Sat, 18 Apr 2026 18:30:00 GMT</lastBuildDate>
+<lastBuildDate>Mon, 01 Jun 2026 18:30:00 GMT</lastBuildDate>
+<item>
+  <title>Part 4: The Kaplan-Meier Estimator</title>
+  <dc:creator>Madhav Prashanth Ramachandran</dc:creator>
+  <link>https://madhavpr191221.github.io/blog/posts/part-4-kaplan-meier-estimator/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<section id="recap-of-part-3-and-whats-coming-in-part-4" class="level2">
+<h2 class="anchored" data-anchor-id="recap-of-part-3-and-whats-coming-in-part-4">Recap of Part 3 and What’s Coming in Part 4</h2>
+<p>In <a href="link-here"><strong>Part 3</strong></a>, we derived the likelihood function for censored data from first principles, fit a Weibull distribution to our synthetic machine fleet, and assessed the quality of that fit using two diagnostic tools — the Q-Q plot, which told the story visually, and the K-S test, which put a number on it. We ended with a sobering observation: a single Weibull is not enough for a heterogeneous fleet. The K-S statistic <img src="https://latex.codecogs.com/png.latex?D_n%20=%200.067"> translated into a ₹6 crore cost swing — and we couldn’t identify which machines were responsible without modeling the effect of their individual characteristics on failure time.</p>
+<p>Before we get to regression models, we need a better estimator of the survival function itself — one that handles censored data naturally and doesn’t require us to assume any parametric form for the distribution of failure times. This is the subject of Part 4.</p>
+</section>
+<section id="the-kaplan-meier-estimator" class="level1">
+<h1>The Kaplan-Meier Estimator</h1>
+<p>This part introduces the OG estimator of the survival function, the <strong>Kaplan-Meier estimator</strong>, and derives it from first principles. Most survival analysis blogs introduce this estimator in the very beginning before any groundwork. But we like first principles, and this is how we will derive it. We will also prove Greenwood’s formula for the variance of the Kaplan-Meier (KM) estimator, and handle tied failure times rigorously. Finally, we will apply both to our machine fleet dataset. Let’s get started!</p>
+<p>In survival analysis/reliability engineering, we don’t see all the failure times of the units under study. Some units may still function at the end of the study, while others may be lost to follow-up. This is known as right censoring. Note that other censoring types like left and interval censoring also exist, but we will focus on right censoring as it is the most common type in survival analysis. Can you still estimate the survival function of the population with this incomplete data? The Kaplan-Meier estimator provides a way to do just that. It is a non-parametric estimator of the survival function that can handle right-censored data.</p>
+<p>Here is the setup. You have a non-negative random variable <img src="https://latex.codecogs.com/png.latex?T"> representing the time until an event of interest — failure of a machine, say. You have a sample of <img src="https://latex.codecogs.com/png.latex?n"> i.i.d. observations, but some are right-censored. Formally, you observe pairs <img src="https://latex.codecogs.com/png.latex?%5C%7B(Y_i,%20%5Cdelta_i)%5C%7D"> for <img src="https://latex.codecogs.com/png.latex?i%20=%201,%202,%20%5Cldots,%20n">, where <img src="https://latex.codecogs.com/png.latex?Y_i%20=%20%5Cmin(T_i,%20C_i)"> is the observed time and <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i%20=%20%5Cmathbf%7B1%7D%5C%7BT_i%20%5Cleq%20C_i%5C%7D"> is the event indicator — 1 if the failure was observed, 0 if censored.</p>
+<p>Let <img src="https://latex.codecogs.com/png.latex?t_%7B(1)%7D%20%3C%20t_%7B(2)%7D%20%3C%20%5Ccdots%20%3C%20t_%7B(K)%7D"> be the distinct failure times in the sample. For now, we assume no ties — no two units fail at exactly the same time. We will handle ties later. What we want is to estimate the survival function at any time <img src="https://latex.codecogs.com/png.latex?t"> using only the observed failure times and a counting argument. Sit tight. This is going to be fun.</p>
+<section id="derivation-of-the-kaplan-meier-estimator" class="level2">
+<h2 class="anchored" data-anchor-id="derivation-of-the-kaplan-meier-estimator">Derivation of the Kaplan-Meier Estimator</h2>
+<p>Start with the definition of the survival function:</p>
+<p><img src="https://latex.codecogs.com/png.latex?S(t)%20=%20P(T%20%3E%20t)"> This is the probability of surviving beyond/past time t. We will break down what it means to survive past time t into a sequence of events.</p>
+<p>To survive past time t, you must 1. Survive past the first failure time <img src="https://latex.codecogs.com/png.latex?t_%7B(1)%7D"> (if it occurs before t) 2. Survive past the second failure time <img src="https://latex.codecogs.com/png.latex?t_%7B(2)%7D"> (if it occurs before t) 3. And so on, until you have survived past all the failure times that occur before t.</p>
+<p>In other words, to survive past time t, you must survive past each of the failure times that occur before t. This can be expressed mathematically as:</p>
+<p><img src="https://latex.codecogs.com/png.latex?S(t)%20=%20P(T%20%3E%20t)%20=%20P(T%20%3E%20t_%7B(1)%7D,%20T%20%3E%20t_%7B(2)%7D,%20%5Cldots,%20T%20%3E%20t_%7B(k)%7D)"></p>
+<p>Let <img src="https://latex.codecogs.com/png.latex?A_j"> be the event that you survive past the j-th failure time <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">. Then we can rewrite the above expression as:</p>
+<p><img src="https://latex.codecogs.com/png.latex?S(t)%20=%20P(A_1,%20A_2,%20%5Cldots,%20A_k)"></p>
+<p>By the chain rule of probability, we can express this joint probability as a product of conditional probabilities:</p>
+<p><img src="https://latex.codecogs.com/png.latex?S(t)%20=%20P(A_1)%20%5Ccdot%20P(A_2%20%7C%20A_1)%20%5Ccdot%20P(A_3%20%7C%20A_1,%20A_2)%20%5Ccdots%20P(A_k%20%7C%20A_1,%20A_2,%20%5Cldots,%20A_%7Bk-1%7D)"></p>
+<p>In words, the probability of surviving past time t is the product of the probability of surviving past the first failure time, times the probability of surviving past the second failure time given that you survived past the first, times the probability of surviving past the third failure time given that you survived past the first two, and so on. This is the crux of the Kaplan-Meier estimator. The estimator is essentially a product of conditional probabilities of surviving past each failure time, given that you have survived past all the previous failure times.</p>
+<p>The big question now is: how do we estimate these conditional probabilities from our data?</p>
+<section id="estimating-the-conditional-probabilities" class="level3">
+<h3 class="anchored" data-anchor-id="estimating-the-conditional-probabilities">Estimating the Conditional Probabilities</h3>
+<p>Notice one thing: If you survived past the j-th failure time $t_{(j)}, then you surely survived past all the previous failure times <img src="https://latex.codecogs.com/png.latex?t_%7B(1)%7D,%20t_%7B(2)%7D,%20...,%20t_%7B(j-1)%7D">. This means that the conditional probability of surviving past the j-th failure time given that you survived past all the previous failure times is just the probability of surviving past the j-th failure time given that you were at risk just before the j-th failure time. In other words, we can simplify the conditional probabilities as follows:</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(A_j%20%7C%20A_1,%20A_2,%20%5Cldots,%20A_%7Bj-1%7D)%20=%20P(A_j%20%7C%20A_%7Bj-1%7D)%20=%20P(T%20%3E%20t_%7B(j)%7D%20%7C%20T%20%3E%20t_%7B(j-1)%7D)"></p>
+<p>[Note that this is not the Markov assumption (if you know what that is). It is a logical consequence of the definition of the events <img src="https://latex.codecogs.com/png.latex?A_j">. It is just subset-superset logic. If you survived past <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">, then you must have survived past <img src="https://latex.codecogs.com/png.latex?t_%7B(j-1)%7D">, so the two events are nested. The conditional probability of surviving past <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D"> given that you survived past all the previous failure times is just the conditional probability of surviving past <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D"> given that you survived past <img src="https://latex.codecogs.com/png.latex?t_%7B(j-1)%7D">.]</p>
+<p>So the probability of surviving past t_(j) can be written as a simplified conditional probability that only depends on the previous failure time. That is</p>
+<p><img src="https://latex.codecogs.com/png.latex?S(t)=%20P(T%20%3E%20t_%7B(1)%7D)%20%5Ccdot%20P(T%20%3E%20t_%7B(2)%7D%20%7C%20T%20%3E%20t_%7B(1)%7D)%20%5Ccdot%20P(T%20%3E%20t_%7B(3)%7D%20%7C%20T%20%3E%20t_%7B(2)%7D)%20%5Ccdots%20P(T%20%3E%20t_%7B(k)%7D%20%7C%20T%20%3E%20t_%7B(k-1)%7D"></p>
+<p>The survival function is a product of conditional probabilities — the probability of surviving past each failure time, given survival up to the previous one. The question is how to estimate each factor from the data.</p>
+</section>
+<section id="the-risk-set" class="level3">
+<h3 class="anchored" data-anchor-id="the-risk-set">The Risk Set</h3>
+<p>We need a definition. A machine or a unit is said to be “at risk” at time t if it has not yet failed or been censored by time t. In other words, it is still in the study and has the potential to fail in the future. Formally, the risk set at time t, denoted by R(t), is the set of all individuals who are at risk at time t. Mathematically, we can define the risk set as follows:</p>
+<p><img src="https://latex.codecogs.com/png.latex?R(t)%20=%20%5C%7Bi%20:%20Y_i%20%5Cgeq%20t%5C%7D%20=%20%5C%7Bi:%20min(T_i,%20C_i)%20%5Cgeq%20t%5C%7D%20=%20%5C%7Bi:%20T_i%20%5Cgeq%20t%20%5Ctext%7B%20and%20%7D%20C_i%20%5Cgeq%20t%5C%7D"></p>
+<p>That is, the risk set at time t consists of those units who are still under observation at time t and have not yet experienced the event of interest (failure) or been censored. The size of the risk set just before the <img src="https://latex.codecogs.com/png.latex?j">-th failure time is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?n_j%20=%20%7CR(t_%7B(j)%7D)%7C%20=%20%7C%5C%7Bi%20:%20Y_i%20%5Cgeq%20t_%7B(j)%7D%5C%7D%7C"></p>
+<p>Note the <img src="https://latex.codecogs.com/png.latex?%5Cgeq">: units that fail exactly at <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D"> are counted as at risk just before <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">. They are in the risk set, and then they leave it.</p>
+</section>
+<section id="estimating-the-conditional-probability-of-surviving-past-each-failure-time" class="level3">
+<h3 class="anchored" data-anchor-id="estimating-the-conditional-probability-of-surviving-past-each-failure-time">Estimating the Conditional Probability of Surviving Past Each Failure Time</h3>
+<p><img src="https://latex.codecogs.com/png.latex?P(T%20%3E%20t_%7B(j)%7D%20%7C%20T%20%3E%20t_%7B(j-1)%7D)"> is the probability of surviving past time <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D"> given that you survived past time <img src="https://latex.codecogs.com/png.latex?t_%7B(j-1)%7D">. This is equivalent to 1 minus the probability of failing at time <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D"> given that you survived past time <img src="https://latex.codecogs.com/png.latex?t_%7B(j-1)%7D">. In other words, we can write:</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(T%20%3E%20t_%7B(j)%7D%20%7C%20T%20%3E%20t_%7B(j-1)%7D)%20=%201%20-%20P(T%20%5Cleq%20t_%7B(j)%7D%20%7C%20T%20%3E%20t_%7B(j-1)%7D)"></p>
+<p>Using the definition of conditional probability, we can express the above probability as follows:</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(T%20%5Cleq%20t_%7B(j)%7D%20%5Cmid%20T%20%3E%20t_%7B(j-1)%7D)%20=%20%5Cfrac%7BP(T%20%5Cleq%20t_%7B(j)%7D,%5C%20T%20%3E%20t_%7B(j-1)%7D)%7D%7BP(T%20%3E%20t_%7B(j-1)%7D)%7D"> = <img src="https://latex.codecogs.com/png.latex?%5Cfrac%7BP(t_%7B(j-1)%7D%20%3C%20T%20%5Cleq%20t_%7B(j)%7D)%7D%7BP(T%20%3E%20t_%7B(j-1)%7D)%7D"></p>
+</section>
+<section id="the-counting-argument" class="level3">
+<h3 class="anchored" data-anchor-id="the-counting-argument">The Counting Argument</h3>
+<p>We are working with realizations (observed data), not the continuous random variable <img src="https://latex.codecogs.com/png.latex?T">. We know that for any continuous random variable, the probability of it taking any specific value, say <img src="https://latex.codecogs.com/png.latex?t_0">, is zero. So, <img src="https://latex.codecogs.com/png.latex?P(T%20=%20t_0)%20=%200"> for any <img src="https://latex.codecogs.com/png.latex?t_0">. But we are working with observed data, and in our observed data, we do have some units that fail at specific times. So, we can treat the observed failure times as discrete points where the probability of failure is non-zero. This is a common approach in survival analysis when dealing with real-world data. In the data, exactly <img src="https://latex.codecogs.com/png.latex?d_j"> units failed at the recorded failure time <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">. This is not a statement about the (continuous) random variable <img src="https://latex.codecogs.com/png.latex?T">, but rather a statement about the observed data. So the event <img src="https://latex.codecogs.com/png.latex?%5C%7BT%20%5Cleq%20t_%7B(j)%7D,%5C%20T%20%3E%20t_%7B(j-1)%7D%5C%7D"> — failure somewhere in <img src="https://latex.codecogs.com/png.latex?(t_%7B(j-1)%7D,%5C%20t_%7B(j)%7D%5D"> — collapses to failure exactly at <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(T%20%5Cleq%20t_%7B(j)%7D,%5C%20T%20%3E%20t_%7B(j-1)%7D)%20=%20P(T%20=%20t_%7B(j)%7D)"></p>
+<p>The conditional probability becomes:</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(T%20%5Cleq%20t_%7B(j)%7D%20%5Cmid%20T%20%3E%20t_%7B(j-1)%7D)%20=%20%5Cfrac%7BP(T%20=%20t_%7B(j)%7D)%7D%7BP(T%20%3E%20t_%7B(j-1)%7D)%7D"></p>
+<p>Now we can estimate the numerator and denominator from the data using a counting argument.</p>
+<p><strong>Numerator:</strong> <img src="https://latex.codecogs.com/png.latex?P(T%20=%20t_%7B(j)%7D)"> - the probability that a randommly chosen unit fails exactly at time <img src="https://latex.codecogs.com/png.latex?t_%7Bj%7D">. In the sample of <img src="https://latex.codecogs.com/png.latex?n"> units, <img src="https://latex.codecogs.com/png.latex?d_j"> units failed at time <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">. Thus, the failure probability at time <img src="https://latex.codecogs.com/png.latex?t_%7Bj%7D"> is simply <img src="https://latex.codecogs.com/png.latex?%5Cfrac%7Bd_j%7D%7Bn%7D">.</p>
+<p><strong>Denominator:</strong> <img src="https://latex.codecogs.com/png.latex?P(T%20%3E%20t_%7B(j-1)%7D)">- the probability that a randomly chosen unit survives past time <img src="https://latex.codecogs.com/png.latex?t_%7B(j-1)%7D">. Since there are no failures in the open interval <img src="https://latex.codecogs.com/png.latex?(t_%7B(j-1)%7D,%5C%20t_%7B(j)%7D)">, a unit that survived past <img src="https://latex.codecogs.com/png.latex?t_%7B(j-1)%7D"> is still at risk just before <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D"> — and vice versa. The two conditions are equivalent. In the sample, exactly <img src="https://latex.codecogs.com/png.latex?n_j"> units are at risk just before <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">, so the probability of surviving past <img src="https://latex.codecogs.com/png.latex?t_%7B(j-1)%7D"> is <img src="https://latex.codecogs.com/png.latex?%5Cfrac%7Bn_j%7D%7Bn%7D">.</p>
+<p>Putting it all together, we get:</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(T%20%3E%20t_%7B(j)%7D%20%7C%20T%20%3E%20t_%7B(j-1)%7D)%20=%201%20-%20%5Cfrac%7BP(T%20=%20t_%7B(j)%7D)%7D%7BP(T%20%3E%20t_%7B(j-1)%7D)%7D%20=%201%20-%20%5Cfrac%7B%5Cfrac%7Bd_j%7D%7Bn%7D%7D%7B%5Cfrac%7Bn_j%7D%7Bn%7D%7D%20=%201%20-%20%5Cfrac%7Bd_j%7D%7Bn_j%7D"></p>
+<p>Excellent! We have an estimate for the conditional probability of surviving past each failure time. Plugging back into our expression for <img src="https://latex.codecogs.com/png.latex?S(t)">:</p>
+</section>
+<section id="the-kaplan-meier-estimator--final-form" class="level3">
+<h3 class="anchored" data-anchor-id="the-kaplan-meier-estimator--final-form">The Kaplan-Meier Estimator- Final Form</h3>
+<p>Plugging the estimated conditional probabilities back into the product formula for <img src="https://latex.codecogs.com/png.latex?S(t)">, we get: <img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D(t)%20=%20%5Cprod_%7Bt_%7B(j)%7D%20%5Cleq%20t%7D%20%5Cleft(1%20-%20%5Cfrac%7Bd_j%7D%7Bn_j%7D%5Cright)"></p>
+<p>This is the <strong>Kaplan-Meier estimator</strong> — derived from nothing more than the definition of the survival function, the chain rule of probability, and a counting argument. No distributional assumptions, no parameters to fit. The hat on <img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D(t)"> is a reminder that this is an estimator of the true survival function, not the truth itself. The estimator was introduced by Edward Kaplan and Paul Meier in a 1958 paper in the Journal of the American Statistical Association — one of the most cited papers in all of statistics. Worth reading if you want to see where it all started.</p>
+
+
+</section>
+</section>
+</section>
+
+ ]]></description>
+  <category>survival analysis</category>
+  <category>statistics</category>
+  <category>python</category>
+  <category>MLE</category>
+  <guid>https://madhavpr191221.github.io/blog/posts/part-4-kaplan-meier-estimator/</guid>
+  <pubDate>Mon, 01 Jun 2026 18:30:00 GMT</pubDate>
+</item>
 <item>
   <title>Part 3: Fitting Survival Distributions to Data</title>
   <dc:creator>Madhav Prashanth Ramachandran</dc:creator>
@@ -1038,7 +1127,7 @@ font-style: inherit;">'event_observed'</span>])</span>
 <p>The notation <img src="https://latex.codecogs.com/png.latex?t_%7B(i)%7D"> denotes the <img src="https://latex.codecogs.com/png.latex?i">-th order statistic — <img src="https://latex.codecogs.com/png.latex?t_%7B(1)%7D"> is the smallest observed failure time, <img src="https://latex.codecogs.com/png.latex?t_%7B(2)%7D"> is the next smallest, and <img src="https://latex.codecogs.com/png.latex?t_%7B(n)%7D"> is the largest.</p>
 <p><strong>Step 2b: Assign plotting positions.</strong> The <img src="https://latex.codecogs.com/png.latex?i">-th order statistic <img src="https://latex.codecogs.com/png.latex?t_%7B(i)%7D"> corresponds to an approximate quantile level:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%5Chat%7Bp%7D_i%20=%20%5Cfrac%7Bi%20-%200.3%7D%7Bn%20+%200.4%7D"></p>
-<p>This is known as the <strong>median rank formula</strong> (or Blom plotting position). It estimates the probability level associated with the <img src="https://latex.codecogs.com/png.latex?i">-th smallest observation. The corrections <img src="https://latex.codecogs.com/png.latex?-0.3"> and <img src="https://latex.codecogs.com/png.latex?+0.4"> reduce bias compared to the naive estimate <img src="https://latex.codecogs.com/png.latex?%5Chat%7Bp%7D_i%20=%20i/n">, particularly in the tails of the distribution.</p>
+<p>This is known as the <strong>median rank formula</strong> (Benard’s approximation, 1953). It estimates the probability level associated with the <img src="https://latex.codecogs.com/png.latex?i">-th smallest observation. The corrections <img src="https://latex.codecogs.com/png.latex?-0.3"> and <img src="https://latex.codecogs.com/png.latex?+0.4"> reduce bias compared to the naive estimate <img src="https://latex.codecogs.com/png.latex?%5Chat%7Bp%7D_i%20=%20i/n">, particularly in the tails of the distribution.</p>
 </section>
 <section id="step-3-constructing-the-q-q-plot" class="level4">
 <h4 class="anchored" data-anchor-id="step-3-constructing-the-q-q-plot">Step 3: Constructing the Q-Q Plot</h4>
@@ -1431,18 +1520,18 @@ estimated from the same data. Use as descriptive tool only.</code></pre>
 <p>Because for any time <img src="https://latex.codecogs.com/png.latex?t">:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%7C%5Chat%7BF%7D_n(t)%20-%20F(t;%5Chat%7B%5Ctheta%7D,%20%5Chat%7B%5Cgamma%7D)%7C%20%5Cleq%20D_n%20=%200.067"></p>
 <p>Now suppose we use the fitted Weibull to make a decision: Schedule maintenance at time t* where the fitted CDF reaches 30% - i.e.&nbsp;act before 30% of the fleet has failed. Solving for t* gives,</p>
-<p><img src="https://latex.codecogs.com/png.latex?t%5E*%20=%20%5Chat%7B%5Ctheta%7D%5Cleft%5B%5Cln%5Cleft(%5Cfrac%7B1%7D%7B1-0.30%7D%5Cright)%5Cright%5D%5E%7B1/%5Chat%7B%5Cgamma%7D%7D%20%5Capprox%2071%5C%20%5Ctext%7Bhours%7D"></p>
-<p>We schedule maintenance at 71 hours. But by the K-S bound, the actual observed failure fraction at <img src="https://latex.codecogs.com/png.latex?t=71"> hours satisfies:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%7C%5Chat%7BF%7D_n(71)%20-%200.30%7C%20%5Cleq%200.067%20%5Cimplies%20%5Chat%7BF%7D_n(71)%20%5Cin%20%5B0.233,%5C%200.367%5D"></p>
-<p>Out of 1000 machines, between 233 and 367 have actually failed by the time we trigger maintenance — a swing of <img src="https://latex.codecogs.com/png.latex?%5Cpm%2067"> machines driven entirely by the model’s imprecision. Whether that uncertainty is acceptable depends on the cost of an unplanned failure vs the cost of preventive maintenance. Let’s assume:</p>
+<p><img src="https://latex.codecogs.com/png.latex?t%5E*%20=%20%5Chat%7B%5Ctheta%7D%5Cleft%5B%5Cln%5Cleft(%5Cfrac%7B1%7D%7B1-0.30%7D%5Cright)%5Cright%5D%5E%7B1/%5Chat%7B%5Cgamma%7D%7D%20%5Capprox%2056%5C%20%5Ctext%7Bhours%7D"></p>
+<p>We schedule maintenance at <img src="https://latex.codecogs.com/png.latex?t%5E*%20=%2056"> hours. But by the K-S bound, the actual observed failure fraction at <img src="https://latex.codecogs.com/png.latex?t%20=%2056"> hours satisfies:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%7C%5Chat%7BF%7D_n(56)%20-%200.30%7C%20%5Cleq%200.067%20%5Cimplies%20%5Chat%7BF%7D_n(56)%20%5Cin%20%5B0.233,%5C%200.367%5D"></p>
+<p>Out of 1000 machines, between 233 and 367 have actually failed by the time we trigger maintenance — a swing of <img src="https://latex.codecogs.com/png.latex?%5Cpm%2067"> machines driven entirely by the model’s imprecision. Let’s assume:</p>
 <ul>
-<li>Cost of an <strong>unplanned failure</strong> (breakdown, emergency repair, downtime): ₹5,00,000 per machine</li>
-<li>Cost of <strong>preventive maintenance</strong> (scheduled, planned): ₹50,000 per machine</li>
+<li>Cost of an <strong>unplanned failure</strong>: ₹5,00,000 per machine</li>
+<li>Cost of <strong>preventive maintenance</strong>: ₹50,000 per machine</li>
 </ul>
-<p>At <img src="https://latex.codecogs.com/png.latex?t%5E*%20=%2071"> hours, you service all 1000 machines regardless. The question is how many had already failed before you arrived.</p>
-<p><strong>Best case</strong> <img src="https://latex.codecogs.com/png.latex?%5Cleft(%5Chat%7BF%7D_n(71)%20=%200.233%5Cright)">: 233 machines had already failed, 767 are still running.</p>
+<p>At <img src="https://latex.codecogs.com/png.latex?t%5E*%20=%2056"> hours, you service all 1000 machines regardless.</p>
+<p><strong>Best case</strong> <img src="https://latex.codecogs.com/png.latex?%5Cleft(%5Chat%7BF%7D_n(56)%20=%200.233%5Cright)">: 233 machines had already failed, 767 are still running.</p>
 <p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BTotal%20cost%7D%20=%20233%20%5Ctimes%205%7B,%7D00%7B,%7D000%20+%20767%20%5Ctimes%2050%7B,%7D000%20=%20%5Ctext%7B%E2%82%B911,65,00,000%7D%20+%20%5Ctext%7B%E2%82%B93,83,50,000%7D%20=%20%5Ctext%7B%E2%82%B915,48,50,000%7D"></p>
-<p><strong>Worst case</strong> <img src="https://latex.codecogs.com/png.latex?%5Cleft(%5Chat%7BF%7D_n(71)%20=%200.367%5Cright)">: 367 machines had already failed, 633 are still running.</p>
+<p><strong>Worst case</strong> <img src="https://latex.codecogs.com/png.latex?%5Cleft(%5Chat%7BF%7D_n(56)%20=%200.367%5Cright)">: 367 machines had already failed, 633 are still running.</p>
 <p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BTotal%20cost%7D%20=%20367%20%5Ctimes%205%7B,%7D00%7B,%7D000%20+%20633%20%5Ctimes%2050%7B,%7D000%20=%20%5Ctext%7B%E2%82%B918,35,00,000%7D%20+%20%5Ctext%7B%E2%82%B93,16,50,000%7D%20=%20%5Ctext%7B%E2%82%B921,51,50,000%7D"></p>
 <p>The uncertainty from <img src="https://latex.codecogs.com/png.latex?D_n%20=%200.067"> alone translates into a cost swing of:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7B%E2%82%B921,51,50,000%7D%20-%20%5Ctext%7B%E2%82%B915,48,50,000%7D%20=%20%5Ctext%7B%E2%82%B96,03,00,000%7D"></p>

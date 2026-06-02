@@ -702,7 +702,7 @@ Dataset saved to ../../data/machine_fleet.csv</code></pre>
 <p>The notation <span class="math inline">\(t_{(i)}\)</span> denotes the <span class="math inline">\(i\)</span>-th order statistic — <span class="math inline">\(t_{(1)}\)</span> is the smallest observed failure time, <span class="math inline">\(t_{(2)}\)</span> is the next smallest, and <span class="math inline">\(t_{(n)}\)</span> is the largest.</p>
 <p><strong>Step 2b: Assign plotting positions.</strong> The <span class="math inline">\(i\)</span>-th order statistic <span class="math inline">\(t_{(i)}\)</span> corresponds to an approximate quantile level:</p>
 <p><span class="math display">\[\hat{p}_i = \frac{i - 0.3}{n + 0.4}\]</span></p>
-<p>This is known as the <strong>median rank formula</strong> (or Blom plotting position). It estimates the probability level associated with the <span class="math inline">\(i\)</span>-th smallest observation. The corrections <span class="math inline">\(-0.3\)</span> and <span class="math inline">\(+0.4\)</span> reduce bias compared to the naive estimate <span class="math inline">\(\hat{p}_i = i/n\)</span>, particularly in the tails of the distribution.</p>
+<p>This is known as the <strong>median rank formula</strong> (Benard’s approximation, 1953). It estimates the probability level associated with the <span class="math inline">\(i\)</span>-th smallest observation. The corrections <span class="math inline">\(-0.3\)</span> and <span class="math inline">\(+0.4\)</span> reduce bias compared to the naive estimate <span class="math inline">\(\hat{p}_i = i/n\)</span>, particularly in the tails of the distribution.</p>
 </section>
 <section id="step-3-constructing-the-q-q-plot" class="level4">
 <h4 class="anchored" data-anchor-id="step-3-constructing-the-q-q-plot">Step 3: Constructing the Q-Q Plot</h4>
@@ -951,18 +951,18 @@ estimated from the same data. Use as descriptive tool only.</code></pre>
 <p>Because for any time <span class="math inline">\(t\)</span>:</p>
 <p><span class="math display">\[|\hat{F}_n(t) - F(t;\hat{\theta}, \hat{\gamma})| \leq D_n = 0.067\]</span></p>
 <p>Now suppose we use the fitted Weibull to make a decision: Schedule maintenance at time t* where the fitted CDF reaches 30% - i.e.&nbsp;act before 30% of the fleet has failed. Solving for t* gives,</p>
-<p><span class="math display">\[t^* = \hat{\theta}\left[\ln\left(\frac{1}{1-0.30}\right)\right]^{1/\hat{\gamma}} \approx 71\ \text{hours}\]</span></p>
-<p>We schedule maintenance at 71 hours. But by the K-S bound, the actual observed failure fraction at <span class="math inline">\(t=71\)</span> hours satisfies:</p>
-<p><span class="math display">\[|\hat{F}_n(71) - 0.30| \leq 0.067 \implies \hat{F}_n(71) \in [0.233,\ 0.367]\]</span></p>
-<p>Out of 1000 machines, between 233 and 367 have actually failed by the time we trigger maintenance — a swing of <span class="math inline">\(\pm 67\)</span> machines driven entirely by the model’s imprecision. Whether that uncertainty is acceptable depends on the cost of an unplanned failure vs the cost of preventive maintenance. Let’s assume:</p>
+<p><span class="math display">\[t^* = \hat{\theta}\left[\ln\left(\frac{1}{1-0.30}\right)\right]^{1/\hat{\gamma}} \approx 56\ \text{hours}\]</span></p>
+<p>We schedule maintenance at <span class="math inline">\(t^* = 56\)</span> hours. But by the K-S bound, the actual observed failure fraction at <span class="math inline">\(t = 56\)</span> hours satisfies:</p>
+<p><span class="math display">\[|\hat{F}_n(56) - 0.30| \leq 0.067 \implies \hat{F}_n(56) \in [0.233,\ 0.367]\]</span></p>
+<p>Out of 1000 machines, between 233 and 367 have actually failed by the time we trigger maintenance — a swing of <span class="math inline">\(\pm 67\)</span> machines driven entirely by the model’s imprecision. Let’s assume:</p>
 <ul>
-<li>Cost of an <strong>unplanned failure</strong> (breakdown, emergency repair, downtime): ₹5,00,000 per machine</li>
-<li>Cost of <strong>preventive maintenance</strong> (scheduled, planned): ₹50,000 per machine</li>
+<li>Cost of an <strong>unplanned failure</strong>: ₹5,00,000 per machine</li>
+<li>Cost of <strong>preventive maintenance</strong>: ₹50,000 per machine</li>
 </ul>
-<p>At <span class="math inline">\(t^* = 71\)</span> hours, you service all 1000 machines regardless. The question is how many had already failed before you arrived.</p>
-<p><strong>Best case</strong> <span class="math inline">\(\left(\hat{F}_n(71) = 0.233\right)\)</span>: 233 machines had already failed, 767 are still running.</p>
+<p>At <span class="math inline">\(t^* = 56\)</span> hours, you service all 1000 machines regardless.</p>
+<p><strong>Best case</strong> <span class="math inline">\(\left(\hat{F}_n(56) = 0.233\right)\)</span>: 233 machines had already failed, 767 are still running.</p>
 <p><span class="math display">\[\text{Total cost} = 233 \times 5{,}00{,}000 + 767 \times 50{,}000 = \text{₹11,65,00,000} + \text{₹3,83,50,000} = \text{₹15,48,50,000}\]</span></p>
-<p><strong>Worst case</strong> <span class="math inline">\(\left(\hat{F}_n(71) = 0.367\right)\)</span>: 367 machines had already failed, 633 are still running.</p>
+<p><strong>Worst case</strong> <span class="math inline">\(\left(\hat{F}_n(56) = 0.367\right)\)</span>: 367 machines had already failed, 633 are still running.</p>
 <p><span class="math display">\[\text{Total cost} = 367 \times 5{,}00{,}000 + 633 \times 50{,}000 = \text{₹18,35,00,000} + \text{₹3,16,50,000} = \text{₹21,51,50,000}\]</span></p>
 <p>The uncertainty from <span class="math inline">\(D_n = 0.067\)</span> alone translates into a cost swing of:</p>
 <p><span class="math display">\[\text{₹21,51,50,000} - \text{₹15,48,50,000} = \text{₹6,03,00,000}\]</span></p>
