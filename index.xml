@@ -29,14 +29,19 @@
 <section id="the-kaplan-meier-estimator" class="level1">
 <h1>The Kaplan-Meier Estimator</h1>
 <p>This part introduces the OG estimator of the survival function, the <strong>Kaplan-Meier estimator</strong>, and derives it from first principles. Most survival analysis blogs introduce this estimator in the very beginning before any groundwork. But we like first principles, and this is how we will derive it. We will also prove Greenwood’s formula for the variance of the Kaplan-Meier (KM) estimator, and handle tied failure times rigorously. Finally, we will apply both to our machine fleet dataset. Let’s get started!</p>
-<p>In survival analysis/reliability engineering, we don’t see all the failure times of the units under study. Some units may still function at the end of the study, while others may be lost to follow-up. This is known as right censoring. Note that other censoring types like left and interval censoring also exist, but we will focus on right censoring as it is the most common type in survival analysis. Can you still estimate the survival function of the population with this incomplete data? The Kaplan-Meier estimator provides a way to do just that. It is a non-parametric estimator of the survival function that can handle right-censored data.</p>
+<p>In survival analysis and reliability engineering, we don’t see all the failure times of the units under study. Some units may still function at the end of the study, while others may be lost to follow-up. This is known as right censoring. Note that other censoring types like left and interval censoring also exist, but we will focus on right censoring as it is the most common type in survival analysis. Can you still estimate the survival function of the population with this incomplete data? The Kaplan-Meier estimator provides a way to do just that. It is a non-parametric estimator of the survival function that can handle right-censored data.</p>
 <p>Here is the setup. You have a non-negative random variable <img src="https://latex.codecogs.com/png.latex?T"> representing the time until an event of interest — failure of a machine, say. You have a sample of <img src="https://latex.codecogs.com/png.latex?n"> i.i.d. observations, but some are right-censored. Formally, you observe pairs <img src="https://latex.codecogs.com/png.latex?%5C%7B(Y_i,%20%5Cdelta_i)%5C%7D"> for <img src="https://latex.codecogs.com/png.latex?i%20=%201,%202,%20%5Cldots,%20n">, where <img src="https://latex.codecogs.com/png.latex?Y_i%20=%20%5Cmin(T_i,%20C_i)"> is the observed time and <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i%20=%20%5Cmathbf%7B1%7D%5C%7BT_i%20%5Cleq%20C_i%5C%7D"> is the event indicator — 1 if the failure was observed, 0 if censored.</p>
 <p>Let <img src="https://latex.codecogs.com/png.latex?t_%7B(1)%7D%20%3C%20t_%7B(2)%7D%20%3C%20%5Ccdots%20%3C%20t_%7B(K)%7D"> be the distinct failure times in the sample. For now, we assume no ties — no two units fail at exactly the same time. We will handle ties later. What we want is to estimate the survival function at any time <img src="https://latex.codecogs.com/png.latex?t"> using only the observed failure times and a counting argument. Sit tight. This is going to be fun.</p>
 <section id="derivation-of-the-kaplan-meier-estimator" class="level2">
 <h2 class="anchored" data-anchor-id="derivation-of-the-kaplan-meier-estimator">Derivation of the Kaplan-Meier Estimator</h2>
 <p>Start with the definition of the survival function:</p>
 <p><img src="https://latex.codecogs.com/png.latex?S(t)%20=%20P(T%20%3E%20t)"> This is the probability of surviving beyond/past time t. We will break down what it means to survive past time t into a sequence of events.</p>
-<p>To survive past time t, you must 1. Survive past the first failure time <img src="https://latex.codecogs.com/png.latex?t_%7B(1)%7D"> (if it occurs before t) 2. Survive past the second failure time <img src="https://latex.codecogs.com/png.latex?t_%7B(2)%7D"> (if it occurs before t) 3. And so on, until you have survived past all the failure times that occur before t.</p>
+<p>To survive past time t, you must:</p>
+<ol type="1">
+<li>Survive past the first failure time <img src="https://latex.codecogs.com/png.latex?t_%7B(1)%7D"> (if it occurs before t)</li>
+<li>Survive past the second failure time <img src="https://latex.codecogs.com/png.latex?t_%7B(2)%7D"> (if it occurs before t)</li>
+<li>And so on, until you have survived past all the failure times that occur before t.</li>
+</ol>
 <p>In other words, to survive past time t, you must survive past each of the failure times that occur before t. This can be expressed mathematically as:</p>
 <p><img src="https://latex.codecogs.com/png.latex?S(t)%20=%20P(T%20%3E%20t)%20=%20P(T%20%3E%20t_%7B(1)%7D,%20T%20%3E%20t_%7B(2)%7D,%20%5Cldots,%20T%20%3E%20t_%7B(k)%7D)"></p>
 <p>Let <img src="https://latex.codecogs.com/png.latex?A_j"> be the event that you survive past the j-th failure time <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">. Then we can rewrite the above expression as:</p>
@@ -54,34 +59,31 @@
 <p><img src="https://latex.codecogs.com/png.latex?S(t)=%20P(T%20%3E%20t_%7B(1)%7D)%20%5Ccdot%20P(T%20%3E%20t_%7B(2)%7D%20%7C%20T%20%3E%20t_%7B(1)%7D)%20%5Ccdot%20P(T%20%3E%20t_%7B(3)%7D%20%7C%20T%20%3E%20t_%7B(2)%7D)%20%5Ccdots%20P(T%20%3E%20t_%7B(k)%7D%20%7C%20T%20%3E%20t_%7B(k-1)%7D"></p>
 <p>The survival function is a product of conditional probabilities — the probability of surviving past each failure time, given survival up to the previous one. The question is how to estimate each factor from the data.</p>
 </section>
-<section id="the-risk-set" class="level3">
-<h3 class="anchored" data-anchor-id="the-risk-set">The Risk Set</h3>
-<p>We need a definition. A machine or a unit is said to be “at risk” at time t if it has not yet failed or been censored by time t. In other words, it is still in the study and has the potential to fail in the future. Formally, the risk set at time t, denoted by R(t), is the set of all individuals who are at risk at time t. Mathematically, we can define the risk set as follows:</p>
+</section>
+<section id="the-risk-set" class="level2">
+<h2 class="anchored" data-anchor-id="the-risk-set">The Risk Set</h2>
+<p>We need a definition. A machine or a unit is said to be “at risk” at time t if it has not yet failed or been censored by time t. In other words, it is still in the study and has the potential to fail in the future. Formally, the <strong>risk set</strong> at time t, denoted by R(t), is the set of all individuals who are at risk at time t. Mathematically, we can define the risk set as follows:</p>
 <p><img src="https://latex.codecogs.com/png.latex?R(t)%20=%20%5C%7Bi%20:%20Y_i%20%5Cgeq%20t%5C%7D%20=%20%5C%7Bi:%20min(T_i,%20C_i)%20%5Cgeq%20t%5C%7D%20=%20%5C%7Bi:%20T_i%20%5Cgeq%20t%20%5Ctext%7B%20and%20%7D%20C_i%20%5Cgeq%20t%5C%7D"></p>
 <p>That is, the risk set at time t consists of those units who are still under observation at time t and have not yet experienced the event of interest (failure) or been censored. The size of the risk set just before the <img src="https://latex.codecogs.com/png.latex?j">-th failure time is:</p>
 <p><img src="https://latex.codecogs.com/png.latex?n_j%20=%20%7CR(t_%7B(j)%7D)%7C%20=%20%7C%5C%7Bi%20:%20Y_i%20%5Cgeq%20t_%7B(j)%7D%5C%7D%7C"></p>
 <p>Note the <img src="https://latex.codecogs.com/png.latex?%5Cgeq">: units that fail exactly at <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D"> are counted as at risk just before <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">. They are in the risk set, and then they leave it.</p>
 </section>
-<section id="estimating-the-conditional-probability-of-surviving-past-each-failure-time" class="level3">
-<h3 class="anchored" data-anchor-id="estimating-the-conditional-probability-of-surviving-past-each-failure-time">Estimating the Conditional Probability of Surviving Past Each Failure Time</h3>
+<section id="counting-argument-for-estimating-the-conditional-probabilities" class="level2">
+<h2 class="anchored" data-anchor-id="counting-argument-for-estimating-the-conditional-probabilities">Counting Argument for Estimating the Conditional Probabilities</h2>
 <p><img src="https://latex.codecogs.com/png.latex?P(T%20%3E%20t_%7B(j)%7D%20%7C%20T%20%3E%20t_%7B(j-1)%7D)"> is the probability of surviving past time <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D"> given that you survived past time <img src="https://latex.codecogs.com/png.latex?t_%7B(j-1)%7D">. This is equivalent to 1 minus the probability of failing at time <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D"> given that you survived past time <img src="https://latex.codecogs.com/png.latex?t_%7B(j-1)%7D">. In other words, we can write:</p>
 <p><img src="https://latex.codecogs.com/png.latex?P(T%20%3E%20t_%7B(j)%7D%20%7C%20T%20%3E%20t_%7B(j-1)%7D)%20=%201%20-%20P(T%20%5Cleq%20t_%7B(j)%7D%20%7C%20T%20%3E%20t_%7B(j-1)%7D)"></p>
 <p>Using the definition of conditional probability, we can express the above probability as follows:</p>
 <p><img src="https://latex.codecogs.com/png.latex?P(T%20%5Cleq%20t_%7B(j)%7D%20%5Cmid%20T%20%3E%20t_%7B(j-1)%7D)%20=%20%5Cfrac%7BP(T%20%5Cleq%20t_%7B(j)%7D,%5C%20T%20%3E%20t_%7B(j-1)%7D)%7D%7BP(T%20%3E%20t_%7B(j-1)%7D)%7D"> = <img src="https://latex.codecogs.com/png.latex?%5Cfrac%7BP(t_%7B(j-1)%7D%20%3C%20T%20%5Cleq%20t_%7B(j)%7D)%7D%7BP(T%20%3E%20t_%7B(j-1)%7D)%7D"></p>
-</section>
-<section id="the-counting-argument" class="level3">
-<h3 class="anchored" data-anchor-id="the-counting-argument">The Counting Argument</h3>
 <p>We are working with realizations (observed data), not the continuous random variable <img src="https://latex.codecogs.com/png.latex?T">. We know that for any continuous random variable, the probability of it taking any specific value, say <img src="https://latex.codecogs.com/png.latex?t_0">, is zero. So, <img src="https://latex.codecogs.com/png.latex?P(T%20=%20t_0)%20=%200"> for any <img src="https://latex.codecogs.com/png.latex?t_0">. But we are working with observed data, and in our observed data, we do have some units that fail at specific times. So, we can treat the observed failure times as discrete points where the probability of failure is non-zero. This is a common approach in survival analysis when dealing with real-world data. In the data, exactly <img src="https://latex.codecogs.com/png.latex?d_j"> units failed at the recorded failure time <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">. This is not a statement about the (continuous) random variable <img src="https://latex.codecogs.com/png.latex?T">, but rather a statement about the observed data. So the event <img src="https://latex.codecogs.com/png.latex?%5C%7BT%20%5Cleq%20t_%7B(j)%7D,%5C%20T%20%3E%20t_%7B(j-1)%7D%5C%7D"> — failure somewhere in <img src="https://latex.codecogs.com/png.latex?(t_%7B(j-1)%7D,%5C%20t_%7B(j)%7D%5D"> — collapses to failure exactly at <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">:</p>
 <p><img src="https://latex.codecogs.com/png.latex?P(T%20%5Cleq%20t_%7B(j)%7D,%5C%20T%20%3E%20t_%7B(j-1)%7D)%20=%20P(T%20=%20t_%7B(j)%7D)"></p>
 <p>The conditional probability becomes:</p>
 <p><img src="https://latex.codecogs.com/png.latex?P(T%20%5Cleq%20t_%7B(j)%7D%20%5Cmid%20T%20%3E%20t_%7B(j-1)%7D)%20=%20%5Cfrac%7BP(T%20=%20t_%7B(j)%7D)%7D%7BP(T%20%3E%20t_%7B(j-1)%7D)%7D"></p>
 <p>Now we can estimate the numerator and denominator from the data using a counting argument.</p>
-<p><strong>Numerator:</strong> <img src="https://latex.codecogs.com/png.latex?P(T%20=%20t_%7B(j)%7D)"> - the probability that a randommly chosen unit fails exactly at time <img src="https://latex.codecogs.com/png.latex?t_%7Bj%7D">. In the sample of <img src="https://latex.codecogs.com/png.latex?n"> units, <img src="https://latex.codecogs.com/png.latex?d_j"> units failed at time <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">. Thus, the failure probability at time <img src="https://latex.codecogs.com/png.latex?t_%7Bj%7D"> is simply <img src="https://latex.codecogs.com/png.latex?%5Cfrac%7Bd_j%7D%7Bn%7D">.</p>
+<p><strong>Numerator:</strong> <img src="https://latex.codecogs.com/png.latex?P(T%20=%20t_%7B(j)%7D)"> - the probability that a randomly chosen unit fails exactly at time <img src="https://latex.codecogs.com/png.latex?t_%7Bj%7D">. In the sample of <img src="https://latex.codecogs.com/png.latex?n"> units, <img src="https://latex.codecogs.com/png.latex?d_j"> units failed at time <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">. Thus, the failure probability at time <img src="https://latex.codecogs.com/png.latex?t_%7Bj%7D"> is simply <img src="https://latex.codecogs.com/png.latex?%5Cfrac%7Bd_j%7D%7Bn%7D">.</p>
 <p><strong>Denominator:</strong> <img src="https://latex.codecogs.com/png.latex?P(T%20%3E%20t_%7B(j-1)%7D)">- the probability that a randomly chosen unit survives past time <img src="https://latex.codecogs.com/png.latex?t_%7B(j-1)%7D">. Since there are no failures in the open interval <img src="https://latex.codecogs.com/png.latex?(t_%7B(j-1)%7D,%5C%20t_%7B(j)%7D)">, a unit that survived past <img src="https://latex.codecogs.com/png.latex?t_%7B(j-1)%7D"> is still at risk just before <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D"> — and vice versa. The two conditions are equivalent. In the sample, exactly <img src="https://latex.codecogs.com/png.latex?n_j"> units are at risk just before <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">, so the probability of surviving past <img src="https://latex.codecogs.com/png.latex?t_%7B(j-1)%7D"> is <img src="https://latex.codecogs.com/png.latex?%5Cfrac%7Bn_j%7D%7Bn%7D">.</p>
 <p>Putting it all together, we get:</p>
 <p><img src="https://latex.codecogs.com/png.latex?P(T%20%3E%20t_%7B(j)%7D%20%7C%20T%20%3E%20t_%7B(j-1)%7D)%20=%201%20-%20%5Cfrac%7BP(T%20=%20t_%7B(j)%7D)%7D%7BP(T%20%3E%20t_%7B(j-1)%7D)%7D%20=%201%20-%20%5Cfrac%7B%5Cfrac%7Bd_j%7D%7Bn%7D%7D%7B%5Cfrac%7Bn_j%7D%7Bn%7D%7D%20=%201%20-%20%5Cfrac%7Bd_j%7D%7Bn_j%7D"></p>
 <p>Excellent! We have an estimate for the conditional probability of surviving past each failure time. Plugging back into our expression for <img src="https://latex.codecogs.com/png.latex?S(t)">:</p>
-</section>
 <section id="the-kaplan-meier-estimator--final-form" class="level3">
 <h3 class="anchored" data-anchor-id="the-kaplan-meier-estimator--final-form">The Kaplan-Meier Estimator- Final Form</h3>
 <p>Plugging the estimated conditional probabilities back into the product formula for <img src="https://latex.codecogs.com/png.latex?S(t)">, we get: <img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D(t)%20=%20%5Cprod_%7Bt_%7B(j)%7D%20%5Cleq%20t%7D%20%5Cleft(1%20-%20%5Cfrac%7Bd_j%7D%7Bn_j%7D%5Cright)"></p>
@@ -308,6 +310,499 @@ Figure&nbsp;1
 <pre><code>Median survival time : 78.5 hours
 Total machines       : 1000
 Observed failures    : 886 (88.6%)</code></pre>
+</div>
+</div>
+<p>The KM curve tells a clear story. The fleet degrades rapidly in the first 100 hours — by <img src="https://latex.codecogs.com/png.latex?t%20=%2078.5"> hours, half the machines have already failed. This is the <strong>median survival time</strong>: the time at which <img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D(t)"> crosses 0.5. Beyond 200 hours, the curve flattens out and our estimate of the survival function becomes more uncertain.</p>
+<p>Notice the shaded band around the curve. This is the pointwise confidence interval for <img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D(t)">, and it is not free — it requires an estimate of the variance of <img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D(t)">. That variance estimate is <strong>Greenwood’s formula</strong>, and deriving it is exactly what we do next.</p>
+</section>
+</section>
+<section id="greenwoods-formula-for-the-variance-of-the-kaplan-meier-estimator" class="level2">
+<h2 class="anchored" data-anchor-id="greenwoods-formula-for-the-variance-of-the-kaplan-meier-estimator">Greenwood’s Formula for the Variance of the Kaplan-Meier Estimator</h2>
+<p>Since the conditional probabilities in the product formula for <img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D(t)"> are estimated from the data, <img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D(t)"> is a random variable. Therefore it has an uncertainty associated with it, which we can quantify using its variance. Greenwood’s formula gives us a way to estimate the variance of the Kaplan-Meier estimator at any time t. We want to know how much <img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D(t)"> varies from sample to sample due to random sampling variability. This is crucial for constructing confidence intervals and performing standard hypothesis tests to quantify uncertainty in our estimates. We will derive Greenwood’s formula from first principles. The derivation uses two applications of the delta method. If that’s new to you, there’s a short detour below — it’s worth knowing. If it’s familiar, you’ll enjoy seeing it applied here.</p>
+<p>Let’s start with the expression for the Kaplan-Meier estimator:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D(t)%20=%20%5Cprod_%7Bt_%7B(j)%7D%20%5Cleq%20t%7D%20%5Cleft(1%20-%20%5Cfrac%7Bd_j%7D%7Bn_j%7D%5Cright)"></p>
+<p>Set <img src="https://latex.codecogs.com/png.latex?%5Chat%7Bp%7D_k%20=%20%5Cfrac%7Bd_k%7D%7Bn_k%7D"> for <img src="https://latex.codecogs.com/png.latex?k%20=%201,%202,%20%5Cldots,%20K">. Then we can rewrite the Kaplan-Meier estimator as follows:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D(t)%20=%20%5Cprod_%7Bt_%7B(j)%7D%20%5Cleq%20t%7D%20(1%20-%20%5Chat%7Bp%7D_j)"></p>
+<p>Taking the natural logarithm of both sides, we get:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cln%20%5Chat%7BS%7D(t)%20=%20%5Csum_%7Bt_%7B(j)%7D%20%5Cleq%20t%7D%20%5Cln%20(1%20-%20%5Chat%7Bp%7D_j)"></p>
+<p>Taking variance, we have</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BVar%7D(%5Cln%20%5Chat%7BS%7D(t))%20=%20%5Ctext%7BVar%7D%5Cleft(%5Csum_%7Bt_%7B(j)%7D%20%5Cleq%20t%7D%20%5Cln%20(1%20-%20%5Chat%7Bp%7D_j)%5Cright)"></p>
+<p>Question: Are the terms <img src="https://latex.codecogs.com/png.latex?%5Cln%20(1%20-%20%5Chat%7Bp%7D_j)"> independent of each other? The answer is yes. Because the failure times are distinct and the <img src="https://latex.codecogs.com/png.latex?%5Chat%7Bp%7D_j"> are based on disjoint sets of units (the risk sets at different failure times), the <img src="https://latex.codecogs.com/png.latex?%5Chat%7Bp%7D_j"> are independent random variables. Therefore, the terms <img src="https://latex.codecogs.com/png.latex?%5Cln%20(1%20-%20%5Chat%7Bp%7D_j)"> are also independent. For independent random variables, the variance of a sum is the sum of the variances. Thus, we can write:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BVar%7D(%5Cln%20%5Chat%7BS%7D(t))%20=%20%5Csum_%7Bt_%7B(j)%7D%20%5Cleq%20t%7D%20%5Ctext%7BVar%7D(%5Cln%20(1%20-%20%5Chat%7Bp%7D_j))"></p>
+<p>Can we compute <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BVar%7D(%7Bp%7D_j)">? Yes, we can. <img src="https://latex.codecogs.com/png.latex?%5Chat%7Bp%7D_j"> is the sample proportion of failures at time <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D"> among the <img src="https://latex.codecogs.com/png.latex?n_j"> units at risk just before <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">. Under the assumption of independent failures, <img src="https://latex.codecogs.com/png.latex?%5Chat%7Bp%7D_j"> follows a binomial distribution with parameters <img src="https://latex.codecogs.com/png.latex?n_j"> and <img src="https://latex.codecogs.com/png.latex?p_j">, where <img src="https://latex.codecogs.com/png.latex?p_j"> is the true probability of failure at time <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">. The variance of a binomial random variable is given by:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BVar%7D(%5Chat%7Bp%7D_j)%20=%20%5Cfrac%7Bp_j%20(1%20-%20p_j)%7D%7Bn_j%7D"></p>
+<p>And replacing <img src="https://latex.codecogs.com/png.latex?p_j"> with its estimate <img src="https://latex.codecogs.com/png.latex?%5Chat%7Bp%7D_j">, we get: <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BVar%7D(%5Chat%7Bp%7D_j)%20=%20%5Cfrac%7B%5Chat%7Bp%7D_j%20(1%20-%20%5Chat%7Bp%7D_j)%7D%7Bn_j%7D"></p>
+<p>How do we get from <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BVar%7D(%5Chat%7Bp%7D_j)"> to <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BVar%7D(%5Cln%20(1%20-%20%5Chat%7Bp%7D_j))">? This is where the delta method comes in.</p>
+<section id="the-delta-method-and-its-application-to-greenwoods-formula" class="level3">
+<h3 class="anchored" data-anchor-id="the-delta-method-and-its-application-to-greenwoods-formula">The Delta Method and its Application to Greenwood’s Formula</h3>
+<p>Let <img src="https://latex.codecogs.com/png.latex?X_%7Bn%7D"> be a sequence of random variables such that <img src="https://latex.codecogs.com/png.latex?%5Csqrt%7Bn%7D(X_%7Bn%7D%20-%20%5Ctheta)%20%5Cxrightarrow%7Bd%7D%20N(0,%20%5Csigma%5E2)"> as <img src="https://latex.codecogs.com/png.latex?n%20%5Cto%20%5Cinfty">, where N(0, <img src="https://latex.codecogs.com/png.latex?%5Csigma%5E2">) is a normal distribution with mean 0 and variance <img src="https://latex.codecogs.com/png.latex?%5Csigma%5E2">. Let <img src="https://latex.codecogs.com/png.latex?g"> be a function that is differentiable at <img src="https://latex.codecogs.com/png.latex?%5Ctheta"> with <img src="https://latex.codecogs.com/png.latex?g'(%5Ctheta)%20%5Cneq%200">. Then, by the delta method, we have:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Csqrt%7Bn%7D(g(X_%7Bn%7D)%20-%20g(%5Ctheta))%20%5Cxrightarrow%7Bd%7D%20N(0,%20(g'(%5Ctheta))%5E2%20%5Csigma%5E2)"></p>
+<p>This means that the variation of <img src="https://latex.codecogs.com/png.latex?g(X_%7Bn%7D)"> is approximately g’(<img src="https://latex.codecogs.com/png.latex?%5Ctheta">) times the variation of <img src="https://latex.codecogs.com/png.latex?X_%7Bn%7D"> for large n.&nbsp;The delta method allows us to find the asymptotic distribution of a function of a random variable, given the asymptotic distribution of the random variable itself.</p>
+<p>What does the <img src="https://latex.codecogs.com/png.latex?(d)"> superscript mean? This is a special type of convergence of random variables known as <strong>convergence in distribution</strong> which in simple terms says that the distribution of the random variable on the left-hand side converges to the distribution on the right-hand side as n goes to infinity. This is exactly what the Central Limit Theorem tells us about the distribution of sample means. A certain function of the sample mean converges in distribution to a normal distribution as the sample size increases. The delta method is a generalization of the Central Limit Theorem that allows us to find the asymptotic distribution of a function of a random variable, given the asymptotic distribution of the random variable itself. Is it worth going into the details of the proof of the delta method? Probably not. You can find the proof in any mathematical statistics textbook. The key idea is to use some technical theorems to show that the distribution of <img src="https://latex.codecogs.com/png.latex?g(X_%7Bn%7D)"> converges to a normal distribution with mean <img src="https://latex.codecogs.com/png.latex?g(%5Ctheta)"> and variance <img src="https://latex.codecogs.com/png.latex?(g'(%5Ctheta))%5E2%20%5Csigma%5E2">. Do not worry if this is not clear. Go look it up!!</p>
+<p>Now we can apply the delta method to find <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BVar%7D(%5Cln%20(1%20-%20%5Chat%7Bp%7D_j))">. Let <img src="https://latex.codecogs.com/png.latex?X_%7Bn%7D%20=%20%5Chat%7Bp%7D_j">, <img src="https://latex.codecogs.com/png.latex?%5Ctheta%20=%20p_j">, and <img src="https://latex.codecogs.com/png.latex?g(x)%20=%20%5Cln(1%20-%20x)">. Then we have: <img src="https://latex.codecogs.com/png.latex?g'(%5Ctheta)%20=%20g'(p_j)%20=%20-%5Cfrac%7B1%7D%7B1%20-%20p_j%7D"></p>
+<p>Applying the delta method, we get: <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BVar%7D(%5Cln%20(1%20-%20%5Chat%7Bp%7D_j))%20=%20%5Cleft(%5Cfrac%7B1%7D%7B(1%20-%20p_j)%5E2%7D%5Cright)%20%5Ctext%7BVar%7D(%5Chat%7Bp%7D_j)%20=%20%5Cleft(%5Cfrac%7B1%7D%7B(1%20-%20p_j)%5E2%7D%5Cright)%20%5Cfrac%7Bp_j%20(1%20-%20p_j)%7D%7Bn_j%7D%20=%20%5Cfrac%7Bp_j%7D%7Bn_j%20(1%20-%20p_j)%7D"></p>
+<p>To get an estimate of <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BVar%7D(%5Cln%20(1%20-%20%5Chat%7Bp%7D_j))">, we replace <img src="https://latex.codecogs.com/png.latex?p_j"> with its estimate <img src="https://latex.codecogs.com/png.latex?%5Chat%7Bp%7D_j">: <img src="https://latex.codecogs.com/png.latex?%5Cwidehat%7B%5Ctext%7BVar%7D%7D(%5Cln%20(1%20-%20%5Chat%7Bp%7D_j))%20=%20%5Cfrac%7B%5Chat%7Bp%7D_j%7D%7Bn_j%20(1%20-%20%5Chat%7Bp%7D_j)%7D"></p>
+<p>Finally, plugging this back into our expression for <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BVar%7D(%5Cln%20%5Chat%7BS%7D(t))">, we get:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cwidehat%7B%5Ctext%7BVar%7D%7D(%5Cln%20%5Chat%7BS%7D(t))%20=%20%5Csum_%7Bt_%7B(j)%7D%20%5Cleq%20t%7D%20%5Cfrac%7B%5Chat%7Bp%7D_j%7D%7Bn_j%20(1%20-%20%5Chat%7Bp%7D_j)%7D"></p>
+<p>We can simplify this expression further by noting that <img src="https://latex.codecogs.com/png.latex?%5Chat%7Bp%7D_j%20=%20%5Cfrac%7Bd_j%7D%7Bn_j%7D"> and <img src="https://latex.codecogs.com/png.latex?1%20-%20%5Chat%7Bp%7D_j%20=%201%20-%20%5Cfrac%7Bd_j%7D%7Bn_j%7D%20=%20%5Cfrac%7Bn_j%20-%20d_j%7D%7Bn_j%7D">. Substituting these into the formula, we get:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cwidehat%7B%5Ctext%7BVar%7D%7D(%5Cln%20%5Chat%7BS%7D(t))%20=%20%5Csum_%7Bt_%7B(j)%7D%20%5Cleq%20t%7D%20%5Cfrac%7B%5Cfrac%7Bd_j%7D%7Bn_j%7D%7D%7Bn_j%20%5Ccdot%20%5Cfrac%7Bn_j%20-%20d_j%7D%7Bn_j%7D%7D%20=%20%5Csum_%7Bt_%7B(j)%7D%20%5Cleq%20t%7D%20%5Cfrac%7Bd_j%7D%7Bn_j%20(n_j%20-%20d_j)%7D"></p>
+<p>Do we have what we came from? Not quite. We have the variance of <img src="https://latex.codecogs.com/png.latex?%5Cln%20%5Chat%7BS%7D(t)">, but we want the variance of <img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D(t)">. No problem. We can use the delta method again to find <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BVar%7D(%5Chat%7BS%7D(t))"> from <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BVar%7D(%5Cln%20%5Chat%7BS%7D(t))">. Let <img src="https://latex.codecogs.com/png.latex?X_%7Bn%7D%20=%20%5Cln%20%5Chat%7BS%7D(t)">, <img src="https://latex.codecogs.com/png.latex?%5Ctheta%20=%20%5Cln%20S(t)">, and <img src="https://latex.codecogs.com/png.latex?g(x)%20=%20e%5Ex">. Then we have: <img src="https://latex.codecogs.com/png.latex?g'(%5Ctheta)%20=%20g'(%5Cln%20S(t))%20=%20e%5E%7B%5Cln%20S(t)%7D%20=%20S(t)"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BVar%7D(%5Chat%7BS%7D(t))%20%5Capprox%20(S(t))%5E2%20%5Ccdot%20%5Ctext%7BVar%7D(%5Cln%20%5Chat%7BS%7D(t))"></p>
+<p>Replacing <img src="https://latex.codecogs.com/png.latex?S(t)"> with <img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D(t)">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cwidehat%7B%5Ctext%7BVar%7D%7D(%5Chat%7BS%7D(t))%20=%20%5B%5Chat%7BS%7D(t)%5D%5E2%20%5Csum_%7Bt_%7B(j)%7D%20%5Cleq%20t%7D%0A%5Cfrac%7Bd_j%7D%7Bn_j(n_j%20-%20d_j)%7D"></p>
+<p>This is <strong>Greenwood’s formula</strong> for the variance of the Kaplan-Meier estimator. It allows us to quantify the uncertainty in our estimate of the survival function at any time t, which is crucial for constructing confidence intervals and performing hypothesis tests.</p>
+</section>
+<section id="applying-greenwoods-formula-to-the-machine-fleet-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="applying-greenwoods-formula-to-the-machine-fleet-dataset">Applying Greenwood’s Formula to the Machine Fleet Dataset</h3>
+<div id="cell-fig-km-fleet-ci" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> pd</span>
+<span id="cb3-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> numpy <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> np</span>
+<span id="cb3-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> matplotlib.pyplot <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> plt</span>
+<span id="cb3-4"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> lifelines <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> KaplanMeierFitter</span>
+<span id="cb3-5"></span>
+<span id="cb3-6">df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.read_csv(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'../../data/machine_fleet.csv'</span>)</span>
+<span id="cb3-7"></span>
+<span id="cb3-8">kmf <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> KaplanMeierFitter()</span>
+<span id="cb3-9">kmf.fit(df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'observed_time'</span>], event_observed<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'event_observed'</span>], label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Machine Fleet'</span>)</span>
+<span id="cb3-10"></span>
+<span id="cb3-11"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Plotting the KM curve with confidence intervals</span></span>
+<span id="cb3-12">fig, ax <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> plt.subplots(figsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>))</span>
+<span id="cb3-13"></span>
+<span id="cb3-14">kmf.plot_survival_function(</span>
+<span id="cb3-15">    ax<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>ax,</span>
+<span id="cb3-16">    ci_show<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>,</span>
+<span id="cb3-17">    color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'steelblue'</span>,</span>
+<span id="cb3-18">    ci_alpha<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.15</span></span>
+<span id="cb3-19">)</span>
+<span id="cb3-20"></span>
+<span id="cb3-21">ax.set_xlabel(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Time (hours)'</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>)</span>
+<span id="cb3-22">ax.set_ylabel(<span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">r'</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">$</span><span class="er" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">\</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">hat{S}</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">(</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">t</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">)</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">$</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>)</span>
+<span id="cb3-23">ax.set_title(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Kaplan-Meier Estimate with Greenwood's Confidence Bands — Machine Fleet"</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">13</span>)</span>
+<span id="cb3-24">ax.axhline(y<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'firebrick'</span>, linestyle<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'--'</span>, linewidth<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8</span>, label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Median survival'</span>)</span>
+<span id="cb3-25">ax.legend(fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">11</span>)</span>
+<span id="cb3-26">ax.grid(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>, alpha<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>)</span>
+<span id="cb3-27">plt.tight_layout()</span>
+<span id="cb3-28">plt.show()</span>
+<span id="cb3-29"></span>
+<span id="cb3-30"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Greenwood's formula calculations</span></span>
+<span id="cb3-31">et <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> kmf.event_table</span>
+<span id="cb3-32">nj <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> et[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'at_risk'</span>].values</span>
+<span id="cb3-33">dj <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> et[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'observed'</span>].values</span>
+<span id="cb3-34"></span>
+<span id="cb3-35">mask             <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> dj <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span></span>
+<span id="cb3-36">nj_f             <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> nj[mask]</span>
+<span id="cb3-37">dj_f             <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> dj[mask]</span>
+<span id="cb3-38">t_f              <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> et.index[mask].values          <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># numpy array</span></span>
+<span id="cb3-39"></span>
+<span id="cb3-40">greenwood_terms  <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> dj_f <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> (nj_f <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> (nj_f <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> dj_f))</span>
+<span id="cb3-41">greenwood_cumsum <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.cumsum(greenwood_terms)</span>
+<span id="cb3-42"></span>
+<span id="cb3-43">St_f             <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> kmf.predict(t_f).values        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># numpy array</span></span>
+<span id="cb3-44">greenwood_var    <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (St_f <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> greenwood_cumsum</span>
+<span id="cb3-45">greenwood_se     <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.sqrt(greenwood_var)</span>
+<span id="cb3-46">ci_lower         <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> St_f <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.96</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> greenwood_se</span>
+<span id="cb3-47">ci_upper         <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> St_f <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.96</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> greenwood_se</span>
+<span id="cb3-48"></span>
+<span id="cb3-49"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- Print table ---</span></span>
+<span id="cb3-50"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Time'</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:&gt;8}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'n_j'</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:&gt;6}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'d_j'</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:&gt;6}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'d/n(n-d)'</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:&gt;12}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> "</span></span>
+<span id="cb3-51">      <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'S(t)'</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:&gt;8}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'SE'</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:&gt;8}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'95% CI Lower'</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:&gt;14}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'95% CI Upper'</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:&gt;14}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb3-52"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"-"</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">82</span>)</span>
+<span id="cb3-53"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">min</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(t_f))):</span>
+<span id="cb3-54">    <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>t_f[i]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:&gt;8.1f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>nj_f[i]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:&gt;6.0f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>dj_f[i]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:&gt;6.0f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> "</span></span>
+<span id="cb3-55">          <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>greenwood_terms[i]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:&gt;12.6f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>St_f[i]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:&gt;8.4f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> "</span></span>
+<span id="cb3-56">          <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>greenwood_se[i]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:&gt;8.4f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>ci_lower[i]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:&gt;14.4f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> "</span></span>
+<span id="cb3-57">          <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>ci_upper[i]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:&gt;14.4f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb3-58"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">(Showing first 15 failure times out of </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>mask<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> total)"</span>)</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div id="fig-km-fleet-ci" class="quarto-float quarto-figure quarto-figure-center anchored" width="948" height="470">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-km-fleet-ci-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://madhavpr191221.github.io/blog/posts/part-4-kaplan-meier-estimator/index_files/figure-html/fig-km-fleet-ci-output-1.png" id="fig-km-fleet-ci" width="948" height="470" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-km-fleet-ci-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Time    n_j    d_j     d/n(n-d)     S(t)       SE   95% CI Lower   95% CI Upper
+----------------------------------------------------------------------------------
+     1.5   1000      1     0.000001   0.9990   0.0010         0.9970         1.0010
+     3.4    999      1     0.000001   0.9980   0.0014         0.9952         1.0008
+     5.2    998      1     0.000001   0.9970   0.0017         0.9936         1.0004
+     5.4    997      1     0.000001   0.9960   0.0020         0.9921         0.9999
+     5.6    996      1     0.000001   0.9950   0.0022         0.9906         0.9994
+     5.9    995      1     0.000001   0.9940   0.0024         0.9892         0.9988
+     6.4    994      1     0.000001   0.9930   0.0026         0.9878         0.9982
+     6.4    993      1     0.000001   0.9920   0.0028         0.9865         0.9975
+     7.9    992      1     0.000001   0.9910   0.0030         0.9851         0.9969
+     7.9    991      1     0.000001   0.9900   0.0031         0.9838         0.9962
+     8.3    990      1     0.000001   0.9890   0.0033         0.9825         0.9955
+     8.9    989      1     0.000001   0.9880   0.0034         0.9813         0.9947
+     9.1    988      1     0.000001   0.9870   0.0036         0.9800         0.9940
+     9.3    987      1     0.000001   0.9860   0.0037         0.9787         0.9933
+    10.1    986      1     0.000001   0.9850   0.0038         0.9775         0.9925
+
+(Showing first 15 failure times out of 859 total)</code></pre>
 </div>
 </div>
 

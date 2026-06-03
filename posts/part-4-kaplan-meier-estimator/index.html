@@ -231,14 +231,19 @@ window.Quarto = {
 <section id="the-kaplan-meier-estimator" class="level1">
 <h1>The Kaplan-Meier Estimator</h1>
 <p>This part introduces the OG estimator of the survival function, the <strong>Kaplan-Meier estimator</strong>, and derives it from first principles. Most survival analysis blogs introduce this estimator in the very beginning before any groundwork. But we like first principles, and this is how we will derive it. We will also prove Greenwood’s formula for the variance of the Kaplan-Meier (KM) estimator, and handle tied failure times rigorously. Finally, we will apply both to our machine fleet dataset. Let’s get started!</p>
-<p>In survival analysis/reliability engineering, we don’t see all the failure times of the units under study. Some units may still function at the end of the study, while others may be lost to follow-up. This is known as right censoring. Note that other censoring types like left and interval censoring also exist, but we will focus on right censoring as it is the most common type in survival analysis. Can you still estimate the survival function of the population with this incomplete data? The Kaplan-Meier estimator provides a way to do just that. It is a non-parametric estimator of the survival function that can handle right-censored data.</p>
+<p>In survival analysis and reliability engineering, we don’t see all the failure times of the units under study. Some units may still function at the end of the study, while others may be lost to follow-up. This is known as right censoring. Note that other censoring types like left and interval censoring also exist, but we will focus on right censoring as it is the most common type in survival analysis. Can you still estimate the survival function of the population with this incomplete data? The Kaplan-Meier estimator provides a way to do just that. It is a non-parametric estimator of the survival function that can handle right-censored data.</p>
 <p>Here is the setup. You have a non-negative random variable <span class="math inline">\(T\)</span> representing the time until an event of interest — failure of a machine, say. You have a sample of <span class="math inline">\(n\)</span> i.i.d. observations, but some are right-censored. Formally, you observe pairs <span class="math inline">\(\{(Y_i, \delta_i)\}\)</span> for <span class="math inline">\(i = 1, 2, \ldots, n\)</span>, where <span class="math inline">\(Y_i = \min(T_i, C_i)\)</span> is the observed time and <span class="math inline">\(\delta_i = \mathbf{1}\{T_i \leq C_i\}\)</span> is the event indicator — 1 if the failure was observed, 0 if censored.</p>
 <p>Let <span class="math inline">\(t_{(1)} &lt; t_{(2)} &lt; \cdots &lt; t_{(K)}\)</span> be the distinct failure times in the sample. For now, we assume no ties — no two units fail at exactly the same time. We will handle ties later. What we want is to estimate the survival function at any time <span class="math inline">\(t\)</span> using only the observed failure times and a counting argument. Sit tight. This is going to be fun.</p>
 <section id="derivation-of-the-kaplan-meier-estimator" class="level2">
 <h2 class="anchored" data-anchor-id="derivation-of-the-kaplan-meier-estimator">Derivation of the Kaplan-Meier Estimator</h2>
 <p>Start with the definition of the survival function:</p>
 <p><span class="math inline">\(S(t) = P(T &gt; t)\)</span> This is the probability of surviving beyond/past time t. We will break down what it means to survive past time t into a sequence of events.</p>
-<p>To survive past time t, you must 1. Survive past the first failure time <span class="math inline">\(t_{(1)}\)</span> (if it occurs before t) 2. Survive past the second failure time <span class="math inline">\(t_{(2)}\)</span> (if it occurs before t) 3. And so on, until you have survived past all the failure times that occur before t.</p>
+<p>To survive past time t, you must:</p>
+<ol type="1">
+<li>Survive past the first failure time <span class="math inline">\(t_{(1)}\)</span> (if it occurs before t)</li>
+<li>Survive past the second failure time <span class="math inline">\(t_{(2)}\)</span> (if it occurs before t)</li>
+<li>And so on, until you have survived past all the failure times that occur before t.</li>
+</ol>
 <p>In other words, to survive past time t, you must survive past each of the failure times that occur before t. This can be expressed mathematically as:</p>
 <p><span class="math inline">\(S(t) = P(T &gt; t) = P(T &gt; t_{(1)}, T &gt; t_{(2)}, \ldots, T &gt; t_{(k)})\)</span></p>
 <p>Let <span class="math inline">\(A_j\)</span> be the event that you survive past the j-th failure time <span class="math inline">\(t_{(j)}\)</span>. Then we can rewrite the above expression as:</p>
@@ -256,34 +261,31 @@ window.Quarto = {
 <p><span class="math inline">\(S(t)= P(T &gt; t_{(1)}) \cdot P(T &gt; t_{(2)} | T &gt; t_{(1)}) \cdot P(T &gt; t_{(3)} | T &gt; t_{(2)}) \cdots P(T &gt; t_{(k)} | T &gt; t_{(k-1)}\)</span></p>
 <p>The survival function is a product of conditional probabilities — the probability of surviving past each failure time, given survival up to the previous one. The question is how to estimate each factor from the data.</p>
 </section>
-<section id="the-risk-set" class="level3">
-<h3 class="anchored" data-anchor-id="the-risk-set">The Risk Set</h3>
-<p>We need a definition. A machine or a unit is said to be “at risk” at time t if it has not yet failed or been censored by time t. In other words, it is still in the study and has the potential to fail in the future. Formally, the risk set at time t, denoted by R(t), is the set of all individuals who are at risk at time t. Mathematically, we can define the risk set as follows:</p>
+</section>
+<section id="the-risk-set" class="level2">
+<h2 class="anchored" data-anchor-id="the-risk-set">The Risk Set</h2>
+<p>We need a definition. A machine or a unit is said to be “at risk” at time t if it has not yet failed or been censored by time t. In other words, it is still in the study and has the potential to fail in the future. Formally, the <strong>risk set</strong> at time t, denoted by R(t), is the set of all individuals who are at risk at time t. Mathematically, we can define the risk set as follows:</p>
 <p><span class="math inline">\(R(t) = \{i : Y_i \geq t\} = \{i: min(T_i, C_i) \geq t\} = \{i: T_i \geq t \text{ and } C_i \geq t\}\)</span></p>
 <p>That is, the risk set at time t consists of those units who are still under observation at time t and have not yet experienced the event of interest (failure) or been censored. The size of the risk set just before the <span class="math inline">\(j\)</span>-th failure time is:</p>
 <p><span class="math display">\[n_j = |R(t_{(j)})| = |\{i : Y_i \geq t_{(j)}\}|\]</span></p>
 <p>Note the <span class="math inline">\(\geq\)</span>: units that fail exactly at <span class="math inline">\(t_{(j)}\)</span> are counted as at risk just before <span class="math inline">\(t_{(j)}\)</span>. They are in the risk set, and then they leave it.</p>
 </section>
-<section id="estimating-the-conditional-probability-of-surviving-past-each-failure-time" class="level3">
-<h3 class="anchored" data-anchor-id="estimating-the-conditional-probability-of-surviving-past-each-failure-time">Estimating the Conditional Probability of Surviving Past Each Failure Time</h3>
+<section id="counting-argument-for-estimating-the-conditional-probabilities" class="level2">
+<h2 class="anchored" data-anchor-id="counting-argument-for-estimating-the-conditional-probabilities">Counting Argument for Estimating the Conditional Probabilities</h2>
 <p><span class="math inline">\(P(T &gt; t_{(j)} | T &gt; t_{(j-1)})\)</span> is the probability of surviving past time <span class="math inline">\(t_{(j)}\)</span> given that you survived past time <span class="math inline">\(t_{(j-1)}\)</span>. This is equivalent to 1 minus the probability of failing at time <span class="math inline">\(t_{(j)}\)</span> given that you survived past time <span class="math inline">\(t_{(j-1)}\)</span>. In other words, we can write:</p>
 <p><span class="math inline">\(P(T &gt; t_{(j)} | T &gt; t_{(j-1)}) = 1 - P(T \leq t_{(j)} | T &gt; t_{(j-1)})\)</span></p>
 <p>Using the definition of conditional probability, we can express the above probability as follows:</p>
 <p><span class="math inline">\(P(T \leq t_{(j)} \mid T &gt; t_{(j-1)}) = \frac{P(T \leq t_{(j)},\ T &gt; t_{(j-1)})}{P(T &gt; t_{(j-1)})}\)</span> = <span class="math inline">\(\frac{P(t_{(j-1)} &lt; T \leq t_{(j)})}{P(T &gt; t_{(j-1)})}\)</span></p>
-</section>
-<section id="the-counting-argument" class="level3">
-<h3 class="anchored" data-anchor-id="the-counting-argument">The Counting Argument</h3>
 <p>We are working with realizations (observed data), not the continuous random variable <span class="math inline">\(T\)</span>. We know that for any continuous random variable, the probability of it taking any specific value, say <span class="math inline">\(t_0\)</span>, is zero. So, <span class="math inline">\(P(T = t_0) = 0\)</span> for any <span class="math inline">\(t_0\)</span>. But we are working with observed data, and in our observed data, we do have some units that fail at specific times. So, we can treat the observed failure times as discrete points where the probability of failure is non-zero. This is a common approach in survival analysis when dealing with real-world data. In the data, exactly <span class="math inline">\(d_j\)</span> units failed at the recorded failure time <span class="math inline">\(t_{(j)}\)</span>. This is not a statement about the (continuous) random variable <span class="math inline">\(T\)</span>, but rather a statement about the observed data. So the event <span class="math inline">\(\{T \leq t_{(j)},\ T &gt; t_{(j-1)}\}\)</span> — failure somewhere in <span class="math inline">\((t_{(j-1)},\ t_{(j)}]\)</span> — collapses to failure exactly at <span class="math inline">\(t_{(j)}\)</span>:</p>
 <p><span class="math inline">\(P(T \leq t_{(j)},\ T &gt; t_{(j-1)}) = P(T = t_{(j)})\)</span></p>
 <p>The conditional probability becomes:</p>
 <p><span class="math inline">\(P(T \leq t_{(j)} \mid T &gt; t_{(j-1)}) = \frac{P(T = t_{(j)})}{P(T &gt; t_{(j-1)})}\)</span></p>
 <p>Now we can estimate the numerator and denominator from the data using a counting argument.</p>
-<p><strong>Numerator:</strong> <span class="math inline">\(P(T = t_{(j)})\)</span> - the probability that a randommly chosen unit fails exactly at time <span class="math inline">\(t_{j}\)</span>. In the sample of <span class="math inline">\(n\)</span> units, <span class="math inline">\(d_j\)</span> units failed at time <span class="math inline">\(t_{(j)}\)</span>. Thus, the failure probability at time <span class="math inline">\(t_{j}\)</span> is simply <span class="math inline">\(\frac{d_j}{n}\)</span>.</p>
+<p><strong>Numerator:</strong> <span class="math inline">\(P(T = t_{(j)})\)</span> - the probability that a randomly chosen unit fails exactly at time <span class="math inline">\(t_{j}\)</span>. In the sample of <span class="math inline">\(n\)</span> units, <span class="math inline">\(d_j\)</span> units failed at time <span class="math inline">\(t_{(j)}\)</span>. Thus, the failure probability at time <span class="math inline">\(t_{j}\)</span> is simply <span class="math inline">\(\frac{d_j}{n}\)</span>.</p>
 <p><strong>Denominator:</strong> <span class="math inline">\(P(T &gt; t_{(j-1)})\)</span>- the probability that a randomly chosen unit survives past time <span class="math inline">\(t_{(j-1)}\)</span>. Since there are no failures in the open interval <span class="math inline">\((t_{(j-1)},\ t_{(j)})\)</span>, a unit that survived past <span class="math inline">\(t_{(j-1)}\)</span> is still at risk just before <span class="math inline">\(t_{(j)}\)</span> — and vice versa. The two conditions are equivalent. In the sample, exactly <span class="math inline">\(n_j\)</span> units are at risk just before <span class="math inline">\(t_{(j)}\)</span>, so the probability of surviving past <span class="math inline">\(t_{(j-1)}\)</span> is <span class="math inline">\(\frac{n_j}{n}\)</span>.</p>
 <p>Putting it all together, we get:</p>
 <p><span class="math inline">\(P(T &gt; t_{(j)} | T &gt; t_{(j-1)}) = 1 - \frac{P(T = t_{(j)})}{P(T &gt; t_{(j-1)})} = 1 - \frac{\frac{d_j}{n}}{\frac{n_j}{n}} = 1 - \frac{d_j}{n_j}\)</span></p>
 <p>Excellent! We have an estimate for the conditional probability of surviving past each failure time. Plugging back into our expression for <span class="math inline">\(S(t)\)</span>:</p>
-</section>
 <section id="the-kaplan-meier-estimator--final-form" class="level3">
 <h3 class="anchored" data-anchor-id="the-kaplan-meier-estimator--final-form">The Kaplan-Meier Estimator- Final Form</h3>
 <p>Plugging the estimated conditional probabilities back into the product formula for <span class="math inline">\(S(t)\)</span>, we get: <span class="math display">\[\hat{S}(t) = \prod_{t_{(j)} \leq t} \left(1 - \frac{d_j}{n_j}\right)\]</span></p>
@@ -338,6 +340,142 @@ Figure&nbsp;1
 <pre><code>Median survival time : 78.5 hours
 Total machines       : 1000
 Observed failures    : 886 (88.6%)</code></pre>
+</div>
+</div>
+<p>The KM curve tells a clear story. The fleet degrades rapidly in the first 100 hours — by <span class="math inline">\(t = 78.5\)</span> hours, half the machines have already failed. This is the <strong>median survival time</strong>: the time at which <span class="math inline">\(\hat{S}(t)\)</span> crosses 0.5. Beyond 200 hours, the curve flattens out and our estimate of the survival function becomes more uncertain.</p>
+<p>Notice the shaded band around the curve. This is the pointwise confidence interval for <span class="math inline">\(\hat{S}(t)\)</span>, and it is not free — it requires an estimate of the variance of <span class="math inline">\(\hat{S}(t)\)</span>. That variance estimate is <strong>Greenwood’s formula</strong>, and deriving it is exactly what we do next.</p>
+</section>
+</section>
+<section id="greenwoods-formula-for-the-variance-of-the-kaplan-meier-estimator" class="level2">
+<h2 class="anchored" data-anchor-id="greenwoods-formula-for-the-variance-of-the-kaplan-meier-estimator">Greenwood’s Formula for the Variance of the Kaplan-Meier Estimator</h2>
+<p>Since the conditional probabilities in the product formula for <span class="math inline">\(\hat{S}(t)\)</span> are estimated from the data, <span class="math inline">\(\hat{S}(t)\)</span> is a random variable. Therefore it has an uncertainty associated with it, which we can quantify using its variance. Greenwood’s formula gives us a way to estimate the variance of the Kaplan-Meier estimator at any time t. We want to know how much <span class="math inline">\(\hat{S}(t)\)</span> varies from sample to sample due to random sampling variability. This is crucial for constructing confidence intervals and performing standard hypothesis tests to quantify uncertainty in our estimates. We will derive Greenwood’s formula from first principles. The derivation uses two applications of the delta method. If that’s new to you, there’s a short detour below — it’s worth knowing. If it’s familiar, you’ll enjoy seeing it applied here.</p>
+<p>Let’s start with the expression for the Kaplan-Meier estimator:</p>
+<p><span class="math display">\[\hat{S}(t) = \prod_{t_{(j)} \leq t} \left(1 - \frac{d_j}{n_j}\right)\]</span></p>
+<p>Set <span class="math inline">\(\hat{p}_k = \frac{d_k}{n_k}\)</span> for <span class="math inline">\(k = 1, 2, \ldots, K\)</span>. Then we can rewrite the Kaplan-Meier estimator as follows:</p>
+<p><span class="math display">\[\hat{S}(t) = \prod_{t_{(j)} \leq t} (1 - \hat{p}_j)\]</span></p>
+<p>Taking the natural logarithm of both sides, we get:</p>
+<p><span class="math display">\[\ln \hat{S}(t) = \sum_{t_{(j)} \leq t} \ln (1 - \hat{p}_j)\]</span></p>
+<p>Taking variance, we have</p>
+<p><span class="math display">\[\text{Var}(\ln \hat{S}(t)) = \text{Var}\left(\sum_{t_{(j)} \leq t} \ln (1 - \hat{p}_j)\right)\]</span></p>
+<p>Question: Are the terms <span class="math inline">\(\ln (1 - \hat{p}_j)\)</span> independent of each other? The answer is yes. Because the failure times are distinct and the <span class="math inline">\(\hat{p}_j\)</span> are based on disjoint sets of units (the risk sets at different failure times), the <span class="math inline">\(\hat{p}_j\)</span> are independent random variables. Therefore, the terms <span class="math inline">\(\ln (1 - \hat{p}_j)\)</span> are also independent. For independent random variables, the variance of a sum is the sum of the variances. Thus, we can write:</p>
+<p><span class="math display">\[\text{Var}(\ln \hat{S}(t)) = \sum_{t_{(j)} \leq t} \text{Var}(\ln (1 - \hat{p}_j))\]</span></p>
+<p>Can we compute <span class="math inline">\(\text{Var}({p}_j)\)</span>? Yes, we can. <span class="math inline">\(\hat{p}_j\)</span> is the sample proportion of failures at time <span class="math inline">\(t_{(j)}\)</span> among the <span class="math inline">\(n_j\)</span> units at risk just before <span class="math inline">\(t_{(j)}\)</span>. Under the assumption of independent failures, <span class="math inline">\(\hat{p}_j\)</span> follows a binomial distribution with parameters <span class="math inline">\(n_j\)</span> and <span class="math inline">\(p_j\)</span>, where <span class="math inline">\(p_j\)</span> is the true probability of failure at time <span class="math inline">\(t_{(j)}\)</span>. The variance of a binomial random variable is given by:</p>
+<p><span class="math display">\[\text{Var}(\hat{p}_j) = \frac{p_j (1 - p_j)}{n_j}\]</span></p>
+<p>And replacing <span class="math inline">\(p_j\)</span> with its estimate <span class="math inline">\(\hat{p}_j\)</span>, we get: <span class="math display">\[\text{Var}(\hat{p}_j) = \frac{\hat{p}_j (1 - \hat{p}_j)}{n_j}\]</span></p>
+<p>How do we get from <span class="math inline">\(\text{Var}(\hat{p}_j)\)</span> to <span class="math inline">\(\text{Var}(\ln (1 - \hat{p}_j))\)</span>? This is where the delta method comes in.</p>
+<section id="the-delta-method-and-its-application-to-greenwoods-formula" class="level3">
+<h3 class="anchored" data-anchor-id="the-delta-method-and-its-application-to-greenwoods-formula">The Delta Method and its Application to Greenwood’s Formula</h3>
+<p>Let <span class="math inline">\(X_{n}\)</span> be a sequence of random variables such that <span class="math inline">\(\sqrt{n}(X_{n} - \theta) \xrightarrow{d} N(0, \sigma^2)\)</span> as <span class="math inline">\(n \to \infty\)</span>, where N(0, <span class="math inline">\(\sigma^2\)</span>) is a normal distribution with mean 0 and variance <span class="math inline">\(\sigma^2\)</span>. Let <span class="math inline">\(g\)</span> be a function that is differentiable at <span class="math inline">\(\theta\)</span> with <span class="math inline">\(g'(\theta) \neq 0\)</span>. Then, by the delta method, we have:</p>
+<p><span class="math display">\[\sqrt{n}(g(X_{n}) - g(\theta)) \xrightarrow{d} N(0, (g'(\theta))^2 \sigma^2)\]</span></p>
+<p>This means that the variation of <span class="math inline">\(g(X_{n})\)</span> is approximately g’(<span class="math inline">\(\theta\)</span>) times the variation of <span class="math inline">\(X_{n}\)</span> for large n.&nbsp;The delta method allows us to find the asymptotic distribution of a function of a random variable, given the asymptotic distribution of the random variable itself.</p>
+<p>What does the <span class="math inline">\((d)\)</span> superscript mean? This is a special type of convergence of random variables known as <strong>convergence in distribution</strong> which in simple terms says that the distribution of the random variable on the left-hand side converges to the distribution on the right-hand side as n goes to infinity. This is exactly what the Central Limit Theorem tells us about the distribution of sample means. A certain function of the sample mean converges in distribution to a normal distribution as the sample size increases. The delta method is a generalization of the Central Limit Theorem that allows us to find the asymptotic distribution of a function of a random variable, given the asymptotic distribution of the random variable itself. Is it worth going into the details of the proof of the delta method? Probably not. You can find the proof in any mathematical statistics textbook. The key idea is to use some technical theorems to show that the distribution of <span class="math inline">\(g(X_{n})\)</span> converges to a normal distribution with mean <span class="math inline">\(g(\theta)\)</span> and variance <span class="math inline">\((g'(\theta))^2 \sigma^2\)</span>. Do not worry if this is not clear. Go look it up!!</p>
+<p>Now we can apply the delta method to find <span class="math inline">\(\text{Var}(\ln (1 - \hat{p}_j))\)</span>. Let <span class="math inline">\(X_{n} = \hat{p}_j\)</span>, <span class="math inline">\(\theta = p_j\)</span>, and <span class="math inline">\(g(x) = \ln(1 - x)\)</span>. Then we have: <span class="math display">\[g'(\theta) = g'(p_j) = -\frac{1}{1 - p_j}\]</span></p>
+<p>Applying the delta method, we get: <span class="math display">\[\text{Var}(\ln (1 - \hat{p}_j)) = \left(\frac{1}{(1 - p_j)^2}\right) \text{Var}(\hat{p}_j) = \left(\frac{1}{(1 - p_j)^2}\right) \frac{p_j (1 - p_j)}{n_j} = \frac{p_j}{n_j (1 - p_j)}\]</span></p>
+<p>To get an estimate of <span class="math inline">\(\text{Var}(\ln (1 - \hat{p}_j))\)</span>, we replace <span class="math inline">\(p_j\)</span> with its estimate <span class="math inline">\(\hat{p}_j\)</span>: <span class="math display">\[\widehat{\text{Var}}(\ln (1 - \hat{p}_j)) = \frac{\hat{p}_j}{n_j (1 - \hat{p}_j)}\]</span></p>
+<p>Finally, plugging this back into our expression for <span class="math inline">\(\text{Var}(\ln \hat{S}(t))\)</span>, we get:</p>
+<p><span class="math display">\[\widehat{\text{Var}}(\ln \hat{S}(t)) = \sum_{t_{(j)} \leq t} \frac{\hat{p}_j}{n_j (1 - \hat{p}_j)}\]</span></p>
+<p>We can simplify this expression further by noting that <span class="math inline">\(\hat{p}_j = \frac{d_j}{n_j}\)</span> and <span class="math inline">\(1 - \hat{p}_j = 1 - \frac{d_j}{n_j} = \frac{n_j - d_j}{n_j}\)</span>. Substituting these into the formula, we get:</p>
+<p><span class="math display">\[\widehat{\text{Var}}(\ln \hat{S}(t)) = \sum_{t_{(j)} \leq t} \frac{\frac{d_j}{n_j}}{n_j \cdot \frac{n_j - d_j}{n_j}} = \sum_{t_{(j)} \leq t} \frac{d_j}{n_j (n_j - d_j)}\]</span></p>
+<p>Do we have what we came from? Not quite. We have the variance of <span class="math inline">\(\ln \hat{S}(t)\)</span>, but we want the variance of <span class="math inline">\(\hat{S}(t)\)</span>. No problem. We can use the delta method again to find <span class="math inline">\(\text{Var}(\hat{S}(t))\)</span> from <span class="math inline">\(\text{Var}(\ln \hat{S}(t))\)</span>. Let <span class="math inline">\(X_{n} = \ln \hat{S}(t)\)</span>, <span class="math inline">\(\theta = \ln S(t)\)</span>, and <span class="math inline">\(g(x) = e^x\)</span>. Then we have: <span class="math display">\[g'(\theta) = g'(\ln S(t)) = e^{\ln S(t)} = S(t)\]</span></p>
+<p><span class="math display">\[\text{Var}(\hat{S}(t)) \approx (S(t))^2 \cdot \text{Var}(\ln \hat{S}(t))\]</span></p>
+<p>Replacing <span class="math inline">\(S(t)\)</span> with <span class="math inline">\(\hat{S}(t)\)</span>:</p>
+<p><span class="math display">\[\widehat{\text{Var}}(\hat{S}(t)) = [\hat{S}(t)]^2 \sum_{t_{(j)} \leq t}
+\frac{d_j}{n_j(n_j - d_j)}\]</span></p>
+<p>This is <strong>Greenwood’s formula</strong> for the variance of the Kaplan-Meier estimator. It allows us to quantify the uncertainty in our estimate of the survival function at any time t, which is crucial for constructing confidence intervals and performing hypothesis tests.</p>
+</section>
+<section id="applying-greenwoods-formula-to-the-machine-fleet-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="applying-greenwoods-formula-to-the-machine-fleet-dataset">Applying Greenwood’s Formula to the Machine Fleet Dataset</h3>
+<div id="cell-fig-km-fleet-ci" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> lifelines <span class="im">import</span> KaplanMeierFitter</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'../../data/machine_fleet.csv'</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>kmf <span class="op">=</span> KaplanMeierFitter()</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>kmf.fit(df[<span class="st">'observed_time'</span>], event_observed<span class="op">=</span>df[<span class="st">'event_observed'</span>], label<span class="op">=</span><span class="st">'Machine Fleet'</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting the KM curve with confidence intervals</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>kmf.plot_survival_function(</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    ax<span class="op">=</span>ax,</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    ci_show<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">'steelblue'</span>,</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    ci_alpha<span class="op">=</span><span class="fl">0.15</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Time (hours)'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="vs">r'</span><span class="dv">$</span><span class="er">\</span><span class="vs">hat{S}</span><span class="kw">(</span><span class="vs">t</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Kaplan-Meier Estimate with Greenwood's Confidence Bands — Machine Fleet"</span>, fontsize<span class="op">=</span><span class="dv">13</span>)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>ax.axhline(y<span class="op">=</span><span class="fl">0.5</span>, color<span class="op">=</span><span class="st">'firebrick'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Median survival'</span>)</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>ax.legend(fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>ax.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Greenwood's formula calculations</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>et <span class="op">=</span> kmf.event_table</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>nj <span class="op">=</span> et[<span class="st">'at_risk'</span>].values</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>dj <span class="op">=</span> et[<span class="st">'observed'</span>].values</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>mask             <span class="op">=</span> dj <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>nj_f             <span class="op">=</span> nj[mask]</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>dj_f             <span class="op">=</span> dj[mask]</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>t_f              <span class="op">=</span> et.index[mask].values          <span class="co"># numpy array</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>greenwood_terms  <span class="op">=</span> dj_f <span class="op">/</span> (nj_f <span class="op">*</span> (nj_f <span class="op">-</span> dj_f))</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>greenwood_cumsum <span class="op">=</span> np.cumsum(greenwood_terms)</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>St_f             <span class="op">=</span> kmf.predict(t_f).values        <span class="co"># numpy array</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>greenwood_var    <span class="op">=</span> (St_f <span class="op">**</span> <span class="dv">2</span>) <span class="op">*</span> greenwood_cumsum</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>greenwood_se     <span class="op">=</span> np.sqrt(greenwood_var)</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>ci_lower         <span class="op">=</span> St_f <span class="op">-</span> <span class="fl">1.96</span> <span class="op">*</span> greenwood_se</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>ci_upper         <span class="op">=</span> St_f <span class="op">+</span> <span class="fl">1.96</span> <span class="op">*</span> greenwood_se</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Print table ---</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="st">'Time'</span><span class="sc">:&gt;8}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'n_j'</span><span class="sc">:&gt;6}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'d_j'</span><span class="sc">:&gt;6}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'d/n(n-d)'</span><span class="sc">:&gt;12}</span><span class="ss"> "</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"</span><span class="sc">{</span><span class="st">'S(t)'</span><span class="sc">:&gt;8}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'SE'</span><span class="sc">:&gt;8}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'95% CI Lower'</span><span class="sc">:&gt;14}</span><span class="ss"> </span><span class="sc">{</span><span class="st">'95% CI Upper'</span><span class="sc">:&gt;14}</span><span class="ss">"</span>)</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span> <span class="op">*</span> <span class="dv">82</span>)</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">min</span>(<span class="dv">15</span>, <span class="bu">len</span>(t_f))):</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>t_f[i]<span class="sc">:&gt;8.1f}</span><span class="ss"> </span><span class="sc">{</span>nj_f[i]<span class="sc">:&gt;6.0f}</span><span class="ss"> </span><span class="sc">{</span>dj_f[i]<span class="sc">:&gt;6.0f}</span><span class="ss"> "</span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"</span><span class="sc">{</span>greenwood_terms[i]<span class="sc">:&gt;12.6f}</span><span class="ss"> </span><span class="sc">{</span>St_f[i]<span class="sc">:&gt;8.4f}</span><span class="ss"> "</span></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"</span><span class="sc">{</span>greenwood_se[i]<span class="sc">:&gt;8.4f}</span><span class="ss"> </span><span class="sc">{</span>ci_lower[i]<span class="sc">:&gt;14.4f}</span><span class="ss"> "</span></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"</span><span class="sc">{</span>ci_upper[i]<span class="sc">:&gt;14.4f}</span><span class="ss">"</span>)</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">(Showing first 15 failure times out of </span><span class="sc">{</span>mask<span class="sc">.</span><span class="bu">sum</span>()<span class="sc">}</span><span class="ss"> total)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-km-fleet-ci" class="quarto-float quarto-figure quarto-figure-center anchored" width="948" height="470">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-km-fleet-ci-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-km-fleet-ci-output-1.png" id="fig-km-fleet-ci" width="948" height="470" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-km-fleet-ci-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Time    n_j    d_j     d/n(n-d)     S(t)       SE   95% CI Lower   95% CI Upper
+----------------------------------------------------------------------------------
+     1.5   1000      1     0.000001   0.9990   0.0010         0.9970         1.0010
+     3.4    999      1     0.000001   0.9980   0.0014         0.9952         1.0008
+     5.2    998      1     0.000001   0.9970   0.0017         0.9936         1.0004
+     5.4    997      1     0.000001   0.9960   0.0020         0.9921         0.9999
+     5.6    996      1     0.000001   0.9950   0.0022         0.9906         0.9994
+     5.9    995      1     0.000001   0.9940   0.0024         0.9892         0.9988
+     6.4    994      1     0.000001   0.9930   0.0026         0.9878         0.9982
+     6.4    993      1     0.000001   0.9920   0.0028         0.9865         0.9975
+     7.9    992      1     0.000001   0.9910   0.0030         0.9851         0.9969
+     7.9    991      1     0.000001   0.9900   0.0031         0.9838         0.9962
+     8.3    990      1     0.000001   0.9890   0.0033         0.9825         0.9955
+     8.9    989      1     0.000001   0.9880   0.0034         0.9813         0.9947
+     9.1    988      1     0.000001   0.9870   0.0036         0.9800         0.9940
+     9.3    987      1     0.000001   0.9860   0.0037         0.9787         0.9933
+    10.1    986      1     0.000001   0.9850   0.0038         0.9775         0.9925
+
+(Showing first 15 failure times out of 859 total)</code></pre>
 </div>
 </div>
 
