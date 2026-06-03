@@ -325,7 +325,7 @@ window.Quarto = {
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Total machines       : </span><span class="sc">{</span><span class="bu">len</span>(df)<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Observed failures    : </span><span class="sc">{</span>df[<span class="st">'event_observed'</span>]<span class="sc">.</span><span class="bu">sum</span>()<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span><span class="dv">100</span><span class="op">*</span>df[<span class="st">'event_observed'</span>]<span class="sc">.</span>mean()<span class="sc">:.1f}</span><span class="ss">%)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="fig-km-fleet" class="quarto-float quarto-figure quarto-figure-center anchored" width="948" height="470">
+<div id="fig-km-fleet" class="quarto-float quarto-figure quarto-figure-center anchored" height="470" width="948">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-km-fleet-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="index_files/figure-html/fig-km-fleet-output-1.png" id="fig-km-fleet" width="948" height="470" class="figure-img">
@@ -445,7 +445,7 @@ Observed failures    : 886 (88.6%)</code></pre>
 <span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"</span><span class="sc">{</span>ci_upper[i]<span class="sc">:&gt;14.4f}</span><span class="ss">"</span>)</span>
 <span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">(Showing first 15 failure times out of </span><span class="sc">{</span>mask<span class="sc">.</span><span class="bu">sum</span>()<span class="sc">}</span><span class="ss"> total)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="fig-km-fleet-ci" class="quarto-float quarto-figure quarto-figure-center anchored" width="948" height="470">
+<div id="fig-km-fleet-ci" class="quarto-float quarto-figure quarto-figure-center anchored" height="470" width="948">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-km-fleet-ci-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="index_files/figure-html/fig-km-fleet-ci-output-1.png" id="fig-km-fleet-ci" width="948" height="470" class="figure-img">
@@ -478,8 +478,41 @@ Figure&nbsp;2
 (Showing first 15 failure times out of 859 total)</code></pre>
 </div>
 </div>
+</section>
+<section id="confidence-intervals-for-the-kaplan-meier-estimator" class="level3">
+<h3 class="anchored" data-anchor-id="confidence-intervals-for-the-kaplan-meier-estimator">Confidence Intervals for the Kaplan-Meier Estimator</h3>
+<p>We have an estimator <span class="math inline">\(\hat{S}(t)\)</span> and, thanks to Greenwood’s formula, we have an estimate of its variance. The square root of the variance is its standard error. A single number (like the standard error) is hard to reason about in practice. Sometimes, we need a <strong>range</strong> of the survival probability estimates. This is what a confidence interval gives us.</p>
+<p>Recall that a <span class="math inline">\((1 - \alpha)\)</span> confidence interval for a parameter <span class="math inline">\(\theta\)</span> is a random interval <span class="math inline">\([L, U]\)</span> such that:</p>
+<p><span class="math display">\[P(L \leq \theta \leq U) = 1 - \alpha\]</span></p>
+<p>The interval is <em>random</em> because <span class="math inline">\(L\)</span> and <span class="math inline">\(U\)</span> are computed from the data, which varies from sample to sample. The correct interpretation: if we repeated the experiment many times and computed the interval each time, <span class="math inline">\((1-\alpha)\)</span> of those intervals would contain the true <span class="math inline">\(\theta\)</span>. In the statistics literature, <span class="math inline">\(\alpha = 0.05\)</span> is the standard choice, giving a 95% confidence interval.</p>
+<section id="a-quick-detour-ci-for-a-normal-random-variable" class="level4">
+<h4 class="anchored" data-anchor-id="a-quick-detour-ci-for-a-normal-random-variable">A Quick Detour: CI for a Normal Random Variable</h4>
+<p>Let <span class="math inline">\(X_1, X_2, \ldots, X_n\)</span> be i.i.d. observations from <span class="math inline">\(N(\mu, \sigma^2)\)</span> with <span class="math inline">\(\sigma^2\)</span> known. The sample mean <span class="math inline">\(\bar{X} = \frac{1}{n}\sum_{i=1}^n X_i\)</span> is an unbiased estimator of <span class="math inline">\(\mu\)</span> with variance <span class="math inline">\(\sigma^2 / n\)</span>. Standardising:</p>
+<p><span class="math display">\[Z = \frac{\bar{X} - \mu}{\sigma / \sqrt{n}} \sim N(0, 1)\]</span></p>
+<p>For a 95% interval, we need <span class="math inline">\(P(-1.96 \leq Z \leq 1.96) = 0.95\)</span>, which gives:</p>
+<p><span class="math display">\[P\left(\bar{X} - 1.96 \cdot \frac{\sigma}{\sqrt{n}} \leq \mu \leq
+\bar{X} + 1.96 \cdot \frac{\sigma}{\sqrt{n}}\right) = 0.95\]</span></p>
+<p>The 95% CI for <span class="math inline">\(\mu\)</span> is <span class="math inline">\(\left[\bar{X} - 1.96 \cdot \frac{\sigma}{\sqrt{n}},\
+\bar{X} + 1.96 \cdot \frac{\sigma}{\sqrt{n}}\right]\)</span>. The structure is always the same: estimate <span class="math inline">\(\pm\)</span> <span class="math inline">\(z\)</span>-score <span class="math inline">\(\times\)</span> standard error.</p>
+</section>
+<section id="the-naive-ci-for-hatst" class="level4">
+<h4 class="anchored" data-anchor-id="the-naive-ci-for-hatst">The Naive CI for <span class="math inline">\(\hat{S}(t)\)</span></h4>
+<p>By analogy, and invoking the asymptotic normality of <span class="math inline">\(\hat{S}(t)\)</span>, the naive 95% confidence interval for <span class="math inline">\(S(t)\)</span> is:</p>
+<p><span class="math display">\[\hat{S}(t) \pm 1.96 \cdot \widehat{\text{SE}}[\hat{S}(t)]\]</span></p>
+<p>where <span class="math inline">\(\widehat{\text{SE}}[\hat{S}(t)] = \sqrt{\widehat{\text{Var}}(\hat{S}(t))}\)</span> is estimated from Greenwood’s formula. Explicitly:</p>
+<p><span class="math display">\[\left[\hat{S}(t) - 1.96\sqrt{\widehat{\text{Var}}(\hat{S}(t))},\
+\hat{S}(t) + 1.96\sqrt{\widehat{\text{Var}}(\hat{S}(t))}\right]\]</span></p>
+<p><strong>Example.</strong> Suppose <span class="math inline">\(t = 250\)</span> hours, <span class="math inline">\(\hat{S}(250) = 0.10\)</span>, and <span class="math inline">\(\widehat{\text{SE}}[\hat{S}(250)] = 0.03\)</span>. The naive 95% CI is:</p>
+<p><span class="math display">\[[0.10 - 1.96 \times 0.03,\ 0.10 + 1.96 \times 0.03] = [0.041,\ 0.159]\]</span></p>
+<p>We are 95% confident that the true survival probability at 250 hours lies between 4.1% and 15.9%. This is a useful and interpretable statement.</p>
+</section>
+<section id="the-problem-with-the-naive-ci" class="level4">
+<h4 class="anchored" data-anchor-id="the-problem-with-the-naive-ci">The Problem with the Naive CI</h4>
+<p>There is a catch. <span class="math inline">\(S(t)\)</span> is a probability, so it must satisfy <span class="math inline">\(S(t) \in [0, 1]\)</span> for all <span class="math inline">\(t\)</span>. The naive interval doesn’t know this. Near the tails of the curve — where <span class="math inline">\(\hat{S}(t)\)</span> is close to 0 or 1 and the standard error is relatively large — the interval can breach these bounds. In the example above we got lucky: <span class="math inline">\([0.041, 0.159]\)</span> stays inside <span class="math inline">\([0, 1]\)</span>. But at <span class="math inline">\(t = 300\)</span> hours, if <span class="math inline">\(\hat{S}(300) = 0.02\)</span> and <span class="math inline">\(\widehat{\text{SE}} = 0.015\)</span>, the naive lower bound is <span class="math inline">\(0.02 - 1.96 \times 0.015 = -0.009\)</span>. A survival probability of <span class="math inline">\(-0.9\%\)</span> is not something the laws of probability allow, let alone something you can explain to a fleet manager.</p>
+<p>The fix is to construct the interval on a transformed scale where <span class="math inline">\([0, 1]\)</span> is automatically respected, and then map back. The standard choice is the <strong>log-log transformation</strong> — and that is what we derive next.</p>
 
 
+</section>
 </section>
 </section>
 </section>
