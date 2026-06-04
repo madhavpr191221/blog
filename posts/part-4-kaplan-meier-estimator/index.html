@@ -300,32 +300,34 @@ window.Quarto = {
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>kmf <span class="op">=</span> KaplanMeierFitter()</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>kmf.fit(df[<span class="st">'observed_time'</span>], event_observed<span class="op">=</span>df[<span class="st">'event_observed'</span>], label<span class="op">=</span><span class="st">'Machine Fleet'</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Plot ---</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>kmf.plot_survival_function(</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    ax<span class="op">=</span>ax,</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    ci_show<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">'steelblue'</span>,</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    ci_alpha<span class="op">=</span><span class="fl">0.15</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Time (hours)'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="vs">r'</span><span class="dv">$</span><span class="er">\</span><span class="vs">hat{S}</span><span class="kw">(</span><span class="vs">t</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Kaplan-Meier Survival Estimate — Machine Fleet (n=1000)'</span>, fontsize<span class="op">=</span><span class="dv">13</span>)</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>ax.axhline(y<span class="op">=</span><span class="fl">0.5</span>, color<span class="op">=</span><span class="st">'firebrick'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Median survival'</span>)</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>ax.legend(fontsize<span class="op">=</span><span class="dv">11</span>)</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>ax.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Median survival time : </span><span class="sc">{</span>kmf<span class="sc">.</span>median_survival_time_<span class="sc">:.1f}</span><span class="ss"> hours"</span>)</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Total machines       : </span><span class="sc">{</span><span class="bu">len</span>(df)<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Observed failures    : </span><span class="sc">{</span>df[<span class="st">'event_observed'</span>]<span class="sc">.</span><span class="bu">sum</span>()<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span><span class="dv">100</span><span class="op">*</span>df[<span class="st">'event_observed'</span>]<span class="sc">.</span>mean()<span class="sc">:.1f}</span><span class="ss">%)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>plt.close(<span class="st">'all'</span>)    <span class="co"># &lt;-- here, before any plotting</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Plot ---</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">5</span>))</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>kmf.plot_survival_function(</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    ax<span class="op">=</span>ax,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    ci_show<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">'steelblue'</span>,</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    ci_alpha<span class="op">=</span><span class="fl">0.15</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Time (hours)'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="vs">r'</span><span class="dv">$</span><span class="er">\</span><span class="vs">hat{S}</span><span class="kw">(</span><span class="vs">t</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Kaplan-Meier Survival Estimate — Machine Fleet (n=1000)'</span>, fontsize<span class="op">=</span><span class="dv">13</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>ax.axhline(y<span class="op">=</span><span class="fl">0.5</span>, color<span class="op">=</span><span class="st">'firebrick'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>, label<span class="op">=</span><span class="st">'Median survival'</span>)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>ax.legend(fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>ax.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Median survival time : </span><span class="sc">{</span>kmf<span class="sc">.</span>median_survival_time_<span class="sc">:.1f}</span><span class="ss"> hours"</span>)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Total machines       : </span><span class="sc">{</span><span class="bu">len</span>(df)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Observed failures    : </span><span class="sc">{</span>df[<span class="st">'event_observed'</span>]<span class="sc">.</span><span class="bu">sum</span>()<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span><span class="dv">100</span><span class="op">*</span>df[<span class="st">'event_observed'</span>]<span class="sc">.</span>mean()<span class="sc">:.1f}</span><span class="ss">%)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="fig-km-fleet" class="quarto-float quarto-figure quarto-figure-center anchored" height="470" width="948">
+<div id="fig-km-fleet" class="quarto-float quarto-figure quarto-figure-center anchored" width="948" height="470">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-km-fleet-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="index_files/figure-html/fig-km-fleet-output-1.png" id="fig-km-fleet" width="948" height="470" class="figure-img">
@@ -445,7 +447,7 @@ Observed failures    : 886 (88.6%)</code></pre>
 <span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"</span><span class="sc">{</span>ci_upper[i]<span class="sc">:&gt;14.4f}</span><span class="ss">"</span>)</span>
 <span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">(Showing first 15 failure times out of </span><span class="sc">{</span>mask<span class="sc">.</span><span class="bu">sum</span>()<span class="sc">}</span><span class="ss"> total)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="fig-km-fleet-ci" class="quarto-float quarto-figure quarto-figure-center anchored" height="470" width="948">
+<div id="fig-km-fleet-ci" class="quarto-float quarto-figure quarto-figure-center anchored" width="948" height="470">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-km-fleet-ci-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="index_files/figure-html/fig-km-fleet-ci-output-1.png" id="fig-km-fleet-ci" width="948" height="470" class="figure-img">
@@ -510,9 +512,266 @@ Figure&nbsp;2
 <h4 class="anchored" data-anchor-id="the-problem-with-the-naive-ci">The Problem with the Naive CI</h4>
 <p>There is a catch. <span class="math inline">\(S(t)\)</span> is a probability, so it must satisfy <span class="math inline">\(S(t) \in [0, 1]\)</span> for all <span class="math inline">\(t\)</span>. The naive interval doesn’t know this. Near the tails of the curve — where <span class="math inline">\(\hat{S}(t)\)</span> is close to 0 or 1 and the standard error is relatively large — the interval can breach these bounds. In the example above we got lucky: <span class="math inline">\([0.041, 0.159]\)</span> stays inside <span class="math inline">\([0, 1]\)</span>. But at <span class="math inline">\(t = 300\)</span> hours, if <span class="math inline">\(\hat{S}(300) = 0.02\)</span> and <span class="math inline">\(\widehat{\text{SE}} = 0.015\)</span>, the naive lower bound is <span class="math inline">\(0.02 - 1.96 \times 0.015 = -0.009\)</span>. A survival probability of <span class="math inline">\(-0.9\%\)</span> is not something the laws of probability allow, let alone something you can explain to a fleet manager.</p>
 <p>The fix is to construct the interval on a transformed scale where <span class="math inline">\([0, 1]\)</span> is automatically respected, and then map back. The standard choice is the <strong>log-log transformation</strong> — and that is what we derive next.</p>
-
-
 </section>
+<section id="the-solution-log-log-transformation" class="level4">
+<h4 class="anchored" data-anchor-id="the-solution-log-log-transformation">The Solution: Log-Log Transformation</h4>
+<p><strong>Step 1: Identify the transformation.</strong></p>
+<p>Since <span class="math inline">\(\hat{S}(t) \in (0, 1)\)</span>, we have:</p>
+<p><span class="math display">\[\hat{S}(t) \in (0,1) \implies \ln \hat{S}(t) \in (-\infty, 0)
+\implies -\ln \hat{S}(t) \in (0, +\infty)\]</span></p>
+<p>Therefore:</p>
+<p><span class="math display">\[\ln(-\ln \hat{S}(t)) \in (-\infty, +\infty)\]</span></p>
+<p>The log-log transformation maps <span class="math inline">\(\hat{S}(t)\)</span> to the entire real line — no boundary constraints. This is exactly what we need.</p>
+<p><strong>Step 2: Variance on the log-log scale (delta method).</strong></p>
+<p>Let <span class="math inline">\(g(s) = \ln(-\ln s)\)</span>. Then:</p>
+<p><span class="math display">\[g'(s) = \frac{1}{s \ln s}\]</span></p>
+<p><span class="math display">\[[g'(s)]^2 = \frac{1}{s^2 (\ln s)^2}\]</span></p>
+<p>Applying the delta method:</p>
+<p><span class="math display">\[\text{Var}\left[\ln(-\ln \hat{S}(t))\right] =
+\frac{1}{\hat{S}(t)^2 (\ln \hat{S}(t))^2} \cdot \text{Var}[\hat{S}(t)]\]</span></p>
+<p>Taking the square root, the standard error on the log-log scale is:</p>
+<p><span class="math display">\[\text{SE}\left[\ln(-\ln \hat{S}(t))\right] =
+\frac{\widehat{\text{SE}}[\hat{S}(t)]}{|\hat{S}(t) \cdot \ln \hat{S}(t)|}\]</span></p>
+<p><strong>Step 3: CI on the log-log scale.</strong></p>
+<p>Set <span class="math inline">\(\theta = \ln(-\ln \hat{S}(t))\)</span>. The 95% CI on the log-log scale is:</p>
+<p><span class="math display">\[[\theta - w,\ \theta + w]\]</span></p>
+<p>where <span class="math inline">\(w = 1.96 \cdot \text{SE}[\theta]\)</span>.</p>
+<p><strong>Step 4: Transform back to the original scale.</strong></p>
+<p>Since <span class="math inline">\(g(s) = \ln(-\ln s)\)</span> has <span class="math inline">\(g'(s) = \frac{1}{s \ln s} &lt; 0\)</span> for <span class="math inline">\(s \in (0,1)\)</span>, <span class="math inline">\(g\)</span> is strictly decreasing — and so is <span class="math inline">\(g^{-1}\)</span>. Inverting a decreasing function reverses the inequalities:</p>
+<p><span class="math display">\[\theta - w &lt; \theta + w \implies g^{-1}(\theta + w) &lt; g^{-1}(\theta - w)\]</span></p>
+<p>The inverse is <span class="math inline">\(g^{-1}(z) = \exp(-\exp(z))\)</span>, so:</p>
+<p><span class="math display">\[L = g^{-1}(\theta + w) = \exp(-\exp(\theta + w))\]</span> <span class="math display">\[U = g^{-1}(\theta - w) = \exp(-\exp(\theta - w))\]</span></p>
+<p>Substituting <span class="math inline">\(\exp(\theta) = -\ln \hat{S}(t)\)</span>:</p>
+<p><span class="math display">\[L = \exp\!\left(-\exp(\theta) \cdot \exp(w)\right)
+= \exp\!\left(\ln \hat{S}(t) \cdot \exp(w)\right)
+= \hat{S}(t)^{\exp(w)}\]</span></p>
+<p><span class="math display">\[U = \exp\!\left(-\exp(\theta) \cdot \exp(-w)\right)
+= \hat{S}(t)^{\exp(-w)}\]</span></p>
+<p>By definition, the lower limit L of the confidence interval is supposed to be less than the upper limit U. Does it indeed happen? Since <span class="math inline">\(\hat{S}(t) \in (0,1)\)</span> and <span class="math inline">\(\exp(w) &gt; \exp(-w)\)</span>, raising a number in <span class="math inline">\((0,1)\)</span> to a larger exponent gives a smaller result, confirming <span class="math inline">\(L &lt; U\)</span>. The 95% log-log confidence interval on the original scale is:</p>
+<p><span class="math display">\[\boxed{\left[\hat{S}(t)^{\exp(w)},\ \hat{S}(t)^{\exp(-w)}\right]}\]</span></p>
+<p>where <span class="math inline">\(w = \dfrac{1.96 \cdot \widehat{\text{SE}}[\hat{S}(t)]}{|\hat{S}(t) \cdot \ln \hat{S}(t)|}\)</span>.</p>
+<p>This interval is guaranteed to stay in <span class="math inline">\((0,1)\)</span> by construction — no negative survival probabilities, no matter how sparse the risk set gets.</p>
+<p>Let’s see the transformed confidence intervals in action.</p>
+<div id="cell-fig-km-ci-comparison" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> lifelines <span class="im">import</span> KaplanMeierFitter</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>plt.close(<span class="st">'all'</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'../../data/machine_fleet.csv'</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>kmf <span class="op">=</span> KaplanMeierFitter()</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>kmf.fit(df[<span class="st">'observed_time'</span>], event_observed<span class="op">=</span>df[<span class="st">'event_observed'</span>])</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>et               <span class="op">=</span> kmf.event_table</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>nj               <span class="op">=</span> et[<span class="st">'at_risk'</span>].values</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>dj               <span class="op">=</span> et[<span class="st">'observed'</span>].values</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>mask             <span class="op">=</span> dj <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>nj_f             <span class="op">=</span> nj[mask]</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>dj_f             <span class="op">=</span> dj[mask]</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>t_f              <span class="op">=</span> et.index[mask].values</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>St_f             <span class="op">=</span> kmf.predict(t_f).values</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>greenwood_terms  <span class="op">=</span> dj_f <span class="op">/</span> (nj_f <span class="op">*</span> (nj_f <span class="op">-</span> dj_f))</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>greenwood_cumsum <span class="op">=</span> np.cumsum(greenwood_terms)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>var_St           <span class="op">=</span> (St_f <span class="op">**</span> <span class="dv">2</span>) <span class="op">*</span> greenwood_cumsum</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>se_St            <span class="op">=</span> np.sqrt(var_St)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>naive_lower <span class="op">=</span> St_f <span class="op">-</span> <span class="fl">1.96</span> <span class="op">*</span> se_St</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>naive_upper <span class="op">=</span> St_f <span class="op">+</span> <span class="fl">1.96</span> <span class="op">*</span> se_St</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>se_theta    <span class="op">=</span> se_St <span class="op">/</span> (St_f <span class="op">*</span> np.<span class="bu">abs</span>(np.log(St_f)))</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>w           <span class="op">=</span> <span class="fl">1.96</span> <span class="op">*</span> se_theta</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>ll_lower    <span class="op">=</span> St_f <span class="op">**</span> np.exp(w)</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>ll_upper    <span class="op">=</span> St_f <span class="op">**</span> np.exp(<span class="op">-</span>w)</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Find violations</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>violation_mask  <span class="op">=</span> naive_lower <span class="op">&lt;</span> <span class="dv">0</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>violation_times <span class="op">=</span> t_f[violation_mask]</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>violation_lower <span class="op">=</span> naive_lower[violation_mask]</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Violation times    :"</span>, violation_times)</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"naive_lower values :"</span>, violation_lower)</span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">5</span>))</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, (ax, lower, upper, label, color) <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="bu">zip</span>(</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>    axes,</span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>    [naive_lower, ll_lower],</span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>    [naive_upper, ll_upper],</span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'Naive (Linear) CI'</span>, <span class="st">'Log-Log CI'</span>],</span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'tomato'</span>, <span class="st">'steelblue'</span>]</span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>)):</span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>    ax.step(t_f, St_f, where<span class="op">=</span><span class="st">'post'</span>, color<span class="op">=</span><span class="st">'black'</span>, linewidth<span class="op">=</span><span class="fl">1.2</span>, label<span class="op">=</span><span class="vs">r'</span><span class="dv">$</span><span class="er">\</span><span class="vs">hat{S}</span><span class="kw">(</span><span class="vs">t</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>)</span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>    ax.fill_between(t_f, lower, upper, step<span class="op">=</span><span class="st">'post'</span>, alpha<span class="op">=</span><span class="fl">0.25</span>, color<span class="op">=</span>color, label<span class="op">=</span><span class="st">'95% CI'</span>)</span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>    ax.axhline(y<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'grey'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>    ax.axhline(y<span class="op">=</span><span class="dv">1</span>, color<span class="op">=</span><span class="st">'grey'</span>, linestyle<span class="op">=</span><span class="st">':'</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>    ax.set_xlim(<span class="op">-</span><span class="dv">2</span>, <span class="dv">300</span>)</span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>    ax.set_ylim(<span class="op">-</span><span class="fl">0.15</span>, <span class="fl">1.15</span>)</span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>    ax.set_xlabel(<span class="st">'Time (hours)'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>    ax.set_ylabel(<span class="vs">r'</span><span class="dv">$</span><span class="er">\</span><span class="vs">hat{S}</span><span class="kw">(</span><span class="vs">t</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>    ax.set_title(label, fontsize<span class="op">=</span><span class="dv">13</span>)</span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>    ax.legend(fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>    ax.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>        axins <span class="op">=</span> ax.inset_axes([<span class="fl">0.45</span>, <span class="fl">0.3</span>, <span class="fl">0.52</span>, <span class="fl">0.45</span>])</span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>        axins.step(t_f, St_f, where<span class="op">=</span><span class="st">'post'</span>, color<span class="op">=</span><span class="st">'black'</span>, linewidth<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>        axins.fill_between(t_f, lower, upper, step<span class="op">=</span><span class="st">'post'</span>, alpha<span class="op">=</span><span class="fl">0.3</span>, color<span class="op">=</span>color)</span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>        axins.axhline(y<span class="op">=</span><span class="dv">0</span>, color<span class="op">=</span><span class="st">'firebrick'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, linewidth<span class="op">=</span><span class="fl">1.2</span>)</span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a>        axins.set_xlim(<span class="dv">240</span>, <span class="dv">275</span>)</span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a>        axins.set_ylim(<span class="op">-</span><span class="fl">0.015</span>, <span class="fl">0.015</span>)</span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a>        axins.set_title(<span class="st">'tail (zoom): t ∈ [240, 275]'</span>, fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>        axins.tick_params(labelsize<span class="op">=</span><span class="dv">7</span>)</span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a>        axins.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>plt.suptitle(<span class="st">'Naive vs Log-Log Confidence Intervals — Machine Fleet'</span>, fontsize<span class="op">=</span><span class="dv">13</span>)</span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>plt.close(<span class="st">'all'</span>)</span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a>violations <span class="op">=</span> np.<span class="bu">sum</span>(naive_lower <span class="op">&lt;</span> <span class="dv">0</span>) <span class="op">+</span> np.<span class="bu">sum</span>(naive_upper <span class="op">&gt;</span> <span class="dv">1</span>)</span>
+<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Naive CI boundary violations : </span><span class="sc">{</span>violations<span class="sc">}</span><span class="ss"> out of </span><span class="sc">{</span><span class="bu">len</span>(t_f)<span class="sc">}</span><span class="ss"> failure times"</span>)</span>
+<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Log-log CI boundary violations: </span><span class="sc">{</span>np<span class="sc">.</span><span class="bu">sum</span>(ll_lower <span class="op">&lt;</span> <span class="dv">0</span>) <span class="op">+</span> np<span class="sc">.</span><span class="bu">sum</span>(ll_upper <span class="op">&gt;</span> <span class="dv">1</span>)<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Violation times    : [252.18 265.55]
+naive_lower values : [-0.00123213 -0.00224921]</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div id="fig-km-ci-comparison" class="quarto-float quarto-figure quarto-figure-center anchored" width="1332" height="476">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-km-ci-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-km-ci-comparison-output-2.png" id="fig-km-ci-comparison" width="1332" height="476" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-km-ci-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Naive CI boundary violations : 5 out of 859 failure times
+Log-log CI boundary violations: 0</code></pre>
+</div>
+</div>
+<p>The zoomed inset tells the story. At <span class="math inline">\(t=252\)</span> and <span class="math inline">\(t=265\)</span>, the naive CI drops below zero. The dip is tiny but mathematically meaningless. The log-log interval has zero violations, no matter how sparse the risk set gets. For most of the curve the two intervals are indistinguishable. The difference only shows up where <span class="math inline">\(\hat{S}(t)\)</span> is close to zero and the risk set is small — exactly where the normal approximation breaks down and where getting the interval right actually matters.</p>
+</section>
+</section>
+</section>
+<section id="tied-failure-times-in-the-kaplan-meier-estimator" class="level2">
+<h2 class="anchored" data-anchor-id="tied-failure-times-in-the-kaplan-meier-estimator">Tied Failure Times in the Kaplan-Meier Estimator</h2>
+<p>So far we have assumed that no two units fail at exactly the same time — the distinct failure times <span class="math inline">\(t_{(1)} &lt; t_{(2)} &lt; \cdots &lt; t_{(K)}\)</span> are strictly ordered. In real data, this assumption is routinely violated. Machines are monitored at discrete time intervals, timestamps are rounded to the nearest hour, and sometimes two units genuinely fail simultaneously. When two or more units share the same recorded failure time, we have a <strong>tie</strong>.</p>
+<section id="setup" class="level3">
+<h3 class="anchored" data-anchor-id="setup">Setup</h3>
+<p>At each failure time <span class="math inline">\(t_{(j)}\)</span>, define:</p>
+<ul>
+<li><span class="math inline">\(n_j\)</span> = number of units at risk just before <span class="math inline">\(t_{(j)}\)</span></li>
+<li><span class="math inline">\(d_j\)</span> = number of failures at <span class="math inline">\(t_{(j)}\)</span> (now allowed to be <span class="math inline">\(&gt; 1\)</span>)</li>
+<li><span class="math inline">\(c_j\)</span> = number of censorings at <span class="math inline">\(t_{(j)}\)</span></li>
+</ul>
+<p>The <span class="math inline">\(c_j\)</span> censored units have <span class="math inline">\(Y_i = t_{(j)}\)</span> and <span class="math inline">\(\delta_i = 0\)</span>. All we know about them is: they were alive at <span class="math inline">\(t_{(j)}\)</span> and then left the study. We do not know whether they would have failed at <span class="math inline">\(t_{(j)}\)</span> or survived past it.</p>
+</section>
+<section id="the-risk-set-update-rule" class="level3">
+<h3 class="anchored" data-anchor-id="the-risk-set-update-rule">The Risk Set Update Rule</h3>
+<p>After processing <span class="math inline">\(t_{(j)}\)</span>, the <span class="math inline">\(d_j\)</span> failures and <span class="math inline">\(c_j\)</span> censorings all leave the risk set. The risk set size at the next failure time is:</p>
+<p><span class="math display">\[n_{j+1} = n_j - d_j - c_j\]</span></p>
+<p>This is just conservation — units enter the interval, some leave due to failure or censoring, the rest carry forward. This update rule holds regardless of how we handle the tie at <span class="math inline">\(t_{(j)}\)</span>.</p>
+</section>
+<section id="the-tie-handling-problem" class="level3">
+<h3 class="anchored" data-anchor-id="the-tie-handling-problem">The Tie-Handling Problem</h3>
+<p>We want to estimate the conditional probability of surviving past <span class="math inline">\(t_{(j)}\)</span>:</p>
+<p><span class="math display">\[1 - \frac{d_j}{n_j}\]</span></p>
+<p>To compute this we need <span class="math inline">\(n_j\)</span> — the number of machines at risk <em>when the failures occurred</em>. The <span class="math inline">\(d_j\)</span> failures are unambiguous. The <span class="math inline">\(c_j\)</span> censored units are the problem: their recorded time is also <span class="math inline">\(t_{(j)}\)</span>. Were they at risk when the failures happened, or not? We don’t know — and this is exactly the question the two conventions answer differently.</p>
+</section>
+<section id="convention-a-censorings-before-failures" class="level3">
+<h3 class="anchored" data-anchor-id="convention-a-censorings-before-failures">Convention A: Censorings Before Failures</h3>
+<p>Convention A assumes the <span class="math inline">\(c_j\)</span> censored units left the study <em>before</em> the failures occurred at <span class="math inline">\(t_{(j)}\)</span>. They are removed from the risk set first:</p>
+<p><span class="math display">\[n_j^{(A)} = n_j - c_j\]</span></p>
+<p><span class="math display">\[1 - \frac{d_j}{n_j^{(A)}} = 1 - \frac{d_j}{n_j - c_j}\]</span></p>
+<p>With <span class="math inline">\(n_j = 20\)</span>, <span class="math inline">\(d_j = 3\)</span>, <span class="math inline">\(c_j = 2\)</span>:</p>
+<p><span class="math display">\[1 - \frac{3}{20 - 2} = 1 - \frac{3}{18} = 0.833\]</span></p>
+</section>
+<section id="convention-b-failures-before-censorings-standard-km" class="level3">
+<h3 class="anchored" data-anchor-id="convention-b-failures-before-censorings-standard-km">Convention B: Failures Before Censorings (Standard KM)</h3>
+<p>Convention B assumes the <span class="math inline">\(c_j\)</span> censored units were still present when the failures occurred. All <span class="math inline">\(n_j\)</span> units are at risk:</p>
+<p><span class="math display">\[n_j^{(B)} = n_j\]</span></p>
+<p><span class="math display">\[1 - \frac{d_j}{n_j^{(B)}} = 1 - \frac{d_j}{n_j}\]</span></p>
+<p>With the same numbers:</p>
+<p><span class="math display">\[1 - \frac{3}{20} = 0.850\]</span></p>
+</section>
+<section id="comparing-the-two-conventions" class="level3">
+<h3 class="anchored" data-anchor-id="comparing-the-two-conventions">Comparing the Two Conventions</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th><span class="math inline">\(n_j\)</span> used</th>
+<th><span class="math inline">\(1 - d_j/n_j\)</span></th>
+<th><span class="math inline">\(n_{j+1}\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Convention A</td>
+<td><span class="math inline">\(n_j - c_j = 18\)</span></td>
+<td><span class="math inline">\(0.833\)</span></td>
+<td><span class="math inline">\(15\)</span></td>
+</tr>
+<tr class="even">
+<td>Convention B</td>
+<td><span class="math inline">\(n_j = 20\)</span></td>
+<td><span class="math inline">\(0.850\)</span></td>
+<td><span class="math inline">\(15\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Notice that <span class="math inline">\(n_{j+1} = 15\)</span> under both conventions — the tied units all leave by <span class="math inline">\(t_{(j+1)}\)</span> regardless. The convention only affects the estimated survival factor at <span class="math inline">\(t_{(j)}\)</span> itself, not what comes after.</p>
+<p>Convention A implicitly assumes the censored units would have survived past <span class="math inline">\(t_{(j)}\)</span> — because removing them from the denominator makes the failure rate look higher than it might actually be. Convention B makes no such assumption: the censored units were present, they were at risk, and then they left. It lets them contribute to <span class="math inline">\(n_j\)</span> — which is the honest thing to do given that we genuinely do not know their fate. This is why Convention B is the standard KM convention.</p>
+<p>Formally, under Convention B:</p>
+<p><span class="math display">\[n_j = |\{i : Y_i \geq t_{(j)}\}|\]</span></p>
+<p>which includes units that fail at <span class="math inline">\(t_{(j)}\)</span>, units censored at <span class="math inline">\(t_{(j)}\)</span>, and units that survive past <span class="math inline">\(t_{(j)}\)</span>. The KM estimator under Convention B is therefore:</p>
+<p><span class="math display">\[\hat{S}(t) = \prod_{t_{(j)} \leq t} \left(1 - \frac{d_j}{n_j}\right)\]</span></p>
+<p>exactly as before — the formula is unchanged. Ties required no new machinery, only a careful convention about the order of events within a tied time point.</p>
+</section>
+<section id="does-our-fleet-have-ties" class="level3">
+<h3 class="anchored" data-anchor-id="does-our-fleet-have-ties">Does Our Fleet Have Ties?</h3>
+<div id="ties-check" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'../../data/machine_fleet.csv'</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>failures   <span class="op">=</span> df[df[<span class="st">'event_observed'</span>] <span class="op">==</span> <span class="dv">1</span>][<span class="st">'observed_time'</span>]</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>tie_counts <span class="op">=</span> failures.value_counts()</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>ties       <span class="op">=</span> tie_counts[tie_counts <span class="op">&gt;</span> <span class="dv">1</span>]</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Total failure times      : </span><span class="sc">{</span><span class="bu">len</span>(failures)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Distinct failure times   : </span><span class="sc">{</span>failures<span class="sc">.</span>nunique()<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Tied failure times       : </span><span class="sc">{</span><span class="bu">len</span>(ties)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="bu">len</span>(ties) <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Top 5 ties:"</span>)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(ties.head())</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"No ties in this dataset."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Total failure times      : 886
+Distinct failure times   : 859
+Tied failure times       : 27
+
+Top 5 ties:
+observed_time
+72.48     2
+55.03     2
+194.47    2
+52.83     2
+46.77     2
+Name: count, dtype: int64</code></pre>
+</div>
+</div>
+<p>Even though the synthetic fleet was generated with continuous failure times, the output tells a different story. Out of 886 failures, there are 27 tied failure times. In real telemetry- where failure times are recorded at fixed intervals- ties are almost guaranteed and would be far more frequent. Convention B is what <code>lifelines</code> applies by default, so our earlier KM estimates already handle the ties correctly without any additional code. As a bonus: <code>lifelines</code> also defaults to the log-log confidence interval. The 5 boundary violations in Figure 3 came from our own manually computed naive CI — we built it from scratch deliberately to show the problem. The shaded band in Figure 1, produced by , was already using the log-log transformation all along.</p>
+
+
 </section>
 </section>
 </section>
