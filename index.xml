@@ -1631,6 +1631,760 @@ Name: count, dtype: int64</code></pre>
 </div>
 </div>
 <p>Even though the synthetic fleet was generated with continuous failure times, the output tells a different story. Out of 886 failures, there are 27 tied failure times. In real telemetry- where failure times are recorded at fixed intervals- ties are almost guaranteed and would be far more frequent. Convention B is what <code>lifelines</code> applies by default, so our earlier KM estimates already handle the ties correctly without any additional code. As a bonus: <code>lifelines</code> also defaults to the log-log confidence interval. The 5 boundary violations in Figure 3 came from our own manually computed naive CI — we built it from scratch deliberately to show the problem. The shaded band in Figure 1, produced by , was already using the log-log transformation all along.</p>
+</section>
+</section>
+<section id="the-log-rank-test" class="level2">
+<h2 class="anchored" data-anchor-id="the-log-rank-test">The Log-Rank Test</h2>
+<p>We have a powerful tool- the KM estimator for estimating the survival function of a population from data. In practice, we want to compare survival curves across groups. Do machines from manufacturer A last longer than manufacturer B? Does operating environment- indoor vs harsh- affect survival. These are the questions that drive maintenance scheduling and warranty decisions.</p>
+<p>The natural first step is to plot the KM curves for each group side by side and look. But looking is not enough. The curves will almost always differ — if only due to random sampling variability. The question is whether the observed difference is large enough to be real, or whether it could possibly have arisen by chance even if the two groups had identical survival functions.</p>
+<p>This is a hypothesis testing problem. We want to test:</p>
+<p><img src="https://latex.codecogs.com/png.latex?H_0:%20S_1(t)%20=%20S_2(t)%20=%20%5Ccdots%20=%20S_k(t)%20%5Cquad%20%5Ctext%7Bfor%20all%20%7D%20t"></p>
+<p>against the alternative that at least one group has a different survival function. The <strong>log-rank test</strong> is the standard non-parametric test for this. It requires no distributional assumptions — no Weibull, no exponential — just the KM structure we have already built.</p>
+<section id="the-core-idea-observed-vs-expected-failures" class="level3">
+<h3 class="anchored" data-anchor-id="the-core-idea-observed-vs-expected-failures">The Core Idea: Observed vs Expected Failures</h3>
+<p>Here is the key insight. At every failure time <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D"> in the data, machines from all <img src="https://latex.codecogs.com/png.latex?k"> groups sit together in the risk set, where <img src="https://latex.codecogs.com/png.latex?k"> is the number of environmental conditions or manufacturers or something else. Some fail, some don’t. Under <img src="https://latex.codecogs.com/png.latex?H_0"> — all groups have the same survival function — group membership is irrelevant. A machine from manufacturer A is no more or less likely to fail at <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D"> than a machine from manufacturer C. The failures should be distributed across groups in proportion to their share of the risk set.</p>
+<p>The log-rank test asks: across all failure times, do the observed failures in each group match what we would expect under <img src="https://latex.codecogs.com/png.latex?H_0">?</p>
+</section>
+<section id="the-hypergeometric-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="the-hypergeometric-distribution">The Hypergeometric Distribution</h3>
+<p>To make this precise, we need a probability model for the failures at each <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">. Here is the random experiment. Consider two groups A and B.</p>
+<p>At failure time <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">, you have <img src="https://latex.codecogs.com/png.latex?n_j"> machines in the risk set. Think of this as a bag of <img src="https://latex.codecogs.com/png.latex?n_j"> marbles:</p>
+<ul>
+<li><img src="https://latex.codecogs.com/png.latex?n_%7BAj%7D"> blue marbles — machines from group A</li>
+<li><img src="https://latex.codecogs.com/png.latex?n_%7BBj%7D%20=%20n_j%20-%20n_%7BAj%7D"> red marbles — machines from group B</li>
+</ul>
+<p>Exactly <img src="https://latex.codecogs.com/png.latex?d_j"> machines fail at <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">. Think of this as drawing <img src="https://latex.codecogs.com/png.latex?d_j"> marbles from the bag <strong>without replacement</strong> — once a machine fails, it does not return to the risk set.</p>
+<p>The random variable of interest is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?X%20=%20d_%7BAj%7D%20=%20%5Ctext%7Bnumber%20of%20failures%20from%20group%20A%20at%20time%20%7D%20t_%7B(j)%7D"></p>
+<p>Under <img src="https://latex.codecogs.com/png.latex?H_0">, every machine is equally likely to fail regardless of group membership — no marble is special. So <img src="https://latex.codecogs.com/png.latex?X"> tells us: out of <img src="https://latex.codecogs.com/png.latex?d_j"> randomly drawn machines, how many happen to be from group A?</p>
+<section id="pmf-of-the-hypergeometric" class="level4">
+<h4 class="anchored" data-anchor-id="pmf-of-the-hypergeometric">PMF of the Hypergeometric</h4>
+<p>We want <img src="https://latex.codecogs.com/png.latex?P(X%20=%20x)"> — the probability that exactly <img src="https://latex.codecogs.com/png.latex?x"> of the <img src="https://latex.codecogs.com/png.latex?d_j"> failures come from group A.</p>
+<p>We use the classical definition of probability:</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(X%20=%20x)%20=%20%5Cfrac%7B%5Ctext%7Bnumber%20of%20favourable%20outcomes%7D%7D%7B%5Ctext%7Btotal%20number%20of%20outcomes%7D%7D"></p>
+<p>This applies here because under <img src="https://latex.codecogs.com/png.latex?H_0">, every possible selection of <img src="https://latex.codecogs.com/png.latex?d_j"> machines from the <img src="https://latex.codecogs.com/png.latex?n_j"> at risk is equally likely — no machine is special.</p>
+<p><strong>Total outcomes:</strong> The number of ways to choose <img src="https://latex.codecogs.com/png.latex?d_j"> machines to fail from <img src="https://latex.codecogs.com/png.latex?n_j"> machines at risk:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cbinom%7Bn_j%7D%7Bd_j%7D"></p>
+<p><strong>Favourable outcomes:</strong> We want exactly <img src="https://latex.codecogs.com/png.latex?x"> failures from group A and <img src="https://latex.codecogs.com/png.latex?d_j%20-%20x"> failures from group B. These are independent choices:</p>
+<ul>
+<li>Choose <img src="https://latex.codecogs.com/png.latex?x"> machines from group A’s <img src="https://latex.codecogs.com/png.latex?n_%7BAj%7D">: <img src="https://latex.codecogs.com/png.latex?%5Cbinom%7Bn_%7BAj%7D%7D%7Bx%7D"> ways</li>
+<li>Choose <img src="https://latex.codecogs.com/png.latex?d_j%20-%20x"> machines from group B’s <img src="https://latex.codecogs.com/png.latex?n_%7BBj%7D">: <img src="https://latex.codecogs.com/png.latex?%5Cbinom%7Bn_%7BBj%7D%7D%7Bd_j%20-%20x%7D"> ways</li>
+</ul>
+<p>By the multiplication principle, the number of favourable outcomes is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cbinom%7Bn_%7BAj%7D%7D%7Bx%7D%20%5Cbinom%7Bn_%7BBj%7D%7D%7Bd_j%20-%20x%7D"></p>
+<p>Therefore:</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(X%20=%20x)%20=%20%5Cfrac%7B%5Cdbinom%7Bn_%7BAj%7D%7D%7Bx%7D%5Cdbinom%7Bn_%7BBj%7D%7D%7Bd_j%20-%20x%7D%7D%7B%5Cdbinom%7Bn_j%7D%7Bd_j%7D%7D"></p>
+<p>The range of <img src="https://latex.codecogs.com/png.latex?x"> is <img src="https://latex.codecogs.com/png.latex?%5Cmax(0,%5C%20d_j%20-%20n_%7BBj%7D)%20%5Cleq%20x%20%5Cleq%20%5Cmin(d_j,%5C%20n_%7BAj%7D)">.</p>
+<p><strong>Upper bound:</strong> <img src="https://latex.codecogs.com/png.latex?x"> cannot exceed the number of group A machines at risk <img src="https://latex.codecogs.com/png.latex?n_%7BAj%7D">, nor the total failures <img src="https://latex.codecogs.com/png.latex?d_j">. So <img src="https://latex.codecogs.com/png.latex?x%20%5Cleq%20%5Cmin(d_j,%5C%20n_%7BAj%7D)">.</p>
+<p><strong>Lower bound:</strong> The number of failures from group B is <img src="https://latex.codecogs.com/png.latex?d_j%20-%20x">, which cannot exceed <img src="https://latex.codecogs.com/png.latex?n_%7BBj%7D">. So <img src="https://latex.codecogs.com/png.latex?x%20%5Cgeq%20%5Cmax(0,%5C%20d_j%20-%20n_%7BBj%7D)">.</p>
+<p>We say <img src="https://latex.codecogs.com/png.latex?X%20%5Csim%20%5Ctext%7BHypergeometric%7D(n_j,%20n_%7BAj%7D,%20d_j)">.</p>
+</section>
+<section id="mean-and-variance" class="level4">
+<h4 class="anchored" data-anchor-id="mean-and-variance">Mean and Variance</h4>
+<p>The mean and variance of <img src="https://latex.codecogs.com/png.latex?X%20%5Csim%20%5Ctext%7BHypergeometric%7D(n_j,%20n_%7BAj%7D,%20d_j)"> are:</p>
+<p><img src="https://latex.codecogs.com/png.latex?e_%7BAj%7D%20=%20%5Cmathbb%7BE%7D%5BX%5D%20=%20d_j%20%5Ccdot%20%5Cfrac%7Bn_%7BAj%7D%7D%7Bn_j%7D"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BVar%7D(X)%20=%20d_j%20%5Ccdot%20%5Cfrac%7Bn_%7BAj%7D%7D%7Bn_j%7D%20%5Ccdot%0A%5Cfrac%7Bn_%7BBj%7D%7D%7Bn_j%7D%20%5Ccdot%20%5Cfrac%7Bn_j%20-%20d_j%7D%7Bn_j%20-%201%7D"></p>
+<p>The mean has a clean interpretation: if group A owns <img src="https://latex.codecogs.com/png.latex?n_%7BAj%7D/n_j"> fraction of the risk set, it should own the same fraction of the <img src="https://latex.codecogs.com/png.latex?d_j"> failures under <img src="https://latex.codecogs.com/png.latex?H_0">. The extra factor <img src="https://latex.codecogs.com/png.latex?%5Cfrac%7Bn_j%20-%20d_j%7D%7Bn_j%20-%201%7D"> in the variance is the <strong>finite population correction</strong> — the price of sampling without replacement from a finite bag. As <img src="https://latex.codecogs.com/png.latex?n_j%20%5Cto%20%5Cinfty">, this factor approaches 1 and the variance converges to that of a binomial.</p>
+</section>
+</section>
+<section id="the-hypothesis-test" class="level3">
+<h3 class="anchored" data-anchor-id="the-hypothesis-test">The Hypothesis Test</h3>
+<p>Now recall what we are trying to do. We have two groups — manufacturer A and manufacturer B — and we want to know if their survival functions are the same. We are testing:</p>
+<p><img src="https://latex.codecogs.com/png.latex?H_0:%20S_A(t)%20=%20S_B(t)%20%5Cquad%20%5Ctext%7Bfor%20all%20%7D%20t"></p>
+<p>At each failure time <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">, we now have:</p>
+<ul>
+<li><img src="https://latex.codecogs.com/png.latex?d_%7BAj%7D"> — the <strong>observed</strong> number of failures from group A</li>
+<li><img src="https://latex.codecogs.com/png.latex?e_%7BAj%7D%20=%20d_j%20%5Ccdot%20%5Cfrac%7Bn_%7BAj%7D%7D%7Bn_j%7D"> — the <strong>expected</strong> number of failures from group A under <img src="https://latex.codecogs.com/png.latex?H_0"></li>
+</ul>
+<p>Let’s make this concrete. Suppose at failure time <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D%20=%201000"> hours:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>Machines at risk</th>
+<th>Failures observed</th>
+<th>Failure rate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Group A</td>
+<td>300</td>
+<td>20</td>
+<td><img src="https://latex.codecogs.com/png.latex?20/300%20=%206.7%5C%25"></td>
+</tr>
+<tr class="even">
+<td>Group B</td>
+<td>400</td>
+<td>10</td>
+<td><img src="https://latex.codecogs.com/png.latex?10/400%20=%202.5%5C%25"></td>
+</tr>
+<tr class="odd">
+<td><strong>Total</strong></td>
+<td><strong>700</strong></td>
+<td><strong>30</strong></td>
+<td><img src="https://latex.codecogs.com/png.latex?30/700%20=%204.3%5C%25"></td>
+</tr>
+</tbody>
+</table>
+<p>Group A’s failure rate is nearly three times group B’s. But is this a real difference or just random chance?</p>
+<p>Under <img src="https://latex.codecogs.com/png.latex?H_0">, both groups have the same survival function — so failures should occur in proportion to each group’s share of the risk set. Group A owns <img src="https://latex.codecogs.com/png.latex?300/700"> of the risk set, group B owns <img src="https://latex.codecogs.com/png.latex?400/700">. Applying this to the 30 total failures:</p>
+<p><img src="https://latex.codecogs.com/png.latex?e_%7BAj%7D%20=%2030%20%5Ctimes%20%5Cfrac%7B300%7D%7B700%7D%20=%2012.86%20%5Cqquad%0Ae_%7BBj%7D%20=%2030%20%5Ctimes%20%5Cfrac%7B400%7D%7B700%7D%20=%2017.14"></p>
+<p>The discrepancies at this single failure time are:</p>
+<p><img src="https://latex.codecogs.com/png.latex?d_%7BAj%7D%20-%20e_%7BAj%7D%20=%2020%20-%2012.86%20=%20+7.14%20%5Cqquad%20%5Ctext%7B(group%20A%20fails%20more%20than%20expected)%7D"> <img src="https://latex.codecogs.com/png.latex?d_%7BBj%7D%20-%20e_%7BBj%7D%20=%2010%20-%2017.14%20=%20-7.14%20%5Cqquad%20%5Ctext%7B(group%20B%20fails%20less%20than%20expected)%7D"></p>
+<p>Notice they are equal and opposite — if group A has 7.14 excess failures, group B must have 7.14 fewer, since the total is fixed at 30. This is always true: <img src="https://latex.codecogs.com/png.latex?U_A%20=%20-U_B">, which is why we only need to track one group.</p>
+<p>This is just one failure time. The log-rank test aggregates this discrepancy across all <img src="https://latex.codecogs.com/png.latex?K"> failure times:</p>
+<p><img src="https://latex.codecogs.com/png.latex?U_A%20=%20%5Csum_%7Bj=1%7D%5E%7BK%7D%20(d_%7BAj%7D%20-%20e_%7BAj%7D)%20=%20O_A%20-%20E_A"></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?O_A%20=%20%5Csum_j%20d_%7BAj%7D"> is the total observed failures from group A and <img src="https://latex.codecogs.com/png.latex?E_A%20=%20%5Csum_j%20e_%7BAj%7D"> is the total expected failures under <img src="https://latex.codecogs.com/png.latex?H_0">. If <img src="https://latex.codecogs.com/png.latex?H_0"> is true, <img src="https://latex.codecogs.com/png.latex?U_A%20%5Capprox%200">. Large <img src="https://latex.codecogs.com/png.latex?%7CU_A%7C"> is evidence against <img src="https://latex.codecogs.com/png.latex?H_0">. The question is: how large is large enough?</p>
+<section id="the-log-rank-test-statistic" class="level4">
+<h4 class="anchored" data-anchor-id="the-log-rank-test-statistic">The Log-Rank Test Statistic</h4>
+<p>To answer “how large is large enough”, we need to account for the variability of <img src="https://latex.codecogs.com/png.latex?U_A">. Since the <img src="https://latex.codecogs.com/png.latex?d_%7BAj%7D"> are independent across failure times — the risk sets at different failure times are disjoint, exactly as we argued for Greenwood’s formula — the variance of <img src="https://latex.codecogs.com/png.latex?U_A"> is the sum of the variances at each failure time:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BVar%7D(U_A)%20=%20%5Csum_%7Bj=1%7D%5E%7BK%7D%20%5Ctext%7BVar%7D(d_%7BAj%7D)%20=%0A%5Csum_%7Bj=1%7D%5E%7BK%7D%20d_j%20%5Ccdot%20%5Cfrac%7Bn_%7BAj%7D%7D%7Bn_j%7D%20%5Ccdot%0A%5Cfrac%7Bn_%7BBj%7D%7D%7Bn_j%7D%20%5Ccdot%20%5Cfrac%7Bn_j%20-%20d_j%7D%7Bn_j%20-%201%7D"></p>
+<p>Call this <img src="https://latex.codecogs.com/png.latex?V_A">. By the central limit theorem, for large samples <img src="https://latex.codecogs.com/png.latex?U_A%20/%20%5Csqrt%7BV_A%7D"> is approximately standard normal. Squaring gives the log-rank test statistic:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cboxed%7B%5Cchi%5E2%20=%20%5Cfrac%7BU_A%5E2%7D%7BV_A%7D%20=%20%5Cfrac%7B(O_A%20-%20E_A)%5E2%7D%7BV_A%7D%7D"></p>
+<p>which follows a <img src="https://latex.codecogs.com/png.latex?%5Cchi%5E2"> distribution with <strong>1 degree of freedom</strong> under <img src="https://latex.codecogs.com/png.latex?H_0">. We reject <img src="https://latex.codecogs.com/png.latex?H_0"> at significance level <img src="https://latex.codecogs.com/png.latex?%5Calpha"> if:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cchi%5E2%20%3E%20%5Cchi%5E2_%7B1,%5C%201-%5Calpha%7D"></p>
+<p>For <img src="https://latex.codecogs.com/png.latex?%5Calpha%20=%200.05">, the critical value is <img src="https://latex.codecogs.com/png.latex?%5Cchi%5E2_%7B1,%5C%200.95%7D%20=%203.84">. In practice, we compute the <img src="https://latex.codecogs.com/png.latex?p">-value:</p>
+<p><img src="https://latex.codecogs.com/png.latex?p%20=%20P(%5Cchi%5E2_1%20%3E%20%5Cchi%5E2_%7B%5Ctext%7Bobserved%7D%7D)"></p>
+<p>If <img src="https://latex.codecogs.com/png.latex?p%20%3C%200.05">, we reject <img src="https://latex.codecogs.com/png.latex?H_0"> and conclude that the two groups have statistically different survival functions. If <img src="https://latex.codecogs.com/png.latex?p%20%5Cgeq%200.05">, we fail to reject <img src="https://latex.codecogs.com/png.latex?H_0"> — the observed difference in KM curves is consistent with random sampling variability.</p>
+</section>
+</section>
+<section id="extension-to-k-groups" class="level3">
+<h3 class="anchored" data-anchor-id="extension-to-k-groups">Extension to <img src="https://latex.codecogs.com/png.latex?k"> Groups</h3>
+<p>For <img src="https://latex.codecogs.com/png.latex?k"> groups, the same logic applies. At each failure time <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">, define <img src="https://latex.codecogs.com/png.latex?e_%7Bgj%7D%20=%20d_j%20%5Ccdot%20n_%7Bgj%7D/n_j"> for each group <img src="https://latex.codecogs.com/png.latex?g">. The discrepancy for group <img src="https://latex.codecogs.com/png.latex?g"> is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?U_g%20=%20%5Csum_%7Bj=1%7D%5E%7BK%7D%20(d_%7Bgj%7D%20-%20e_%7Bgj%7D)%20=%20O_g%20-%20E_g"></p>
+<p>Note that <img src="https://latex.codecogs.com/png.latex?%5Csum_%7Bg=1%7D%5E%7Bk%7D%20U_g%20=%200"> — the discrepancies sum to zero across all groups, since observed and expected totals both equal <img src="https://latex.codecogs.com/png.latex?%5Csum_j%0Ad_j">. So only <img src="https://latex.codecogs.com/png.latex?k-1"> of the <img src="https://latex.codecogs.com/png.latex?U_g"> are independent.</p>
+<p>The test statistic generalises to a quadratic form. Let <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BU%7D%20=%20(U_1,%20U_2,%20%5Cldots,%20U_%7Bk-1%7D)%5ET"> be the vector of discrepancies for the first <img src="https://latex.codecogs.com/png.latex?k-1"> groups, and let <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BV%7D"> be the <img src="https://latex.codecogs.com/png.latex?(k-1)%20%5Ctimes%20(k-1)"> covariance matrix with entries:</p>
+<p><img src="https://latex.codecogs.com/png.latex?V_%7Bgg%7D%20=%20%5Csum_%7Bj=1%7D%5E%7BK%7D%20%5Ctext%7BVar%7D(d_%7Bgj%7D),%20%5Cqquad%0AV_%7Bgh%7D%20=%20-%5Csum_%7Bj=1%7D%5E%7BK%7D%20%5Cfrac%7Bd_j%20%5Ccdot%20n_%7Bgj%7D%20%5Ccdot%20n_%7Bhj%7D%7D%7Bn_j%5E2%7D%0A%5Ccdot%20%5Cfrac%7Bn_j%20-%20d_j%7D%7Bn_j%20-%201%7D%20%5Cquad%20(g%20%5Cneq%20h)"></p>
+<p>The log-rank statistic is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cchi%5E2%20=%20%5Cmathbf%7BU%7D%5ET%20%5Cmathbf%7BV%7D%5E%7B-1%7D%20%5Cmathbf%7BU%7D"></p>
+<p>which follows a <img src="https://latex.codecogs.com/png.latex?%5Cchi%5E2"> distribution with <img src="https://latex.codecogs.com/png.latex?k-1"> degrees of freedom under <img src="https://latex.codecogs.com/png.latex?H_0">. For <img src="https://latex.codecogs.com/png.latex?%5Calpha%20=%200.05">, we reject <img src="https://latex.codecogs.com/png.latex?H_0"> if:</p>
+<p><img src="https://latex.codecogs.com/png.latex?p%20=%20P(%5Cchi%5E2_%7Bk-1%7D%20%3E%20%5Cchi%5E2_%7B%5Ctext%7Bobserved%7D%7D)%20%3C%200.05"></p>
+<p>Note that for <img src="https://latex.codecogs.com/png.latex?k%20=%202"> this reduces exactly to the two-sample formula above.</p>
+<p>Does manufacturer or operating environment affect survival in our fleet? The KM curves will tell the story visually — but the log-rank test will tell us whether the differences are statistically significant. We run two tests: one comparing the three manufacturers, and one comparing the three operating environments.</p>
+<div id="cell-fig-logrank" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> pd</span>
+<span id="cb10-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> matplotlib.pyplot <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> plt</span>
+<span id="cb10-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> lifelines <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> KaplanMeierFitter</span>
+<span id="cb10-4"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> lifelines.statistics <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> multivariate_logrank_test, pairwise_logrank_test</span>
+<span id="cb10-5"></span>
+<span id="cb10-6">plt.close(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'all'</span>)</span>
+<span id="cb10-7"></span>
+<span id="cb10-8">df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.read_csv(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'../../data/machine_fleet.csv'</span>)</span>
+<span id="cb10-9"></span>
+<span id="cb10-10">fig, axes <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> plt.subplots(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, figsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">14</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>))</span>
+<span id="cb10-11"></span>
+<span id="cb10-12"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># ── Manufacturer ──────────────────────────────────────────────────────────────</span></span>
+<span id="cb10-13">ax <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]</span>
+<span id="cb10-14"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> mfr, color <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">zip</span>([<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'A'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'B'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'C'</span>], [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'steelblue'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'firebrick'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'seagreen'</span>]):</span>
+<span id="cb10-15">    mask <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'manufacturer'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> mfr</span>
+<span id="cb10-16">    kmf  <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> KaplanMeierFitter()</span>
+<span id="cb10-17">    kmf.fit(df.loc[mask, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'observed_time'</span>],</span>
+<span id="cb10-18">            event_observed<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>df.loc[mask, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'event_observed'</span>],</span>
+<span id="cb10-19">            label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'Manufacturer </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>mfr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>)</span>
+<span id="cb10-20">    kmf.plot_survival_function(ax<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>ax, ci_show<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>color)</span>
+<span id="cb10-21"></span>
+<span id="cb10-22">ax.set_xlabel(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Time (hours)'</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>)</span>
+<span id="cb10-23">ax.set_ylabel(<span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">r'</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">$</span><span class="er" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">\</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">hat{S}</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">(</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">t</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">)</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">$</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>)</span>
+<span id="cb10-24">ax.set_title(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'KM Curves by Manufacturer'</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">13</span>)</span>
+<span id="cb10-25">ax.grid(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>, alpha<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>)</span>
+<span id="cb10-26"></span>
+<span id="cb10-27"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># ── Environment ───────────────────────────────────────────────────────────────</span></span>
+<span id="cb10-28">ax <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]</span>
+<span id="cb10-29"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> env, color <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">zip</span>([<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'indoor'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'outdoor'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'harsh'</span>], [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'steelblue'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'firebrick'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'seagreen'</span>]):</span>
+<span id="cb10-30">    mask <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'environment'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> env</span>
+<span id="cb10-31">    kmf  <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> KaplanMeierFitter()</span>
+<span id="cb10-32">    kmf.fit(df.loc[mask, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'observed_time'</span>],</span>
+<span id="cb10-33">            event_observed<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>df.loc[mask, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'event_observed'</span>],</span>
+<span id="cb10-34">            label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>env.capitalize())</span>
+<span id="cb10-35">    kmf.plot_survival_function(ax<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>ax, ci_show<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>color)</span>
+<span id="cb10-36"></span>
+<span id="cb10-37">ax.set_xlabel(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Time (hours)'</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>)</span>
+<span id="cb10-38">ax.set_ylabel(<span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">r'</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">$</span><span class="er" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">\</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">hat{S}</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">(</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">t</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">)</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">$</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>)</span>
+<span id="cb10-39">ax.set_title(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'KM Curves by Environment'</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">13</span>)</span>
+<span id="cb10-40">ax.grid(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>, alpha<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>)</span>
+<span id="cb10-41"></span>
+<span id="cb10-42">plt.suptitle(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Kaplan-Meier Curves by Group — Machine Fleet'</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">13</span>)</span>
+<span id="cb10-43">plt.tight_layout()</span>
+<span id="cb10-44">plt.show()</span>
+<span id="cb10-45">plt.close(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'all'</span>)</span>
+<span id="cb10-46"></span>
+<span id="cb10-47"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># ── Log-rank tests ────────────────────────────────────────────────────────────</span></span>
+<span id="cb10-48"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"="</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">55</span>)</span>
+<span id="cb10-49"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"LOG-RANK TEST: Manufacturer (k=3, df=2)"</span>)</span>
+<span id="cb10-50"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"="</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">55</span>)</span>
+<span id="cb10-51">res_mfr <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> multivariate_logrank_test(</span>
+<span id="cb10-52">    df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'observed_time'</span>],</span>
+<span id="cb10-53">    df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'manufacturer'</span>],</span>
+<span id="cb10-54">    event_observed<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'event_observed'</span>]</span>
+<span id="cb10-55">)</span>
+<span id="cb10-56"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Test statistic : </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>res_mfr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>test_statistic<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.4f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb10-57"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"p-value        : </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>res_mfr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>p_value<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.6f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb10-58"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Degrees of freedom: 2"</span>)</span>
+<span id="cb10-59"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Conclusion     : </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Reject H0'</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> res_mfr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>p_value <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.05</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Fail to reject H0'</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> at alpha=0.05"</span>)</span>
+<span id="cb10-60"></span>
+<span id="cb10-61"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>()</span>
+<span id="cb10-62"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"="</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">55</span>)</span>
+<span id="cb10-63"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"LOG-RANK TEST: Environment (k=3, df=2)"</span>)</span>
+<span id="cb10-64"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"="</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">55</span>)</span>
+<span id="cb10-65">res_env <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> multivariate_logrank_test(</span>
+<span id="cb10-66">    df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'observed_time'</span>],</span>
+<span id="cb10-67">    df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'environment'</span>],</span>
+<span id="cb10-68">    event_observed<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'event_observed'</span>]</span>
+<span id="cb10-69">)</span>
+<span id="cb10-70"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Test statistic : </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>res_env<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>test_statistic<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.4f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb10-71"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"p-value        : </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>res_env<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>p_value<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.6f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb10-72"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Degrees of freedom: 2"</span>)</span>
+<span id="cb10-73"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Conclusion     : </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Reject H0'</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> res_env<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>p_value <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.05</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Fail to reject H0'</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> at alpha=0.05"</span>)</span>
+<span id="cb10-74"></span>
+<span id="cb10-75"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># ── Pairwise follow-up ────────────────────────────────────────────────────────</span></span>
+<span id="cb10-76"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>()</span>
+<span id="cb10-77"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"="</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">55</span>)</span>
+<span id="cb10-78"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"PAIRWISE LOG-RANK: Manufacturer"</span>)</span>
+<span id="cb10-79"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"="</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">55</span>)</span>
+<span id="cb10-80">pw_mfr <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pairwise_logrank_test(</span>
+<span id="cb10-81">    df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'observed_time'</span>],</span>
+<span id="cb10-82">    df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'manufacturer'</span>],</span>
+<span id="cb10-83">    event_observed<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'event_observed'</span>]</span>
+<span id="cb10-84">)</span>
+<span id="cb10-85"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(pw_mfr.summary[[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'p'</span>]])</span>
+<span id="cb10-86"></span>
+<span id="cb10-87"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>()</span>
+<span id="cb10-88"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"="</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">55</span>)</span>
+<span id="cb10-89"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"PAIRWISE LOG-RANK: Environment"</span>)</span>
+<span id="cb10-90"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"="</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">55</span>)</span>
+<span id="cb10-91">pw_env <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pairwise_logrank_test(</span>
+<span id="cb10-92">    df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'observed_time'</span>],</span>
+<span id="cb10-93">    df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'environment'</span>],</span>
+<span id="cb10-94">    event_observed<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'event_observed'</span>]</span>
+<span id="cb10-95">)</span>
+<span id="cb10-96"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(pw_env.summary[[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'p'</span>]])</span></code></pre></div></div>
+<div class="cell-output cell-output-display">
+<div id="fig-logrank" class="quarto-float quarto-figure quarto-figure-center anchored" width="1332" height="476">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-logrank-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://madhavpr191221.github.io/blog/posts/part-4-kaplan-meier-estimator/index_files/figure-html/fig-logrank-output-1.png" id="fig-logrank" width="1332" height="476" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-logrank-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>=======================================================
+LOG-RANK TEST: Manufacturer (k=3, df=2)
+=======================================================
+Test statistic : 59.9543
+p-value        : 0.000000
+Degrees of freedom: 2
+Conclusion     : Reject H0 at alpha=0.05
+
+=======================================================
+LOG-RANK TEST: Environment (k=3, df=2)
+=======================================================
+Test statistic : 55.3310
+p-value        : 0.000000
+Degrees of freedom: 2
+Conclusion     : Reject H0 at alpha=0.05
+
+=======================================================
+PAIRWISE LOG-RANK: Manufacturer
+=======================================================
+                p
+A B  3.272446e-01
+  C  1.441062e-12
+B C  8.861906e-11
+
+=======================================================
+PAIRWISE LOG-RANK: Environment
+=======================================================
+                           p
+harsh  indoor   4.004801e-13
+       outdoor  5.839594e-04
+indoor outdoor  3.940472e-06</code></pre>
+</div>
+</div>
 
 
 </section>

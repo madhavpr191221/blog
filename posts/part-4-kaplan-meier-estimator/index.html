@@ -770,6 +770,287 @@ Name: count, dtype: int64</code></pre>
 </div>
 </div>
 <p>Even though the synthetic fleet was generated with continuous failure times, the output tells a different story. Out of 886 failures, there are 27 tied failure times. In real telemetry- where failure times are recorded at fixed intervals- ties are almost guaranteed and would be far more frequent. Convention B is what <code>lifelines</code> applies by default, so our earlier KM estimates already handle the ties correctly without any additional code. As a bonus: <code>lifelines</code> also defaults to the log-log confidence interval. The 5 boundary violations in Figure 3 came from our own manually computed naive CI — we built it from scratch deliberately to show the problem. The shaded band in Figure 1, produced by , was already using the log-log transformation all along.</p>
+</section>
+</section>
+<section id="the-log-rank-test" class="level2">
+<h2 class="anchored" data-anchor-id="the-log-rank-test">The Log-Rank Test</h2>
+<p>We have a powerful tool- the KM estimator for estimating the survival function of a population from data. In practice, we want to compare survival curves across groups. Do machines from manufacturer A last longer than manufacturer B? Does operating environment- indoor vs harsh- affect survival. These are the questions that drive maintenance scheduling and warranty decisions.</p>
+<p>The natural first step is to plot the KM curves for each group side by side and look. But looking is not enough. The curves will almost always differ — if only due to random sampling variability. The question is whether the observed difference is large enough to be real, or whether it could possibly have arisen by chance even if the two groups had identical survival functions.</p>
+<p>This is a hypothesis testing problem. We want to test:</p>
+<p><span class="math display">\[H_0: S_1(t) = S_2(t) = \cdots = S_k(t) \quad \text{for all } t\]</span></p>
+<p>against the alternative that at least one group has a different survival function. The <strong>log-rank test</strong> is the standard non-parametric test for this. It requires no distributional assumptions — no Weibull, no exponential — just the KM structure we have already built.</p>
+<section id="the-core-idea-observed-vs-expected-failures" class="level3">
+<h3 class="anchored" data-anchor-id="the-core-idea-observed-vs-expected-failures">The Core Idea: Observed vs Expected Failures</h3>
+<p>Here is the key insight. At every failure time <span class="math inline">\(t_{(j)}\)</span> in the data, machines from all <span class="math inline">\(k\)</span> groups sit together in the risk set, where <span class="math inline">\(k\)</span> is the number of environmental conditions or manufacturers or something else. Some fail, some don’t. Under <span class="math inline">\(H_0\)</span> — all groups have the same survival function — group membership is irrelevant. A machine from manufacturer A is no more or less likely to fail at <span class="math inline">\(t_{(j)}\)</span> than a machine from manufacturer C. The failures should be distributed across groups in proportion to their share of the risk set.</p>
+<p>The log-rank test asks: across all failure times, do the observed failures in each group match what we would expect under <span class="math inline">\(H_0\)</span>?</p>
+</section>
+<section id="the-hypergeometric-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="the-hypergeometric-distribution">The Hypergeometric Distribution</h3>
+<p>To make this precise, we need a probability model for the failures at each <span class="math inline">\(t_{(j)}\)</span>. Here is the random experiment. Consider two groups A and B.</p>
+<p>At failure time <span class="math inline">\(t_{(j)}\)</span>, you have <span class="math inline">\(n_j\)</span> machines in the risk set. Think of this as a bag of <span class="math inline">\(n_j\)</span> marbles:</p>
+<ul>
+<li><span class="math inline">\(n_{Aj}\)</span> blue marbles — machines from group A</li>
+<li><span class="math inline">\(n_{Bj} = n_j - n_{Aj}\)</span> red marbles — machines from group B</li>
+</ul>
+<p>Exactly <span class="math inline">\(d_j\)</span> machines fail at <span class="math inline">\(t_{(j)}\)</span>. Think of this as drawing <span class="math inline">\(d_j\)</span> marbles from the bag <strong>without replacement</strong> — once a machine fails, it does not return to the risk set.</p>
+<p>The random variable of interest is:</p>
+<p><span class="math display">\[X = d_{Aj} = \text{number of failures from group A at time } t_{(j)}\]</span></p>
+<p>Under <span class="math inline">\(H_0\)</span>, every machine is equally likely to fail regardless of group membership — no marble is special. So <span class="math inline">\(X\)</span> tells us: out of <span class="math inline">\(d_j\)</span> randomly drawn machines, how many happen to be from group A?</p>
+<section id="pmf-of-the-hypergeometric" class="level4">
+<h4 class="anchored" data-anchor-id="pmf-of-the-hypergeometric">PMF of the Hypergeometric</h4>
+<p>We want <span class="math inline">\(P(X = x)\)</span> — the probability that exactly <span class="math inline">\(x\)</span> of the <span class="math inline">\(d_j\)</span> failures come from group A.</p>
+<p>We use the classical definition of probability:</p>
+<p><span class="math display">\[P(X = x) = \frac{\text{number of favourable outcomes}}{\text{total number of outcomes}}\]</span></p>
+<p>This applies here because under <span class="math inline">\(H_0\)</span>, every possible selection of <span class="math inline">\(d_j\)</span> machines from the <span class="math inline">\(n_j\)</span> at risk is equally likely — no machine is special.</p>
+<p><strong>Total outcomes:</strong> The number of ways to choose <span class="math inline">\(d_j\)</span> machines to fail from <span class="math inline">\(n_j\)</span> machines at risk:</p>
+<p><span class="math display">\[\binom{n_j}{d_j}\]</span></p>
+<p><strong>Favourable outcomes:</strong> We want exactly <span class="math inline">\(x\)</span> failures from group A and <span class="math inline">\(d_j - x\)</span> failures from group B. These are independent choices:</p>
+<ul>
+<li>Choose <span class="math inline">\(x\)</span> machines from group A’s <span class="math inline">\(n_{Aj}\)</span>: <span class="math inline">\(\binom{n_{Aj}}{x}\)</span> ways</li>
+<li>Choose <span class="math inline">\(d_j - x\)</span> machines from group B’s <span class="math inline">\(n_{Bj}\)</span>: <span class="math inline">\(\binom{n_{Bj}}{d_j - x}\)</span> ways</li>
+</ul>
+<p>By the multiplication principle, the number of favourable outcomes is:</p>
+<p><span class="math display">\[\binom{n_{Aj}}{x} \binom{n_{Bj}}{d_j - x}\]</span></p>
+<p>Therefore:</p>
+<p><span class="math display">\[P(X = x) = \frac{\dbinom{n_{Aj}}{x}\dbinom{n_{Bj}}{d_j - x}}{\dbinom{n_j}{d_j}}\]</span></p>
+<p>The range of <span class="math inline">\(x\)</span> is <span class="math inline">\(\max(0,\ d_j - n_{Bj}) \leq x \leq \min(d_j,\ n_{Aj})\)</span>.</p>
+<p><strong>Upper bound:</strong> <span class="math inline">\(x\)</span> cannot exceed the number of group A machines at risk <span class="math inline">\(n_{Aj}\)</span>, nor the total failures <span class="math inline">\(d_j\)</span>. So <span class="math inline">\(x \leq \min(d_j,\ n_{Aj})\)</span>.</p>
+<p><strong>Lower bound:</strong> The number of failures from group B is <span class="math inline">\(d_j - x\)</span>, which cannot exceed <span class="math inline">\(n_{Bj}\)</span>. So <span class="math inline">\(x \geq \max(0,\ d_j - n_{Bj})\)</span>.</p>
+<p>We say <span class="math inline">\(X \sim \text{Hypergeometric}(n_j, n_{Aj}, d_j)\)</span>.</p>
+</section>
+<section id="mean-and-variance" class="level4">
+<h4 class="anchored" data-anchor-id="mean-and-variance">Mean and Variance</h4>
+<p>The mean and variance of <span class="math inline">\(X \sim \text{Hypergeometric}(n_j, n_{Aj}, d_j)\)</span> are:</p>
+<p><span class="math display">\[e_{Aj} = \mathbb{E}[X] = d_j \cdot \frac{n_{Aj}}{n_j}\]</span></p>
+<p><span class="math display">\[\text{Var}(X) = d_j \cdot \frac{n_{Aj}}{n_j} \cdot
+\frac{n_{Bj}}{n_j} \cdot \frac{n_j - d_j}{n_j - 1}\]</span></p>
+<p>The mean has a clean interpretation: if group A owns <span class="math inline">\(n_{Aj}/n_j\)</span> fraction of the risk set, it should own the same fraction of the <span class="math inline">\(d_j\)</span> failures under <span class="math inline">\(H_0\)</span>. The extra factor <span class="math inline">\(\frac{n_j - d_j}{n_j - 1}\)</span> in the variance is the <strong>finite population correction</strong> — the price of sampling without replacement from a finite bag. As <span class="math inline">\(n_j \to \infty\)</span>, this factor approaches 1 and the variance converges to that of a binomial.</p>
+</section>
+</section>
+<section id="the-hypothesis-test" class="level3">
+<h3 class="anchored" data-anchor-id="the-hypothesis-test">The Hypothesis Test</h3>
+<p>Now recall what we are trying to do. We have two groups — manufacturer A and manufacturer B — and we want to know if their survival functions are the same. We are testing:</p>
+<p><span class="math display">\[H_0: S_A(t) = S_B(t) \quad \text{for all } t\]</span></p>
+<p>At each failure time <span class="math inline">\(t_{(j)}\)</span>, we now have:</p>
+<ul>
+<li><span class="math inline">\(d_{Aj}\)</span> — the <strong>observed</strong> number of failures from group A</li>
+<li><span class="math inline">\(e_{Aj} = d_j \cdot \frac{n_{Aj}}{n_j}\)</span> — the <strong>expected</strong> number of failures from group A under <span class="math inline">\(H_0\)</span></li>
+</ul>
+<p>Let’s make this concrete. Suppose at failure time <span class="math inline">\(t_{(j)} = 1000\)</span> hours:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>Machines at risk</th>
+<th>Failures observed</th>
+<th>Failure rate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Group A</td>
+<td>300</td>
+<td>20</td>
+<td><span class="math inline">\(20/300 = 6.7\%\)</span></td>
+</tr>
+<tr class="even">
+<td>Group B</td>
+<td>400</td>
+<td>10</td>
+<td><span class="math inline">\(10/400 = 2.5\%\)</span></td>
+</tr>
+<tr class="odd">
+<td><strong>Total</strong></td>
+<td><strong>700</strong></td>
+<td><strong>30</strong></td>
+<td><span class="math inline">\(30/700 = 4.3\%\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Group A’s failure rate is nearly three times group B’s. But is this a real difference or just random chance?</p>
+<p>Under <span class="math inline">\(H_0\)</span>, both groups have the same survival function — so failures should occur in proportion to each group’s share of the risk set. Group A owns <span class="math inline">\(300/700\)</span> of the risk set, group B owns <span class="math inline">\(400/700\)</span>. Applying this to the 30 total failures:</p>
+<p><span class="math display">\[e_{Aj} = 30 \times \frac{300}{700} = 12.86 \qquad
+e_{Bj} = 30 \times \frac{400}{700} = 17.14\]</span></p>
+<p>The discrepancies at this single failure time are:</p>
+<p><span class="math display">\[d_{Aj} - e_{Aj} = 20 - 12.86 = +7.14 \qquad \text{(group A fails more than expected)}\]</span> <span class="math display">\[d_{Bj} - e_{Bj} = 10 - 17.14 = -7.14 \qquad \text{(group B fails less than expected)}\]</span></p>
+<p>Notice they are equal and opposite — if group A has 7.14 excess failures, group B must have 7.14 fewer, since the total is fixed at 30. This is always true: <span class="math inline">\(U_A = -U_B\)</span>, which is why we only need to track one group.</p>
+<p>This is just one failure time. The log-rank test aggregates this discrepancy across all <span class="math inline">\(K\)</span> failure times:</p>
+<p><span class="math display">\[U_A = \sum_{j=1}^{K} (d_{Aj} - e_{Aj}) = O_A - E_A\]</span></p>
+<p>where <span class="math inline">\(O_A = \sum_j d_{Aj}\)</span> is the total observed failures from group A and <span class="math inline">\(E_A = \sum_j e_{Aj}\)</span> is the total expected failures under <span class="math inline">\(H_0\)</span>. If <span class="math inline">\(H_0\)</span> is true, <span class="math inline">\(U_A \approx 0\)</span>. Large <span class="math inline">\(|U_A|\)</span> is evidence against <span class="math inline">\(H_0\)</span>. The question is: how large is large enough?</p>
+<section id="the-log-rank-test-statistic" class="level4">
+<h4 class="anchored" data-anchor-id="the-log-rank-test-statistic">The Log-Rank Test Statistic</h4>
+<p>To answer “how large is large enough”, we need to account for the variability of <span class="math inline">\(U_A\)</span>. Since the <span class="math inline">\(d_{Aj}\)</span> are independent across failure times — the risk sets at different failure times are disjoint, exactly as we argued for Greenwood’s formula — the variance of <span class="math inline">\(U_A\)</span> is the sum of the variances at each failure time:</p>
+<p><span class="math display">\[\text{Var}(U_A) = \sum_{j=1}^{K} \text{Var}(d_{Aj}) =
+\sum_{j=1}^{K} d_j \cdot \frac{n_{Aj}}{n_j} \cdot
+\frac{n_{Bj}}{n_j} \cdot \frac{n_j - d_j}{n_j - 1}\]</span></p>
+<p>Call this <span class="math inline">\(V_A\)</span>. By the central limit theorem, for large samples <span class="math inline">\(U_A / \sqrt{V_A}\)</span> is approximately standard normal. Squaring gives the log-rank test statistic:</p>
+<p><span class="math display">\[\boxed{\chi^2 = \frac{U_A^2}{V_A} = \frac{(O_A - E_A)^2}{V_A}}\]</span></p>
+<p>which follows a <span class="math inline">\(\chi^2\)</span> distribution with <strong>1 degree of freedom</strong> under <span class="math inline">\(H_0\)</span>. We reject <span class="math inline">\(H_0\)</span> at significance level <span class="math inline">\(\alpha\)</span> if:</p>
+<p><span class="math display">\[\chi^2 &gt; \chi^2_{1,\ 1-\alpha}\]</span></p>
+<p>For <span class="math inline">\(\alpha = 0.05\)</span>, the critical value is <span class="math inline">\(\chi^2_{1,\ 0.95} = 3.84\)</span>. In practice, we compute the <span class="math inline">\(p\)</span>-value:</p>
+<p><span class="math display">\[p = P(\chi^2_1 &gt; \chi^2_{\text{observed}})\]</span></p>
+<p>If <span class="math inline">\(p &lt; 0.05\)</span>, we reject <span class="math inline">\(H_0\)</span> and conclude that the two groups have statistically different survival functions. If <span class="math inline">\(p \geq 0.05\)</span>, we fail to reject <span class="math inline">\(H_0\)</span> — the observed difference in KM curves is consistent with random sampling variability.</p>
+</section>
+</section>
+<section id="extension-to-k-groups" class="level3">
+<h3 class="anchored" data-anchor-id="extension-to-k-groups">Extension to <span class="math inline">\(k\)</span> Groups</h3>
+<p>For <span class="math inline">\(k\)</span> groups, the same logic applies. At each failure time <span class="math inline">\(t_{(j)}\)</span>, define <span class="math inline">\(e_{gj} = d_j \cdot n_{gj}/n_j\)</span> for each group <span class="math inline">\(g\)</span>. The discrepancy for group <span class="math inline">\(g\)</span> is:</p>
+<p><span class="math display">\[U_g = \sum_{j=1}^{K} (d_{gj} - e_{gj}) = O_g - E_g\]</span></p>
+<p>Note that <span class="math inline">\(\sum_{g=1}^{k} U_g = 0\)</span> — the discrepancies sum to zero across all groups, since observed and expected totals both equal <span class="math inline">\(\sum_j
+d_j\)</span>. So only <span class="math inline">\(k-1\)</span> of the <span class="math inline">\(U_g\)</span> are independent.</p>
+<p>The test statistic generalises to a quadratic form. Let <span class="math inline">\(\mathbf{U} = (U_1, U_2, \ldots, U_{k-1})^T\)</span> be the vector of discrepancies for the first <span class="math inline">\(k-1\)</span> groups, and let <span class="math inline">\(\mathbf{V}\)</span> be the <span class="math inline">\((k-1) \times (k-1)\)</span> covariance matrix with entries:</p>
+<p><span class="math display">\[V_{gg} = \sum_{j=1}^{K} \text{Var}(d_{gj}), \qquad
+V_{gh} = -\sum_{j=1}^{K} \frac{d_j \cdot n_{gj} \cdot n_{hj}}{n_j^2}
+\cdot \frac{n_j - d_j}{n_j - 1} \quad (g \neq h)\]</span></p>
+<p>The log-rank statistic is:</p>
+<p><span class="math display">\[\chi^2 = \mathbf{U}^T \mathbf{V}^{-1} \mathbf{U}\]</span></p>
+<p>which follows a <span class="math inline">\(\chi^2\)</span> distribution with <span class="math inline">\(k-1\)</span> degrees of freedom under <span class="math inline">\(H_0\)</span>. For <span class="math inline">\(\alpha = 0.05\)</span>, we reject <span class="math inline">\(H_0\)</span> if:</p>
+<p><span class="math display">\[p = P(\chi^2_{k-1} &gt; \chi^2_{\text{observed}}) &lt; 0.05\]</span></p>
+<p>Note that for <span class="math inline">\(k = 2\)</span> this reduces exactly to the two-sample formula above.</p>
+<p>Does manufacturer or operating environment affect survival in our fleet? The KM curves will tell the story visually — but the log-rank test will tell us whether the differences are statistically significant. We run two tests: one comparing the three manufacturers, and one comparing the three operating environments.</p>
+<div id="cell-fig-logrank" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> lifelines <span class="im">import</span> KaplanMeierFitter</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> lifelines.statistics <span class="im">import</span> multivariate_logrank_test, pairwise_logrank_test</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>plt.close(<span class="st">'all'</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'../../data/machine_fleet.csv'</span>)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">5</span>))</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Manufacturer ──────────────────────────────────────────────────────────────</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axes[<span class="dv">0</span>]</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> mfr, color <span class="kw">in</span> <span class="bu">zip</span>([<span class="st">'A'</span>, <span class="st">'B'</span>, <span class="st">'C'</span>], [<span class="st">'steelblue'</span>, <span class="st">'firebrick'</span>, <span class="st">'seagreen'</span>]):</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    mask <span class="op">=</span> df[<span class="st">'manufacturer'</span>] <span class="op">==</span> mfr</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    kmf  <span class="op">=</span> KaplanMeierFitter()</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    kmf.fit(df.loc[mask, <span class="st">'observed_time'</span>],</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>            event_observed<span class="op">=</span>df.loc[mask, <span class="st">'event_observed'</span>],</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>            label<span class="op">=</span><span class="ss">f'Manufacturer </span><span class="sc">{</span>mfr<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    kmf.plot_survival_function(ax<span class="op">=</span>ax, ci_show<span class="op">=</span><span class="va">False</span>, color<span class="op">=</span>color)</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Time (hours)'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="vs">r'</span><span class="dv">$</span><span class="er">\</span><span class="vs">hat{S}</span><span class="kw">(</span><span class="vs">t</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'KM Curves by Manufacturer'</span>, fontsize<span class="op">=</span><span class="dv">13</span>)</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>ax.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Environment ───────────────────────────────────────────────────────────────</span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axes[<span class="dv">1</span>]</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> env, color <span class="kw">in</span> <span class="bu">zip</span>([<span class="st">'indoor'</span>, <span class="st">'outdoor'</span>, <span class="st">'harsh'</span>], [<span class="st">'steelblue'</span>, <span class="st">'firebrick'</span>, <span class="st">'seagreen'</span>]):</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>    mask <span class="op">=</span> df[<span class="st">'environment'</span>] <span class="op">==</span> env</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>    kmf  <span class="op">=</span> KaplanMeierFitter()</span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>    kmf.fit(df.loc[mask, <span class="st">'observed_time'</span>],</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>            event_observed<span class="op">=</span>df.loc[mask, <span class="st">'event_observed'</span>],</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>            label<span class="op">=</span>env.capitalize())</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>    kmf.plot_survival_function(ax<span class="op">=</span>ax, ci_show<span class="op">=</span><span class="va">False</span>, color<span class="op">=</span>color)</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Time (hours)'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="vs">r'</span><span class="dv">$</span><span class="er">\</span><span class="vs">hat{S}</span><span class="kw">(</span><span class="vs">t</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'KM Curves by Environment'</span>, fontsize<span class="op">=</span><span class="dv">13</span>)</span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>ax.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>plt.suptitle(<span class="st">'Kaplan-Meier Curves by Group — Machine Fleet'</span>, fontsize<span class="op">=</span><span class="dv">13</span>)</span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>plt.close(<span class="st">'all'</span>)</span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Log-rank tests ────────────────────────────────────────────────────────────</span></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"="</span> <span class="op">*</span> <span class="dv">55</span>)</span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"LOG-RANK TEST: Manufacturer (k=3, df=2)"</span>)</span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"="</span> <span class="op">*</span> <span class="dv">55</span>)</span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>res_mfr <span class="op">=</span> multivariate_logrank_test(</span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">'observed_time'</span>],</span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">'manufacturer'</span>],</span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>    event_observed<span class="op">=</span>df[<span class="st">'event_observed'</span>]</span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Test statistic : </span><span class="sc">{</span>res_mfr<span class="sc">.</span>test_statistic<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"p-value        : </span><span class="sc">{</span>res_mfr<span class="sc">.</span>p_value<span class="sc">:.6f}</span><span class="ss">"</span>)</span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Degrees of freedom: 2"</span>)</span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Conclusion     : </span><span class="sc">{</span><span class="st">'Reject H0'</span> <span class="cf">if</span> res_mfr<span class="sc">.</span>p_value <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="cf">else</span> <span class="st">'Fail to reject H0'</span><span class="sc">}</span><span class="ss"> at alpha=0.05"</span>)</span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"="</span> <span class="op">*</span> <span class="dv">55</span>)</span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"LOG-RANK TEST: Environment (k=3, df=2)"</span>)</span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"="</span> <span class="op">*</span> <span class="dv">55</span>)</span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>res_env <span class="op">=</span> multivariate_logrank_test(</span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">'observed_time'</span>],</span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">'environment'</span>],</span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>    event_observed<span class="op">=</span>df[<span class="st">'event_observed'</span>]</span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Test statistic : </span><span class="sc">{</span>res_env<span class="sc">.</span>test_statistic<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"p-value        : </span><span class="sc">{</span>res_env<span class="sc">.</span>p_value<span class="sc">:.6f}</span><span class="ss">"</span>)</span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Degrees of freedom: 2"</span>)</span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Conclusion     : </span><span class="sc">{</span><span class="st">'Reject H0'</span> <span class="cf">if</span> res_env<span class="sc">.</span>p_value <span class="op">&lt;</span> <span class="fl">0.05</span> <span class="cf">else</span> <span class="st">'Fail to reject H0'</span><span class="sc">}</span><span class="ss"> at alpha=0.05"</span>)</span>
+<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a><span class="co"># ── Pairwise follow-up ────────────────────────────────────────────────────────</span></span>
+<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"="</span> <span class="op">*</span> <span class="dv">55</span>)</span>
+<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"PAIRWISE LOG-RANK: Manufacturer"</span>)</span>
+<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"="</span> <span class="op">*</span> <span class="dv">55</span>)</span>
+<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a>pw_mfr <span class="op">=</span> pairwise_logrank_test(</span>
+<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">'observed_time'</span>],</span>
+<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">'manufacturer'</span>],</span>
+<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a>    event_observed<span class="op">=</span>df[<span class="st">'event_observed'</span>]</span>
+<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pw_mfr.summary[[<span class="st">'p'</span>]])</span>
+<span id="cb10-86"><a href="#cb10-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"="</span> <span class="op">*</span> <span class="dv">55</span>)</span>
+<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"PAIRWISE LOG-RANK: Environment"</span>)</span>
+<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"="</span> <span class="op">*</span> <span class="dv">55</span>)</span>
+<span id="cb10-91"><a href="#cb10-91" aria-hidden="true" tabindex="-1"></a>pw_env <span class="op">=</span> pairwise_logrank_test(</span>
+<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">'observed_time'</span>],</span>
+<span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a>    df[<span class="st">'environment'</span>],</span>
+<span id="cb10-94"><a href="#cb10-94" aria-hidden="true" tabindex="-1"></a>    event_observed<span class="op">=</span>df[<span class="st">'event_observed'</span>]</span>
+<span id="cb10-95"><a href="#cb10-95" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pw_env.summary[[<span class="st">'p'</span>]])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-logrank" class="quarto-float quarto-figure quarto-figure-center anchored" width="1332" height="476">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-logrank-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-logrank-output-1.png" id="fig-logrank" width="1332" height="476" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-logrank-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>=======================================================
+LOG-RANK TEST: Manufacturer (k=3, df=2)
+=======================================================
+Test statistic : 59.9543
+p-value        : 0.000000
+Degrees of freedom: 2
+Conclusion     : Reject H0 at alpha=0.05
+
+=======================================================
+LOG-RANK TEST: Environment (k=3, df=2)
+=======================================================
+Test statistic : 55.3310
+p-value        : 0.000000
+Degrees of freedom: 2
+Conclusion     : Reject H0 at alpha=0.05
+
+=======================================================
+PAIRWISE LOG-RANK: Manufacturer
+=======================================================
+                p
+A B  3.272446e-01
+  C  1.441062e-12
+B C  8.861906e-11
+
+=======================================================
+PAIRWISE LOG-RANK: Environment
+=======================================================
+                           p
+harsh  indoor   4.004801e-13
+       outdoor  5.839594e-04
+indoor outdoor  3.940472e-06</code></pre>
+</div>
+</div>
 
 
 </section>
