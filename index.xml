@@ -26,12 +26,13 @@
 <p>In <a href="https://madhavpr191221.github.io/blog/posts/part-3-fitting-survival-distributions/"><strong>Part 3</strong></a>, we derived the likelihood function for censored data from first principles, fit a Weibull distribution to our synthetic machine fleet, and assessed the quality of that fit using two diagnostic tools — the Q-Q plot, which told the story visually, and the K-S test, which put a number on it. We ended with a sobering observation: a single Weibull is not enough for a heterogeneous fleet. The K-S statistic <img src="https://latex.codecogs.com/png.latex?D_n%20=%200.067"> translated into a ₹6 crore cost swing — and we couldn’t identify which machines were responsible without modeling the effect of their individual characteristics on failure time.</p>
 <p>Before we get to regression models, we need a better estimator of the survival function itself — one that handles censored data naturally and doesn’t require us to assume any parametric form for the distribution of failure times. This is the subject of Part 4.</p>
 </section>
-<section id="the-kaplan-meier-estimator" class="level1">
-<h1>The Kaplan-Meier Estimator</h1>
+<section id="the-kaplan-meier-estimator" class="level2">
+<h2 class="anchored" data-anchor-id="the-kaplan-meier-estimator">The Kaplan-Meier Estimator</h2>
 <p>This part introduces the OG estimator of the survival function, the <strong>Kaplan-Meier estimator</strong>, and derives it from first principles. Most survival analysis blogs introduce this estimator in the very beginning before any groundwork. But we like first principles, and this is how we will derive it. We will also prove Greenwood’s formula for the variance of the Kaplan-Meier (KM) estimator, and handle tied failure times rigorously. Finally, we will apply both to our machine fleet dataset. Let’s get started!</p>
 <p>In survival analysis and reliability engineering, we don’t see all the failure times of the units under study. Some units may still function at the end of the study, while others may be lost to follow-up. This is known as right censoring. Note that other censoring types like left and interval censoring also exist, but we will focus on right censoring as it is the most common type in survival analysis. Can you still estimate the survival function of the population with this incomplete data? The Kaplan-Meier estimator provides a way to do just that. It is a non-parametric estimator of the survival function that can handle right-censored data.</p>
 <p>Here is the setup. You have a non-negative random variable <img src="https://latex.codecogs.com/png.latex?T"> representing the time until an event of interest — failure of a machine, say. You have a sample of <img src="https://latex.codecogs.com/png.latex?n"> i.i.d. observations, but some are right-censored. Formally, you observe pairs <img src="https://latex.codecogs.com/png.latex?%5C%7B(Y_i,%20%5Cdelta_i)%5C%7D"> for <img src="https://latex.codecogs.com/png.latex?i%20=%201,%202,%20%5Cldots,%20n">, where <img src="https://latex.codecogs.com/png.latex?Y_i%20=%20%5Cmin(T_i,%20C_i)"> is the observed time and <img src="https://latex.codecogs.com/png.latex?%5Cdelta_i%20=%20%5Cmathbf%7B1%7D%5C%7BT_i%20%5Cleq%20C_i%5C%7D"> is the event indicator — 1 if the failure was observed, 0 if censored.</p>
 <p>Let <img src="https://latex.codecogs.com/png.latex?t_%7B(1)%7D%20%3C%20t_%7B(2)%7D%20%3C%20%5Ccdots%20%3C%20t_%7B(K)%7D"> be the distinct failure times in the sample. For now, we assume no ties — no two units fail at exactly the same time. We will handle ties later. What we want is to estimate the survival function at any time <img src="https://latex.codecogs.com/png.latex?t"> using only the observed failure times and a counting argument. Sit tight. This is going to be fun.</p>
+</section>
 <section id="derivation-of-the-kaplan-meier-estimator" class="level2">
 <h2 class="anchored" data-anchor-id="derivation-of-the-kaplan-meier-estimator">Derivation of the Kaplan-Meier Estimator</h2>
 <p>Start with the definition of the survival function:</p>
@@ -56,7 +57,7 @@
 <p><img src="https://latex.codecogs.com/png.latex?P(A_j%20%7C%20A_1,%20A_2,%20%5Cldots,%20A_%7Bj-1%7D)%20=%20P(A_j%20%7C%20A_%7Bj-1%7D)%20=%20P(T%20%3E%20t_%7B(j)%7D%20%7C%20T%20%3E%20t_%7B(j-1)%7D)"></p>
 <p>[Note that this is not the Markov assumption (if you know what that is). It is a logical consequence of the definition of the events <img src="https://latex.codecogs.com/png.latex?A_j">. It is just subset-superset logic. If you survived past <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D">, then you must have survived past <img src="https://latex.codecogs.com/png.latex?t_%7B(j-1)%7D">, so the two events are nested. The conditional probability of surviving past <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D"> given that you survived past all the previous failure times is just the conditional probability of surviving past <img src="https://latex.codecogs.com/png.latex?t_%7B(j)%7D"> given that you survived past <img src="https://latex.codecogs.com/png.latex?t_%7B(j-1)%7D">.]</p>
 <p>So the probability of surviving past t_{(j)} can be written as a simplified conditional probability that only depends on the previous failure time. That is</p>
-<p><img src="https://latex.codecogs.com/png.latex?S(t)=%20P(T%20%3E%20t_%7B(1)%7D)%20%5Ccdot%20P(T%20%3E%20t_%7B(2)%7D%20%7C%20T%20%3E%20t_%7B(1)%7D)%20%5Ccdot%20P(T%20%3E%20t_%7B(3)%7D%20%7C%20T%20%3E%20t_%7B(2)%7D)%20%5Ccdots%20P(T%20%3E%20t_%7B(k)%7D%20%7C%20T%20%3E%20t_%7B(k-1)%7D"></p>
+<p><img src="https://latex.codecogs.com/png.latex?S(t)=%20P(T%20%3E%20t_%7B(1)%7D)%20%5Ccdot%20P(T%20%3E%20t_%7B(2)%7D%20%7C%20T%20%3E%20t_%7B(1)%7D)%20%5Ccdot%20P(T%20%3E%20t_%7B(3)%7D%20%7C%20T%20%3E%20t_%7B(2)%7D)%20%5Ccdots%20P(T%20%3E%20t_%7B(k)%7D%20%7C%20T%20%3E%20t_%7B(k-1)%7D)"></p>
 <p>The survival function is a product of conditional probabilities — the probability of surviving past each failure time, given survival up to the previous one. The question is how to estimate each factor from the data.</p>
 </section>
 </section>
@@ -84,8 +85,8 @@
 <p>Putting it all together, we get:</p>
 <p><img src="https://latex.codecogs.com/png.latex?P(T%20%3E%20t_%7B(j)%7D%20%7C%20T%20%3E%20t_%7B(j-1)%7D)%20=%201%20-%20%5Cfrac%7BP(T%20=%20t_%7B(j)%7D)%7D%7BP(T%20%3E%20t_%7B(j-1)%7D)%7D%20=%201%20-%20%5Cfrac%7B%5Cfrac%7Bd_j%7D%7Bn%7D%7D%7B%5Cfrac%7Bn_j%7D%7Bn%7D%7D%20=%201%20-%20%5Cfrac%7Bd_j%7D%7Bn_j%7D"></p>
 <p>Excellent! We have an estimate for the conditional probability of surviving past each failure time. Plugging back into our expression for <img src="https://latex.codecogs.com/png.latex?S(t)">:</p>
-<section id="the-kaplan-meier-estimator--final-form" class="level3">
-<h3 class="anchored" data-anchor-id="the-kaplan-meier-estimator--final-form">The Kaplan-Meier Estimator- Final Form</h3>
+<section id="the-kaplan-meier-estimator-final-form" class="level3">
+<h3 class="anchored" data-anchor-id="the-kaplan-meier-estimator-final-form">The Kaplan-Meier Estimator — Final Form</h3>
 <p>Plugging the estimated conditional probabilities back into the product formula for <img src="https://latex.codecogs.com/png.latex?S(t)">, we get: <img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D(t)%20=%20%5Cprod_%7Bt_%7B(j)%7D%20%5Cleq%20t%7D%20%5Cleft(1%20-%20%5Cfrac%7Bd_j%7D%7Bn_j%7D%5Cright)"></p>
 <p>This is the <strong>Kaplan-Meier estimator</strong> — derived from nothing more than the definition of the survival function, the chain rule of probability, and a counting argument. No distributional assumptions, no parameters to fit. The hat on <img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D(t)"> is a reminder that this is an estimator of the true survival function, not the truth itself. The estimator was introduced by Edward Kaplan and Paul Meier in a 1958 paper in the Journal of the American Statistical Association — one of the most cited papers in all of statistics. It’s titled “Nonparametric Estimation from Incomplete Observations” — a perfect description of what we just did. Here is the <a href="https://web.stanford.edu/~lutian/coursepdf/KMpaper.pdf">link</a> to the original paper.</p>
 <p>Here’s some code to compute the Kaplan-Meier estimator in Python:</p>
@@ -871,7 +872,8 @@ Figure&nbsp;2
 <p><img src="https://latex.codecogs.com/png.latex?U%20=%20%5Cexp%5C!%5Cleft(-%5Cexp(%5Ctheta)%20%5Ccdot%20%5Cexp(-w)%5Cright)%0A=%20%5Chat%7BS%7D(t)%5E%7B%5Cexp(-w)%7D"></p>
 <p>By definition, the lower limit L of the confidence interval is supposed to be less than the upper limit U. Does it indeed happen? Since <img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D(t)%20%5Cin%20(0,1)"> and <img src="https://latex.codecogs.com/png.latex?%5Cexp(w)%20%3E%20%5Cexp(-w)">, raising a number in <img src="https://latex.codecogs.com/png.latex?(0,1)"> to a larger exponent gives a smaller result, confirming <img src="https://latex.codecogs.com/png.latex?L%20%3C%20U">. The 95% log-log confidence interval on the original scale is:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%5Cboxed%7B%5Cleft%5B%5Chat%7BS%7D(t)%5E%7B%5Cexp(w)%7D,%5C%20%5Chat%7BS%7D(t)%5E%7B%5Cexp(-w)%7D%5Cright%5D%7D"></p>
-<p>where <img src="https://latex.codecogs.com/png.latex?w%20=%20%5Cdfrac%7B1.96%20%5Ccdot%20%5Cwidehat%7B%5Ctext%7BSE%7D%7D%5B%5Chat%7BS%7D(t)%5D%7D%7B%7C%5Chat%7BS%7D(t)%20%5Ccdot%20%5Cln%20%5Chat%7BS%7D(t)%7C%7D">.</p>
+<p>where <img src="https://latex.codecogs.com/png.latex?w%20=%201.96%20%5Ccdot%20%5Ctext%7BSE%7D%5B%5Ctheta%5D"> — the same <img src="https://latex.codecogs.com/png.latex?w"> from Step 3, with <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BSE%7D%5B%5Ctheta%5D"> expanded from Step 2:</p>
+<p><img src="https://latex.codecogs.com/png.latex?w%20=%20%5Cfrac%7B1.96%20%5Ccdot%20%5Cwidehat%7B%5Ctext%7BSE%7D%7D%5B%5Chat%7BS%7D(t)%5D%7D%7B%7C%5Chat%7BS%7D(t)%20%5Ccdot%20%5Cln%20%5Chat%7BS%7D(t)%7C%7D"></p>
 <p>This interval is guaranteed to stay in <img src="https://latex.codecogs.com/png.latex?(0,1)"> by construction — no negative survival probabilities, no matter how sparse the risk set gets.</p>
 <p>Let’s see the transformed confidence intervals in action.</p>
 <div id="cell-fig-km-ci-comparison" class="cell" data-execution_count="3">
@@ -1630,7 +1632,7 @@ observed_time
 Name: count, dtype: int64</code></pre>
 </div>
 </div>
-<p>Even though the synthetic fleet was generated with continuous failure times, the output tells a different story. Out of 886 failures, there are 27 tied failure times. In real telemetry- where failure times are recorded at fixed intervals- ties are almost guaranteed and would be far more frequent. Convention B is what <code>lifelines</code> applies by default, so our earlier KM estimates already handle the ties correctly without any additional code. As a bonus: <code>lifelines</code> also defaults to the log-log confidence interval. The 5 boundary violations in Figure 3 came from our own manually computed naive CI — we built it from scratch deliberately to show the problem. The shaded band in Figure 1, produced by , was already using the log-log transformation all along.</p>
+<p>Even though the synthetic fleet was generated with continuous failure times, the output tells a different story. Out of 886 failures, there are 27 tied failure times. In real telemetry- where failure times are recorded at fixed intervals- ties are almost guaranteed and would be far more frequent. Convention B is what <code>lifelines</code> applies by default, so our earlier KM estimates already handle the ties correctly without any additional code. As a bonus: <code>lifelines</code> also defaults to the log-log confidence interval. The 5 boundary violations in Figure 3 came from our own manually computed naive CI — we built it from scratch deliberately to show the problem. The shaded band in Figure 1, produced by <code>kmf.plot_survival_function(ci_show=True)</code>, was already using the log-log transformation all along.</p>
 </section>
 </section>
 <section id="the-log-rank-test" class="level2">
@@ -2385,10 +2387,107 @@ harsh  indoor   4.004801e-13
 indoor outdoor  3.940472e-06</code></pre>
 </div>
 </div>
-
-
+<p>The plots tell a clear story.</p>
+<p><strong>Manufacturer (left panel):</strong> Manufacturers A and B are nearly indistinguishable — their curves run almost on top of each other for the entire duration. Manufacturer C is the outlier: its curve drops sharply in the first 50 hours and reaches zero well before A and B. If you were a fleet manager, you would already be on the phone with manufacturer C’s sales representative.</p>
+<p><strong>Environment (right panel):</strong> There is a clean ordering across all three environments. Indoor machines survive the longest, outdoor machines fall in the middle, and harsh environment machines degrade the fastest. Unlike the manufacturer plot, all three curves are visually separated from the very beginning — the effect of operating environment kicks in immediately, not just in the tail.</p>
+<p>The log-rank test confirms what the eye already sees. Here is the summary</p>
+<p><strong>Log-Rank Test Results:</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Group</th>
+<th>Test statistic</th>
+<th>Degrees of freedom</th>
+<th><img src="https://latex.codecogs.com/png.latex?p">-value</th>
+<th>Conclusion</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Manufacturer</td>
+<td>59.95</td>
+<td>2</td>
+<td><img src="https://latex.codecogs.com/png.latex?%3C%200.001"></td>
+<td>Reject <img src="https://latex.codecogs.com/png.latex?H_0"></td>
+</tr>
+<tr class="even">
+<td>Environment</td>
+<td>55.33</td>
+<td>2</td>
+<td><img src="https://latex.codecogs.com/png.latex?%3C%200.001"></td>
+<td>Reject <img src="https://latex.codecogs.com/png.latex?H_0"></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Pairwise tests — Manufacturer:</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Comparison</th>
+<th><img src="https://latex.codecogs.com/png.latex?p">-value</th>
+<th>Significant?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A vs B</td>
+<td><img src="https://latex.codecogs.com/png.latex?0.327"></td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td>A vs C</td>
+<td><img src="https://latex.codecogs.com/png.latex?1.4%20%5Ctimes%2010%5E%7B-12%7D"></td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td>B vs C</td>
+<td><img src="https://latex.codecogs.com/png.latex?8.9%20%5Ctimes%2010%5E%7B-11%7D"></td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Pairwise tests — Environment:</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Comparison</th>
+<th><img src="https://latex.codecogs.com/png.latex?p">-value</th>
+<th>Significant?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Harsh vs Indoor</td>
+<td><img src="https://latex.codecogs.com/png.latex?4.0%20%5Ctimes%2010%5E%7B-13%7D"></td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td>Harsh vs Outdoor</td>
+<td><img src="https://latex.codecogs.com/png.latex?5.8%20%5Ctimes%2010%5E%7B-4%7D"></td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td>Indoor vs Outdoor</td>
+<td><img src="https://latex.codecogs.com/png.latex?3.9%20%5Ctimes%2010%5E%7B-6%7D"></td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
 </section>
 </section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>That was a long journey — but a rewarding one. Let’s take stock of what we built in Part 4.</p>
+<p>We started with a simple question: can we estimate the survival function from censored data without assuming any parametric form? The answer is yes- and the tool is the OG of survival analysis estimators- the <strong>Kaplan-Meier estimator</strong> derived from nothing more than conditional probability and a counting argument.</p>
+<p>After fitting the KM estimator, we then asked: how uncertain is this estimate which led us to <strong>Greenwood’s Formula</strong> to estimate the survival function’s variance.</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cwidehat%7B%5Ctext%7BVar%7D%7D(%5Chat%7BS%7D(t))%20=%20%5B%5Chat%7BS%7D(t)%5D%5E2%20%5Csum_%7Bt_%7B(j)%7D%20%5Cleq%20t%7D%0A%5Cfrac%7Bd_j%7D%7Bn_j(n_j%20-%20d_j)%7D"></p>
+<p>We turned that variance into a <strong>confidence interval</strong> — and saw why the naive linear interval fails near the tails, and how the <strong>log-log transformation</strong> fixes it.</p>
+<p>We handled <strong>tied failure times</strong> - real data always has them - and saw that the KM formula requires no modification but just a convention about the ordering of events.</p>
+<p>Finally, we asked: do different groups have different survival functions? The <strong>log-rank test</strong> gave us a rigorous answer. In our fleet, both manufacturer and operating environment have statistically significant effects on survival — <img src="https://latex.codecogs.com/png.latex?p%20%3C%200.001"> in both cases. Manufacturer C fails faster than A and B. Harsh environments degrade machines faster than indoor or outdoor conditions.</p>
+<p>The log-rank test told us that manufacturer and environment both significantly affect survival in our fleet. But it only answers a population-level question: do these groups differ? In practice, we want to ask a more personalised question — not “do harsh environment machines fail faster on average?” but “what is the survival probability for <em>this</em> machine, given that it is 8 years old, running at high load, operating at 110°C, with a vibration level of 6.2?”</p>
+<p>That is a question about a specific machine with a specific covariate vector <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BX%7D%20=%20(X_1,%20X_2,%20%5Cldots,%20X_p)%5ET"> — age, load factor, operating temperature, vibration level, and so on. To answer it, we need a model that takes <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BX%7D"> as input and outputs a survival function. That model is the <strong>Cox Proportional Hazards model</strong>, and it is the subject of Part 5.</p>
+
+
 </section>
 
  ]]></description>
