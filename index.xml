@@ -302,7 +302,7 @@ font-style: inherit;">:.1f}</span><span class="ss" style="color: #20794D;
 background-color: null;
 font-style: inherit;">%)"</span>)</span></code></pre></div></div>
 <div class="cell-output cell-output-display">
-<div id="fig-km-fleet" class="quarto-float quarto-figure quarto-figure-center anchored" width="948" height="470">
+<div id="fig-km-fleet" class="quarto-float quarto-figure quarto-figure-center anchored" height="470" width="948">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-km-fleet-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://madhavpr191221.github.io/blog/posts/part-4-kaplan-meier-estimator/index_files/figure-html/fig-km-fleet-output-1.png" id="fig-km-fleet" width="948" height="470" class="figure-img">
@@ -779,7 +779,7 @@ font-style: inherit;">}</span><span class="ss" style="color: #20794D;
 background-color: null;
 font-style: inherit;"> total)"</span>)</span></code></pre></div></div>
 <div class="cell-output cell-output-display">
-<div id="fig-km-fleet-ci" class="quarto-float quarto-figure quarto-figure-center anchored" width="948" height="470">
+<div id="fig-km-fleet-ci" class="quarto-float quarto-figure quarto-figure-center anchored" height="470" width="948">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-km-fleet-ci-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://madhavpr191221.github.io/blog/posts/part-4-kaplan-meier-estimator/index_files/figure-html/fig-km-fleet-ci-output-1.png" id="fig-km-fleet-ci" width="948" height="470" class="figure-img">
@@ -1414,7 +1414,7 @@ font-style: inherit;">"</span>)</span></code></pre></div></div>
 naive_lower values : [-0.00123213 -0.00224921]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<div id="fig-km-ci-comparison" class="quarto-float quarto-figure quarto-figure-center anchored" width="1332" height="476">
+<div id="fig-km-ci-comparison" class="quarto-float quarto-figure quarto-figure-center anchored" height="476" width="1332">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-km-ci-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://madhavpr191221.github.io/blog/posts/part-4-kaplan-meier-estimator/index_files/figure-html/fig-km-ci-comparison-output-2.png" id="fig-km-ci-comparison" width="1332" height="476" class="figure-img">
@@ -2342,7 +2342,7 @@ font-style: inherit;">print</span>(pw_env.summary[[<span class="st" style="color
 background-color: null;
 font-style: inherit;">'p'</span>]])</span></code></pre></div></div>
 <div class="cell-output cell-output-display">
-<div id="fig-logrank" class="quarto-float quarto-figure quarto-figure-center anchored" width="1332" height="476">
+<div id="fig-logrank" class="quarto-float quarto-figure quarto-figure-center anchored" height="476" width="1332">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-logrank-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://madhavpr191221.github.io/blog/posts/part-4-kaplan-meier-estimator/index_files/figure-html/fig-logrank-output-1.png" id="fig-logrank" width="1332" height="476" class="figure-img">
