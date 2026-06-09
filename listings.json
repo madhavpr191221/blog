@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/part-5-cox-ph/index.html",
       "/posts/part-4-kaplan-meier-estimator/index.html",
       "/posts/part-3-fitting-survival-distributions/index.html",
       "/posts/part2-distributions-in-survival-analysis/index.html",
