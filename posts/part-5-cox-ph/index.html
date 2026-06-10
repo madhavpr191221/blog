@@ -715,7 +715,7 @@ Note
 </tr>
 <tr class="even">
 <th data-quarto-table-cell-role="th">time fit was run</th>
-<td>2026-06-10 00:13:51 UTC</td>
+<td>2026-06-10 00:28:48 UTC</td>
 </tr>
 </tbody>
 </table>
@@ -997,7 +997,7 @@ Note
 <p>That’s the answer. That machine — 8 years old, high load, 110°C, vibration 6.2 — now has a survival curve.</p>
 <p>On our fleet: manufacturer C has twice the hazard of A. Harsh environments more than double the hazard compared to indoor. Maintenance helps. RPM doesn’t — collinearity with load factor. C-index of 0.63 — real signal, room to improve.</p>
 <p>Parts 1 through 5 cover what I’d call the core of classical survival analysis. But the story doesn’t end there.</p>
-<p>What’s next? The Cox model as derived breaks down when two machines fail at exactly the same time. Part 6 fixes that — Breslow, Efron, and the exact partial likelihood for tied failure times. Part 7 handles time-varying covariates. Part 8 is diagnostics — how do you know if the proportional hazards assumption actually holds?</p>
+<p>What’s next? The Cox model as derived breaks down when two machines fail at exactly the same time. Part 6 fixes that — Breslow, Efron, and the exact partial likelihood for tied failure times. Part 7 handles time-varying covariates — what happens when <span class="math inline">\(\mathbf{X}_i\)</span> becomes <span class="math inline">\(\mathbf{X}_i(t)\)</span> and the covariate vector itself evolves as the machine ages. Part 8 is diagnostics — how do you know if the proportional hazards assumption actually holds?</p>
 <p>The ticking clock is still running.</p>
 
 
