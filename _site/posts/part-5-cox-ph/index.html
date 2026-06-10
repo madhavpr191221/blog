@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Madhav Prashanth Ramachandran">
+<meta name="dcterms.date" content="2026-06-08">
+
+<title>Part 5: The Cox Proportional Hazards Model – Madhav’s Blog</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-845c23b38eaddc0f92fda52bfe77a8c8.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-a0f9fd0d421825b736dc1bbcbcba2219.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Madhav’s Blog</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://bsky.app/"> <i class="bi bi-bluesky" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Part 5: The Cox Proportional Hazards Model</h1>
+                                <div class="quarto-categories">
+                <div class="quarto-category">survival analysis</div>
+                <div class="quarto-category">statistics</div>
+                <div class="quarto-category">python</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Madhav Prashanth Ramachandran </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">June 8, 2026</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<section id="recap-of-part-4-and-whats-coming-in-part-5" class="level2">
+<h2 class="anchored" data-anchor-id="recap-of-part-4-and-whats-coming-in-part-5">Recap of Part 4 and What’s Coming in Part 5</h2>
+<p>In <a href="https://madhavpr191221.github.io/blog/posts/part-4-kaplan-meier-estimator/"><strong>Part 4</strong></a>, we derived the Kaplan-Meier estimator from scratch using conditional probability and a counting argument, proved Greenwood’s formula for its variance, and closed with the log-rank test for comparing survival curves across groups. We ended on a somewhat unsettling note — the log-rank test can tell us that manufacturer C machines fail faster than A and B, but it cannot say anything about the survival probability of <em>this specific machine</em> whose behaviour depends on age, load factor, vibration level, operating temperature, and a dozen other parameters.</p>
+<p>Think about humans. Not all of us have the same survival curve. A person’s survival is a function of genetics, diet, sleep, exercise, and so on. The same logic applies to machines. This compels us to move from group-level survival curves to <strong>personalised survival curves</strong> — and the standard tool for this is the <strong>Cox Proportional Hazards model</strong>.</p>
+</section>
+<section id="the-cox-proportional-hazards-model" class="level2">
+<h2 class="anchored" data-anchor-id="the-cox-proportional-hazards-model">The Cox Proportional Hazards Model</h2>
+<p>Cox-PH models the hazard function of a unit given its covariates, rather than the survival curve directly. Recall from <a href="https://madhavpr191221.github.io/blog/posts/part-1-why-survival-analysis-exists/"><strong>Part 1</strong></a> that the hazard rate <span class="math inline">\(\lambda(t)\)</span> is the instantaneous rate of failure at time <span class="math inline">\(t\)</span>, given survival up to <span class="math inline">\(t\)</span>.</p>
+<p>For unit <span class="math inline">\(i\)</span> with covariate vector <span class="math inline">\(\mathbf{X}_i = (X_{i1}, X_{i2}, \ldots, X_{ip})^T\)</span>, the Cox model specifies:</p>
+<p><span class="math display">\[\lambda(t \mid \mathbf{X}_i) = \lambda_0(t) \cdot
+\exp(\beta_1 X_{i1} + \beta_2 X_{i2} + \cdots + \beta_p X_{ip})\]</span></p>
+<p>In words:</p>
+<p><span class="math display">\[\text{machine } i\text{'s hazard} =
+\underbrace{\lambda_0(t)}_{\text{baseline hazard}} \times
+\underbrace{\exp(\boldsymbol{\beta}^T \mathbf{X}_i)}_{\text{machine-specific risk multiplier}}\]</span></p>
+<p>Formula first, explanation second — not our style. Let’s get to business.</p>
+<section id="the-two-components-of-cox-ph" class="level3">
+<h3 class="anchored" data-anchor-id="the-two-components-of-cox-ph">The Two Components of Cox-PH</h3>
+<section id="the-baseline-hazard-lambda_0t" class="level4">
+<h4 class="anchored" data-anchor-id="the-baseline-hazard-lambda_0t">1. The Baseline Hazard <span class="math inline">\(\lambda_0(t)\)</span></h4>
+<p><span class="math inline">\(\lambda_0(t)\)</span> is the hazard function for a reference machine — one whose covariates are all zero. It captures how the baseline risk of failure evolves over time, irrespective of any machine-specific characteristics.</p>
+<p>The beauty of Cox-PH is that you do not need to specify the form of <span class="math inline">\(\lambda_0(t)\)</span> at all. No Weibull, no exponential, no distributional assumptions. It is estimated non-parametrically from the data — and we will see exactly how later.</p>
+</section>
+<section id="the-risk-score-expboldsymbolbetat-mathbfx_i" class="level4">
+<h4 class="anchored" data-anchor-id="the-risk-score-expboldsymbolbetat-mathbfx_i">2. The Risk Score <span class="math inline">\(\exp(\boldsymbol{\beta}^T \mathbf{X}_i)\)</span></h4>
+<p>The risk score is a multiplicative factor that scales the baseline hazard based on the individual unit’s covariates:</p>
+<ul>
+<li>If <span class="math inline">\(\boldsymbol{\beta}^T \mathbf{X}_i &gt; 0\)</span>, the risk score exceeds 1 — the machine’s hazard is higher than baseline.</li>
+<li>If <span class="math inline">\(\boldsymbol{\beta}^T \mathbf{X}_i &lt; 0\)</span>, the risk score is below 1 — the machine’s hazard is lower than baseline.</li>
+<li>If <span class="math inline">\(\boldsymbol{\beta}^T \mathbf{X}_i = 0\)</span>, the machine is exactly at baseline.</li>
+</ul>
+<p>Note that the risk score is always positive — <span class="math inline">\(\exp(\cdot)\)</span> guarantees this — and it is <strong>time-independent</strong>. All the time dependence in the model lives in <span class="math inline">\(\lambda_0(t)\)</span>. The risk score simply shifts the hazard up or down by a fixed factor.</p>
+<p>In one sentence: a machine operating under more stress than the reference has a higher hazard — more risk of failure at every point in time.</p>
+</section>
+</section>
+<section id="why-proportional-hazards" class="level3">
+<h3 class="anchored" data-anchor-id="why-proportional-hazards">Why “Proportional Hazards”?</h3>
+<p>Consider any two machines <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>. Their hazard ratio at time <span class="math inline">\(t\)</span> is:</p>
+<p><span class="math display">\[\mathcal{H}_{ij}(t) = \frac{\lambda(t \mid \mathbf{X}_i)}
+{\lambda(t \mid \mathbf{X}_j)} =
+\frac{\lambda_0(t) \cdot \exp(\boldsymbol{\beta}^T \mathbf{X}_i)}
+{\lambda_0(t) \cdot \exp(\boldsymbol{\beta}^T \mathbf{X}_j)}\]</span></p>
+<p>The baseline hazard <span class="math inline">\(\lambda_0(t)\)</span> cancels:</p>
+<p><span class="math display">\[\mathcal{H}_{ij}(t) =
+\frac{\exp(\boldsymbol{\beta}^T \mathbf{X}_i)}
+{\exp(\boldsymbol{\beta}^T \mathbf{X}_j)} =
+\exp\!\left(\boldsymbol{\beta}^T (\mathbf{X}_i - \mathbf{X}_j)\right)\]</span></p>
+<p>The hazard ratio is <strong>constant over time</strong> — it does not depend on <span class="math inline">\(t\)</span>. Machine <span class="math inline">\(i\)</span>’s hazard is always a fixed scalar multiple of machine <span class="math inline">\(j\)</span>’s hazard, regardless of when you look. This is the proportional hazards assumption: the two hazard functions are proportional to each other, with the ratio determined entirely by the difference in covariate values.</p>
+<p>This is also the key assumption that can be violated — and Part 6 will show how to test it.</p>
+</section>
+<section id="from-hazard-to-survival-personalised-survival-curves" class="level3">
+<h3 class="anchored" data-anchor-id="from-hazard-to-survival-personalised-survival-curves">From Hazard to Survival: Personalised Survival Curves</h3>
+<p>The Cox model gives you the personalised hazard <span class="math inline">\(\lambda(t \mid \mathbf{X}_i)\)</span>. But what you usually want is the survival probability <span class="math inline">\(S(t \mid \mathbf{X}_i)\)</span> — the probability that machine <span class="math inline">\(i\)</span> survives past time <span class="math inline">\(t\)</span>. How do you get there?</p>
+<p>Recall from <a href="https://madhavpr191221.github.io/blog/posts/part-1-why-survival-analysis-exists/"><strong>Part 1</strong></a> that:</p>
+<p><span class="math display">\[\lambda(t) = -\frac{d}{dt}\ln S(t)\]</span></p>
+<p>which integrates to:</p>
+<p><span class="math display">\[S(t) = \exp\left(-\int_0^t \lambda(u)\, du\right) = \exp(-\Lambda(t))\]</span></p>
+<p>Extending to covariates:</p>
+<p><span class="math display">\[S(t \mid \mathbf{X}_i) = \exp\left(-\int_0^t \lambda(u \mid \mathbf{X}_i)\, du\right)\]</span></p>
+<p>Substituting the Cox model:</p>
+<p><span class="math display">\[= \exp\left(-\int_0^t \lambda_0(u) \cdot \exp(\boldsymbol{\beta}^T \mathbf{X}_i)\, du\right)\]</span></p>
+<p>Since <span class="math inline">\(\exp(\boldsymbol{\beta}^T \mathbf{X}_i)\)</span> does not depend on <span class="math inline">\(u\)</span>, it factors out of the integral:</p>
+<p><span class="math display">\[= \exp\left(-\exp(\boldsymbol{\beta}^T \mathbf{X}_i) \cdot \Lambda_0(t)\right)\]</span></p>
+<p>where <span class="math inline">\(\Lambda_0(t) = \int_0^t \lambda_0(u)\, du\)</span> is the <strong>baseline cumulative hazard</strong>. Writing this more cleanly:</p>
+<p><span class="math display">\[\boxed{S(t \mid \mathbf{X}_i) = S_0(t)^{\exp(\boldsymbol{\beta}^T \mathbf{X}_i)}}\]</span></p>
+<p>where <span class="math inline">\(S_0(t) = \exp(-\Lambda_0(t))\)</span> is the <strong>baseline survival function</strong> — the survival curve of the reference machine with all covariates equal to zero.</p>
+<p>This is a beautiful result. The personalised survival curve for machine <span class="math inline">\(i\)</span> is just the baseline survival curve raised to a power — and that power is the machine’s risk score. A high-risk machine pushes the curve down faster. A low-risk machine keeps it high. Same shape, different speed.</p>
+</section>
+<section id="estimating-the-parameters-attempt-1-maximum-likelihood" class="level3">
+<h3 class="anchored" data-anchor-id="estimating-the-parameters-attempt-1-maximum-likelihood">Estimating the Parameters: Attempt 1 — Maximum Likelihood</h3>
+<p>The model is specified. Now the real question: how do we estimate <span class="math inline">\(\boldsymbol{\beta}\)</span>?</p>
+<p>The natural first instinct is maximum likelihood — it worked beautifully in <a href="https://madhavpr191221.github.io/blog/posts/part-3-fitting-survival-distributions/"><strong>Part 3</strong></a> for parametric models. Let’s try it here.</p>
+<p>For an observed pair <span class="math inline">\((Y_i, \delta_i)\)</span> with covariates <span class="math inline">\(\mathbf{X}_i\)</span>, the contribution to the likelihood is (note: this is not a conditional PDF in the strict sense — it is the standard censored likelihood contribution from Part 3, extended to covariates):</p>
+<p><span class="math display">\[f(Y_i \mid \mathbf{X}_i) = \lambda(Y_i \mid \mathbf{X}_i)^{\delta_i} \cdot
+S(Y_i \mid \mathbf{X}_i)\]</span></p>
+<p>Substituting the Cox model:</p>
+<p><span class="math display">\[= \left[\lambda_0(Y_i) \cdot \exp(\boldsymbol{\beta}^T \mathbf{X}_i)\right]^{\delta_i} \cdot
+\exp\!\left(-\exp(\boldsymbol{\beta}^T \mathbf{X}_i)
+\int_0^{Y_i} \lambda_0(u)\, du\right)\]</span></p>
+<p><span class="math inline">\(\lambda_0(t)\)</span> appears in two places — directly as <span class="math inline">\(\lambda_0(Y_i)\)</span> in the failure term, and inside the integral in the survival function. The joint likelihood for all <span class="math inline">\(n\)</span> units is:</p>
+<p><span class="math display">\[L(\boldsymbol{\beta}, \lambda_0) = \prod_{i=1}^{n}
+f(Y_i \mid \mathbf{X}_i)\]</span></p>
+<p>To maximise this, we would need to estimate both <span class="math inline">\(\boldsymbol{\beta}\)</span> and the entire function <span class="math inline">\(\lambda_0(t)\)</span> simultaneously. And here is the problem: <span class="math inline">\(\lambda_0(t)\)</span> is a function — infinite-dimensional — not a finite set of numbers. Standard MLE optimises over a finite parameter space. It has no machinery for this.</p>
+<p>Maximum likelihood, as we know it, does not work here.</p>
+<p>But Cox had a trick.</p>
+</section>
+</section>
+<section id="estimating-the-parameters-the-cox-way" class="level2">
+<h2 class="anchored" data-anchor-id="estimating-the-parameters-the-cox-way">Estimating the Parameters: The Cox Way</h2>
+<p>Suppose out of <span class="math inline">\(n\)</span> machines, <span class="math inline">\(K\)</span> fail. Order the failure times:</p>
+<p><span class="math display">\[T_{(1)} &lt; T_{(2)} &lt; \cdots &lt; T_{(K)}\]</span></p>
+<p>where <span class="math inline">\(T_{(k)}\)</span> is the <span class="math inline">\(k\)</span>-th smallest failure time. We assume no ties — exactly one machine fails at each <span class="math inline">\(T_{(k)}\)</span>. Not a realistic assumption, but we made the same one when deriving the KM estimator and it served us well.</p>
+<p>At each failure time <span class="math inline">\(T_{(k)}\)</span>, the <strong>risk set</strong> is:</p>
+<p><span class="math display">\[\mathcal{R}_k = \{j : Y_j \geq T_{(k)}\}\]</span></p>
+<p>— the set of machines still under observation just before <span class="math inline">\(T_{(k)}\)</span>, with <span class="math inline">\(n_k = |\mathcal{R}_k|\)</span> denoting its size.</p>
+<p>Let <span class="math inline">\(i_k\)</span> denote the index of the machine that fails at <span class="math inline">\(T_{(k)}\)</span>. At each failure time, we ask:</p>
+<p><span class="math display">\[P(\text{machine } i_k \text{ fails} \mid \text{exactly one failure from } \mathcal{R}_k \text{ at time } T_{(k)})\]</span></p>
+<p>How do we compute this conditional probability? By definition:</p>
+<p><span class="math display">\[P(\text{machine } i_k \text{ fails} \mid \text{one failure from } \mathcal{R}_k) =
+\frac{P(\text{machine } i_k \text{ fails} \cap \text{ one failure from } \mathcal{R}_k)}
+{P(\text{exactly one failure from } \mathcal{R}_k)}\]</span></p>
+<p><strong>Numerator:</strong> Machine <span class="math inline">\(i_k\)</span> is already in the risk set <span class="math inline">\(\mathcal{R}_k\)</span> — meaning it has survived up to <span class="math inline">\(T_{(k)}\)</span> by definition. So the event “machine <span class="math inline">\(i_k\)</span> fails and there is one failure from <span class="math inline">\(\mathcal{R}_k\)</span>” reduces to just “machine <span class="math inline">\(i_k\)</span> fails at <span class="math inline">\(T_{(k)}\)</span>”:</p>
+<p><span class="math display">\[P(\text{machine } i_k \text{ fails} \cap \text{ one failure from } \mathcal{R}_k)
+= P(\text{machine } i_k \text{ fails at } T_{(k)})\]</span></p>
+<p>This is a conditional failure probability — conditional on survival up to <span class="math inline">\(T_{(k)}\)</span>, which is exactly what the hazard captures:</p>
+<p><span class="math display">\[P(T_{i_k} \in [t_{(k)},\ t_{(k)} + dt) \mid T_{i_k} \geq t_{(k)})
+\approx \lambda(t_{(k)} \mid \mathbf{X}_{i_k})\, dt\]</span></p>
+<p>Substituting the Cox model:</p>
+<p><span class="math display">\[\approx \lambda_0(t_{(k)}) \cdot \exp(\boldsymbol{\beta}^T \mathbf{X}_{i_k})\, dt\]</span></p>
+<p><strong>Denominator:</strong> Exactly one machine fails from <span class="math inline">\(\mathcal{R}_k\)</span> at <span class="math inline">\(T_{(k)}\)</span>. Since failures are independent, this is the sum of individual failure probabilities over all machines in the risk set:</p>
+<p><span class="math display">\[P(\text{exactly one failure from } \mathcal{R}_k) \approx
+\sum_{j \in \mathcal{R}_k} \lambda_0(t_{(k)}) \cdot
+\exp(\boldsymbol{\beta}^T \mathbf{X}_j)\, dt\]</span></p>
+<p>Putting it together:</p>
+<p><span class="math display">\[P(\text{machine } i_k \text{ fails} \mid \text{one failure from } \mathcal{R}_k) =
+\frac{\lambda_0(t_{(k)}) \cdot \exp(\boldsymbol{\beta}^T \mathbf{X}_{i_k})\, dt}
+{\sum_{j \in \mathcal{R}_k} \lambda_0(t_{(k)}) \cdot \exp(\boldsymbol{\beta}^T \mathbf{X}_j)\, dt}\]</span></p>
+<p>Cancelling <span class="math inline">\(\lambda_0(t_{(k)})\)</span> and <span class="math inline">\(dt\)</span> from numerator and denominator:</p>
+<p><span class="math display">\[P(\text{machine } i_k \text{ fails} \mid \text{one failure from } \mathcal{R}_k) =
+\frac{\exp(\boldsymbol{\beta}^T \mathbf{X}_{i_k})}
+{\sum_{j \in \mathcal{R}_k} \exp(\boldsymbol{\beta}^T \mathbf{X}_j)}\]</span></p>
+<p>The baseline hazard vanishes entirely. This is Cox’s trick — by conditioning on the fact that exactly one failure occurs at <span class="math inline">\(T_{(k)}\)</span>, the baseline hazard function <span class="math inline">\(\lambda_0(t)\)</span> cancels and we are left with an expression that depends only on <span class="math inline">\(\boldsymbol{\beta}\)</span>.</p>
+<p>For those familiar with machine learning: yes, this is the <strong>softmax function</strong>. The probability that machine <span class="math inline">\(i_k\)</span> is the one that fails is its exponentiated risk score divided by the sum of exponentiated risk scores over all machines at risk. The Cox partial likelihood is, at its core, a repeated softmax over shrinking risk sets.</p>
+<section id="partial-likelihood" class="level3">
+<h3 class="anchored" data-anchor-id="partial-likelihood">Partial Likelihood</h3>
+<p>The regular likelihood — as we saw in Attempt 1 — requires estimating <span class="math inline">\(\lambda_0(t)\)</span> alongside <span class="math inline">\(\boldsymbol{\beta}\)</span>. The <strong>partial likelihood</strong> sidesteps this entirely. Instead of writing down the probability of the full data, we write down only the probability of the <em>ordering</em> of failures — which machine failed first, which failed second, and so on — conditional on the failure times themselves. The baseline hazard cancels at every step, and what remains depends only on <span class="math inline">\(\boldsymbol{\beta}\)</span>.</p>
+<p>Formally, suppose the ordered failure times are <span class="math inline">\(t_{(1)} &lt; t_{(2)} &lt; \cdots &lt; t_{(K)}\)</span>. Each failure contributes one factor to the partial likelihood:</p>
+<p><span class="math display">\[L_k(\boldsymbol{\beta}) =
+\frac{\exp(\boldsymbol{\beta}^T \mathbf{X}_{i_k})}
+{\sum_{j \in \mathcal{R}_k} \exp(\boldsymbol{\beta}^T \mathbf{X}_j)},
+\qquad k = 1, 2, \ldots, K\]</span></p>
+<p>With each failure, the risk set <span class="math inline">\(\mathcal{R}_k\)</span> shrinks — the machine that just failed leaves, and so do any units censored between <span class="math inline">\(t_{(k-1)}\)</span> and <span class="math inline">\(t_{(k)}\)</span>. The full partial likelihood is the product over all <span class="math inline">\(K\)</span> failure times:</p>
+<p><span class="math display">\[L(\boldsymbol{\beta}) = \prod_{k=1}^{K} L_k(\boldsymbol{\beta}) =
+\prod_{k=1}^{K} \frac{\exp(\boldsymbol{\beta}^T \mathbf{X}_{i_k})}
+{\sum_{j \in \mathcal{R}_k} \exp(\boldsymbol{\beta}^T \mathbf{X}_j)}\]</span></p>
+<p>Taking the log:</p>
+<p><span class="math display">\[\ell(\boldsymbol{\beta}) = \sum_{k=1}^{K} \left[
+\boldsymbol{\beta}^T \mathbf{X}_{i_k} -
+\ln\left(\sum_{j \in \mathcal{R}_k}
+\exp(\boldsymbol{\beta}^T \mathbf{X}_j)\right)\right]\]</span></p>
+<p>This is as far as the algebra takes us. No closed-form solution exists — you cannot set the derivative to zero and solve for <span class="math inline">\(\hat{\boldsymbol{\beta}}\)</span> analytically. Instead, <span class="math inline">\(\hat{\boldsymbol{\beta}}\)</span> is obtained via numerical optimization — gradient ascent or Newton-Raphson — applied to <span class="math inline">\(\ell(\boldsymbol{\beta})\)</span>.</p>
+<p>Notice what is absent from the partial likelihood: <span class="math inline">\(\lambda_0(t)\)</span>. The censored observations also do not appear directly — they contribute only through the risk sets <span class="math inline">\(\mathcal{R}_k\)</span>, shrinking them as units drop out. Cox’s insight was that this partial likelihood contains enough information to estimate <span class="math inline">\(\boldsymbol{\beta}\)</span> consistently</p>
+<section id="interpreting-hatboldsymbolbeta" class="level4">
+<h4 class="anchored" data-anchor-id="interpreting-hatboldsymbolbeta">Interpreting <span class="math inline">\(\hat{\boldsymbol{\beta}}\)</span></h4>
+<p>Suppose <span class="math inline">\(\hat{\boldsymbol{\beta}} = (\hat{\beta}_1, \hat{\beta}_2, \ldots, \hat{\beta}_p)^T\)</span>. Consider two machines A and B that are identical in every covariate except <span class="math inline">\(X_j\)</span>, where B has one unit more than A:</p>
+<p><span class="math display">\[\mathbf{X}_A = (X_1, \ldots, X_j, \ldots, X_p)^T, \qquad
+\mathbf{X}_B = (X_1, \ldots, X_j + 1, \ldots, X_p)^T\]</span></p>
+<p>Their hazard functions are:</p>
+<p><span class="math display">\[\lambda(t \mid \mathbf{X}_A) = \lambda_0(t) \cdot
+\exp(\beta_1 X_1 + \cdots + \beta_j X_j + \cdots + \beta_p X_p)\]</span></p>
+<p><span class="math display">\[\lambda(t \mid \mathbf{X}_B) = \lambda_0(t) \cdot
+\exp(\beta_1 X_1 + \cdots + \beta_j (X_j + 1) + \cdots + \beta_p X_p)\]</span></p>
+<p>The hazard ratio is:</p>
+<p><span class="math display">\[\mathcal{H}_{BA}(t) =
+\frac{\lambda(t \mid \mathbf{X}_B)}{\lambda(t \mid \mathbf{X}_A)} =
+\exp(\beta_j)\]</span></p>
+<p><span class="math inline">\(\lambda_0(t)\)</span> cancels again. A one-unit increase in <span class="math inline">\(X_j\)</span> multiplies the hazard by <span class="math inline">\(\exp(\beta_j)\)</span>, regardless of the values of all other covariates and regardless of time.</p>
+<p>More generally, if <span class="math inline">\(X_j\)</span> increases by <span class="math inline">\(\alpha\)</span> units:</p>
+<p><span class="math display">\[\mathcal{H}_{BA}(t) = \exp(\beta_j \cdot \alpha)\]</span></p>
+<p><strong>Example.</strong> Suppose <span class="math inline">\(X_j\)</span> = daily usage hours and <span class="math inline">\(\hat{\beta}_j = 0.15\)</span>. Then <span class="math inline">\(\exp(0.15) = 1.162\)</span> — each additional hour of daily usage increases the hazard by 16.2%. This holds whether the comparison is 5 vs 6 hours or 100 vs 101 hours.</p>
+<p><strong>Categorical covariates.</strong> For a covariate with <span class="math inline">\(c\)</span> categories (say, manufacturer A, B, C), you create <span class="math inline">\(c - 1\)</span> dummy variables — one category becomes the reference. Each dummy’s <span class="math inline">\(\hat{\beta}\)</span> gives the log hazard ratio relative to the reference category. For example, if manufacturer A is the reference and <span class="math inline">\(\hat{\beta}_C = 0.8\)</span>, then manufacturer C machines have <span class="math inline">\(\exp(0.8) = 2.23\)</span> times the hazard of manufacturer A machines.</p>
+</section>
+<section id="confidence-intervals-for-hatbeta_j" class="level4">
+<h4 class="anchored" data-anchor-id="confidence-intervals-for-hatbeta_j">Confidence Intervals for <span class="math inline">\(\hat{\beta}_j\)</span></h4>
+<p>The standard 95% confidence interval for <span class="math inline">\(\hat{\beta}_j\)</span> is:</p>
+<p><span class="math display">\[\left[\hat{\beta}_j - 1.96 \cdot \text{SE}(\hat{\beta}_j),\
+\hat{\beta}_j + 1.96 \cdot \text{SE}(\hat{\beta}_j)\right]\]</span></p>
+<p>The standard error comes from the <strong>observed Fisher information matrix</strong> <span class="math inline">\(\mathcal{I}(\hat{\boldsymbol{\beta}})\)</span> — the negative Hessian of the log partial likelihood evaluated at <span class="math inline">\(\hat{\boldsymbol{\beta}}\)</span>:</p>
+<p><span class="math display">\[\text{SE}(\hat{\beta}_j) = \sqrt{\left[\mathcal{I}(\hat{\boldsymbol{\beta}})^{-1}\right]_{jj}}\]</span></p>
+<p>The full derivation of the Fisher information matrix is a topic for another day. What matters here is the asymptotic result: <span class="math inline">\(\hat{\beta}_j\)</span> is approximately normally distributed with mean <span class="math inline">\(\beta_j\)</span> (unbiased) and variance <span class="math inline">\([\mathcal{I}(\hat{\boldsymbol{\beta}})^{-1}]_{jj}\)</span>.</p>
+<p><strong>Example.</strong> Suppose <span class="math inline">\(\hat{\beta}_j = 0.15\)</span> and <span class="math inline">\(\text{SE}(\hat{\beta}_j) = 0.05\)</span>. The 95% CI for <span class="math inline">\(\beta_j\)</span> is:</p>
+<p><span class="math display">\[[0.15 - 1.96 \times 0.05,\ 0.15 + 1.96 \times 0.05] = [0.052,\ 0.248]\]</span></p>
+<p>Converting to the hazard ratio scale:</p>
+<p><span class="math display">\[[\exp(0.052),\ \exp(0.248)] = [1.053,\ 1.282]\]</span></p>
+<p>We are 95% confident that each additional hour of daily usage increases the hazard by somewhere between 5.3% and 28.2% — and this holds whether the comparison is 5 vs 6 hours or 100 vs 101 hours.</p>
+</section>
+</section>
+<section id="personalised-survival-curves-and-the-baseline-hazard" class="level3">
+<h3 class="anchored" data-anchor-id="personalised-survival-curves-and-the-baseline-hazard">Personalised Survival Curves and the Baseline Hazard</h3>
+<p>We have everything we need — except one thing. Recall the personalised survival curve:</p>
+<p><span class="math display">\[\hat{S}(t \mid \mathbf{X}_i) = \hat{S}_0(t)^{\exp(\hat{\boldsymbol{\beta}}^T \mathbf{X}_i)}\]</span></p>
+<p>Once we have <span class="math inline">\(\hat{\boldsymbol{\beta}}\)</span> from the partial likelihood, the only missing piece is <span class="math inline">\(\hat{S}_0(t)\)</span> — the baseline survival function. And <span class="math inline">\(\hat{S}_0(t)\)</span> depends on the baseline cumulative hazard:</p>
+<p><span class="math display">\[\hat{S}_0(t) = \exp(-\hat{\Lambda}_0(t)), \qquad
+\hat{\Lambda}_0(t) = \int_0^t \hat{\lambda}_0(u)\, du\]</span></p>
+<p>which in turn depends on <span class="math inline">\(\lambda_0(t)\)</span> — the very function Cox-PH deliberately left unspecified.</p>
+<p>If the business question is purely about <em>ranking</em> machines by risk — which ones are most likely to fail next — then <span class="math inline">\(\hat{\boldsymbol{\beta}}\)</span> alone is enough. The risk score <span class="math inline">\(\exp(\hat{\boldsymbol{\beta}}^T \mathbf{X}_i)\)</span> gives you a relative ordering without ever touching <span class="math inline">\(\lambda_0(t)\)</span>.</p>
+<p>But if you want an actual survival probability — “what is the chance that <em>this</em> machine, 8 years old, running at high load, operating at 110°C with a vibration level of 6.2, survives past 150 hours?” — you need both <span class="math inline">\(\hat{\boldsymbol{\beta}}\)</span> <em>and</em> <span class="math inline">\(\hat{S}_0(t)\)</span>. This is exactly the personalised question we set out to answer at the beginning of Part 5. We are not done yet. This is where <strong>Breslow’s estimator</strong> comes in.</p>
+</section>
+<section id="breslows-estimator" class="level3">
+<h3 class="anchored" data-anchor-id="breslows-estimator">Breslow’s Estimator</h3>
+<p>Partition the time axis into subintervals defined by the ordered failure times:</p>
+<p><span class="math display">\[[0, t_{(1)}),\ [t_{(1)}, t_{(2)}),\ \ldots,\
+[t_{(K-1)}, t_{(K)}),\ [t_{(K)}, \infty)\]</span></p>
+<p>For any time <span class="math inline">\(t\)</span>, the baseline cumulative hazard is:</p>
+<p><span class="math display">\[\Lambda_0(t) = \int_0^t \lambda_0(u)\, du\]</span></p>
+<p>If <span class="math inline">\(k\)</span> is the largest index such that <span class="math inline">\(t_{(k)} \leq t\)</span>, we can split this integral across the subintervals:</p>
+<p><span class="math display">\[\Lambda_0(t) = \int_0^{t_{(1)}} \lambda_0(u)\, du +
+\int_{t_{(1)}}^{t_{(2)}} \lambda_0(u)\, du + \cdots +
+\int_{t_{(k)}}^{t} \lambda_0(u)\, du\]</span></p>
+<p>This is the standard Riemann integral setup — we are integrating <span class="math inline">\(\lambda_0\)</span> over a partition of <span class="math inline">\([0, t]\)</span>. On each subinterval <span class="math inline">\([t_{(k)}, t_{(k+1)})\)</span>, we approximate the integral by choosing a tag <span class="math inline">\(u_k^*\)</span>:</p>
+<p><span class="math display">\[\int_{t_{(k)}}^{t_{(k+1)}} \lambda_0(u)\, du \approx
+\lambda_0(u_k^*) \cdot (t_{(k+1)} - t_{(k)})\]</span></p>
+<p>Here is where Breslow’s key assumption enters.</p>
+<p><span class="math display">\[\boxed{\text{Between consecutive failure times, the baseline hazard is zero.}
+\text{ All the mass of } \lambda_0 \text{ is concentrated at the failure times.}}\]</span></p>
+<p>Why is this reasonable? The data only speaks at failure times <span class="math inline">\(t_{(1)}, t_{(2)}, \ldots, t_{(K)}\)</span>. Between failures, we observe nothing — no machine fails, no information arrives. We have no basis for estimating what <span class="math inline">\(\lambda_0\)</span> does between failure times. Breslow’s assumption is the most conservative stance: if the data is silent, so is the hazard.</p>
+<p>Under this assumption, the integral over each subinterval collapses to a point mass at <span class="math inline">\(t_{(k)}\)</span>:</p>
+<p><span class="math display">\[\int_{t_{(k)}}^{t_{(k+1)}} \lambda_0(u)\, du = \alpha_k\]</span></p>
+<p>where <span class="math inline">\(\alpha_k \geq 0\)</span> is the jump in <span class="math inline">\(\Lambda_0\)</span> at time <span class="math inline">\(t_{(k)}\)</span> — the amount of cumulative hazard accumulated at that failure time. The baseline cumulative hazard becomes a step function:</p>
+<p><span class="math inline">\(\Lambda_0(t) = \sum_{k: t_{(k)} \leq t} \alpha_k\)</span></p>
+<p>At each failure time, the cumulative hazard takes one step up:</p>
+<p><span class="math display">\[\Lambda_0(t_{(k)}) = \Lambda_0(t_{(k-1)}) + \alpha_k\]</span></p>
+<p>Between failure times, it stays flat. Here is what it looks like.</p>
+<div id="cell-fig-step-function" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>plt.close(<span class="st">'all'</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Clean illustrative staircase</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>failure_times <span class="op">=</span> np.array([<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">32</span>, <span class="dv">41</span>, <span class="dv">55</span>, <span class="dv">63</span>, <span class="dv">74</span>, <span class="dv">83</span>, <span class="dv">91</span>, <span class="dv">98</span>])</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>alpha_k       <span class="op">=</span> np.array([<span class="fl">0.04</span>, <span class="fl">0.05</span>, <span class="fl">0.06</span>, <span class="fl">0.05</span>, <span class="fl">0.07</span>, <span class="fl">0.06</span>, </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                           <span class="fl">0.08</span>, <span class="fl">0.07</span>, <span class="fl">0.09</span>, <span class="fl">0.08</span>])</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>cumulative    <span class="op">=</span> np.cumsum(alpha_k)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">4</span>))</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>ax.step(np.concatenate([[<span class="dv">0</span>], failure_times]), </span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        np.concatenate([[<span class="dv">0</span>], cumulative]),</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        where<span class="op">=</span><span class="st">'post'</span>, color<span class="op">=</span><span class="st">'steelblue'</span>, linewidth<span class="op">=</span><span class="dv">2</span>, </span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        label<span class="op">=</span><span class="vs">r'</span><span class="dv">$</span><span class="er">\</span><span class="vs">Lambda_0</span><span class="kw">(</span><span class="vs">t</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>ax.scatter(failure_times, cumulative, color<span class="op">=</span><span class="st">'steelblue'</span>, zorder<span class="op">=</span><span class="dv">5</span>, s<span class="op">=</span><span class="dv">40</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Annotate selected jumps</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> k, label <span class="kw">in</span> <span class="bu">zip</span>([<span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">7</span>], [<span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">8</span>]):</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    prev <span class="op">=</span> cumulative[k<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    curr <span class="op">=</span> cumulative[k]</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    ax.annotate(</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>        <span class="st">''</span>, </span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>        xy<span class="op">=</span>(failure_times[k] <span class="op">+</span> <span class="dv">3</span>, curr),</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        xytext<span class="op">=</span>(failure_times[k] <span class="op">+</span> <span class="dv">3</span>, prev),</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>        arrowprops<span class="op">=</span><span class="bu">dict</span>(arrowstyle<span class="op">=</span><span class="st">'&lt;-&gt;'</span>, color<span class="op">=</span><span class="st">'firebrick'</span>, lw<span class="op">=</span><span class="fl">1.2</span>)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    ax.text(failure_times[k] <span class="op">+</span> <span class="fl">4.5</span>, (prev <span class="op">+</span> curr) <span class="op">/</span> <span class="dv">2</span>, </span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>            <span class="vs">rf'</span><span class="dv">$</span><span class="ch">\a</span><span class="vs">lpha_</span><span class="ch">{{</span><span class="sc">{</span>label<span class="sc">}</span><span class="ch">}}</span><span class="dv">$</span><span class="vs">'</span>, </span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>            fontsize<span class="op">=</span><span class="dv">9</span>, color<span class="op">=</span><span class="st">'firebrick'</span>, va<span class="op">=</span><span class="st">'center'</span>)</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Time $t$'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="vs">r'</span><span class="dv">$</span><span class="er">\</span><span class="vs">Lambda_0</span><span class="kw">(</span><span class="vs">t</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Baseline Cumulative Hazard — Step Function'</span>, fontsize<span class="op">=</span><span class="dv">13</span>)</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="op">-</span><span class="dv">2</span>, <span class="dv">110</span>)</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>ax.set_ylim(<span class="op">-</span><span class="fl">0.02</span>, <span class="fl">0.75</span>)</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>ax.legend(fontsize<span class="op">=</span><span class="dv">11</span>)</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>ax.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>plt.close(<span class="st">'all'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-step-function" class="quarto-float quarto-figure quarto-figure-center anchored" width="853" height="373">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-step-function-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-step-function-output-1.png" id="fig-step-function" width="853" height="373" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-step-function-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Now our next big task is to estimate <span class="math inline">\(\alpha_k\)</span> for each <span class="math inline">\(k\)</span>. Once that is done, our entire story of personalised survival curves is complete.</p>
+</section>
+<section id="estimating-alpha_k" class="level3">
+<h3 class="anchored" data-anchor-id="estimating-alpha_k">Estimating <span class="math inline">\(\alpha_k\)</span></h3>
+<p>At each failure time <span class="math inline">\(t_{(k)}\)</span>, we know:</p>
+<ol type="1">
+<li>The risk set <span class="math inline">\(\mathcal{R}_k = \{j : Y_j \geq t_{(k)}\}\)</span> — all machines still under observation</li>
+<li>The number of failures <span class="math inline">\(d_k\)</span> (always 1 under the no-ties assumption)</li>
+<li>The covariate vector <span class="math inline">\(\mathbf{X}_j\)</span> for every <span class="math inline">\(j \in \mathcal{R}_k\)</span></li>
+<li>The estimated <span class="math inline">\(\hat{\boldsymbol{\beta}}\)</span> from the partial likelihood</li>
+</ol>
+<p>Now we want the jump size <span class="math inline">\(\alpha_k\)</span>.</p>
+<p>We already established that:</p>
+<p><span class="math display">\[\Delta\Lambda(t_{(k)} \mid \mathbf{X}_j) =
+\exp(\boldsymbol{\beta}^T \mathbf{X}_j) \cdot \alpha_k\]</span></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Technically, the exact relationship should use the left limit <span class="math inline">\(t_{(k)}^-\)</span> — the time just before the jump:</p>
+<p><span class="math display">\[\Lambda(t_{(k)} \mid \mathbf{X}_j) =
+\Lambda(t_{(k)}^- \mid \mathbf{X}_j) + \alpha_k\]</span></p>
+<p>Since we have information only at the actual failure times, we write <span class="math inline">\(\Lambda(t_{(k)}^- \mid \mathbf{X}_j) = \Lambda(t_{(k-1)} \mid \mathbf{X}_j)\)</span> — the cumulative hazard just before <span class="math inline">\(t_{(k)}\)</span> equals its value at the previous failure time.</p>
+</div>
+</div>
+<p><span class="math inline">\(\alpha_k\)</span> controls how likely each machine in <span class="math inline">\(\mathcal{R}_k\)</span> is to fail at <span class="math inline">\(t_{(k)}\)</span>. A larger <span class="math inline">\(\alpha_k\)</span> means a bigger drop in each machine’s survival curve, which means more expected failures. So the strategy is:</p>
+<ol type="1">
+<li>Write down <span class="math inline">\(p_j\)</span> — probability that machine <span class="math inline">\(j\)</span> fails at <span class="math inline">\(t_{(k)}\)</span> — as a function of <span class="math inline">\(\alpha_k\)</span></li>
+<li>Sum over <span class="math inline">\(\mathcal{R}_k\)</span> to get <span class="math inline">\(\mathbb{E}[D_k]\)</span> as a function of <span class="math inline">\(\alpha_k\)</span></li>
+<li>Method of moments: set observed = expected, solve for <span class="math inline">\(\alpha_k\)</span></li>
+</ol>
+<section id="step-1-p_j-probability-of-machine-j-failing-at-t_k" class="level4">
+<h4 class="anchored" data-anchor-id="step-1-p_j-probability-of-machine-j-failing-at-t_k">Step 1: <span class="math inline">\(p_j\)</span> — Probability of Machine <span class="math inline">\(j\)</span> Failing at <span class="math inline">\(t_{(k)}\)</span></h4>
+<p>Machine <span class="math inline">\(j\)</span> is in <span class="math inline">\(\mathcal{R}_k\)</span> — alive just before <span class="math inline">\(t_{(k)}\)</span>, i.e.&nbsp; <span class="math inline">\(T_j \geq t_{(k)}^-\)</span>. <span class="math inline">\(p_j\)</span> is a discrete failure probability — conditioned on survival up to <span class="math inline">\(t_{(k)}\)</span>:</p>
+<p><span class="math display">\[p_j = P(T_j = t_{(k)} \mid \mathbf{X}_j)\]</span></p>
+<p>Expressing in terms of the survival function. Breaking down the event <span class="math inline">\(\{T_j \geq t_{(k)}\}\)</span>:</p>
+<p><span class="math display">\[\{T_j \geq t_{(k)}\} = \{T_j = t_{(k)}\} \cup \{T_j &gt; t_{(k)}\}\]</span></p>
+<p>In fact (obviously) <span class="math inline">\(\{T_j = t_{(k)}\} \subseteq \{T_j \geq t_{(k)}\}\)</span>, so:</p>
+<p><span class="math display">\[P(T_j = t_{(k)} \mid \mathbf{X}_j) =
+P(T_j \geq t_{(k)} \mid \mathbf{X}_j) - P(T_j &gt; t_{(k)} \mid \mathbf{X}_j)\]</span></p>
+<p><span class="math display">\[= S(t_{(k)}^- \mid \mathbf{X}_j) - S(t_{(k)} \mid \mathbf{X}_j)\]</span></p>
+<p><span class="math display">\[= S(t_{(k)}^- \mid \mathbf{X}_j) \cdot
+\left[1 - \frac{S(t_{(k)} \mid \mathbf{X}_j)}
+{S(t_{(k)}^- \mid \mathbf{X}_j)}\right]\]</span></p>
+<p>Remember: <span class="math inline">\(\Lambda_0(t)\)</span> is a step function — it jumps at <span class="math inline">\(t_{(k)}\)</span>. So <span class="math inline">\(\Lambda_0(t_{(k)}^-) = \Lambda_0(t_{(k-1)})\)</span> before the jump, and <span class="math inline">\(\Lambda_0(t_{(k)}) = \Lambda_0(t_{(k-1)}) + \alpha_k\)</span> at and after the jump. Now:</p>
+<p><span class="math display">\[S(t_{(k)} \mid \mathbf{X}_j) =
+\exp\!\left(-\Lambda(t_{(k)} \mid \mathbf{X}_j)\right)\]</span></p>
+<p><span class="math display">\[= \exp\!\left(-\Lambda(t_{(k)}^- \mid \mathbf{X}_j) -
+\Delta\Lambda(t_{(k)} \mid \mathbf{X}_j)\right)\]</span></p>
+<p><span class="math display">\[= S(t_{(k)}^- \mid \mathbf{X}_j) \cdot
+\exp\!\left(-\alpha_k \exp(\boldsymbol{\beta}^T \mathbf{X}_j)\right)\]</span></p>
+<p>Therefore:</p>
+<p><span class="math display">\[\frac{S(t_{(k)} \mid \mathbf{X}_j)}{S(t_{(k)}^- \mid \mathbf{X}_j)} =
+\exp\!\left(-\alpha_k \exp(\boldsymbol{\beta}^T \mathbf{X}_j)\right)\]</span></p>
+<p>Substituting back:</p>
+<p><span class="math display">\[p_j = S(t_{(k)}^- \mid \mathbf{X}_j) \cdot
+\left[1 - \exp\!\left(-\alpha_k \exp(\boldsymbol{\beta}^T \mathbf{X}_j)
+\right)\right]\]</span></p>
+<p>For small <span class="math inline">\(\alpha_k\)</span>: <span class="math inline">\(1 - e^{-x} \approx x\)</span> because <span class="math inline">\(e^{-x} \approx 1-x\)</span>. Setting <span class="math inline">\(x = \alpha_k \exp(\boldsymbol{\beta}^T \mathbf{X}_j)\)</span>:</p>
+<p><span class="math display">\[p_j \approx S(t_{(k)}^- \mid \mathbf{X}_j) \cdot
+\alpha_k \exp(\boldsymbol{\beta}^T \mathbf{X}_j)\]</span></p>
+<p>Machine <span class="math inline">\(j\)</span> is alive just before <span class="math inline">\(t_{(k)}\)</span>, so <span class="math inline">\(S(t_{(k)}^- \mid \mathbf{X}_j) \approx 1\)</span>. Thus:</p>
+<p><span class="math display">\[\boxed{p_j \approx \alpha_k \exp(\boldsymbol{\beta}^T \mathbf{X}_j)}\]</span></p>
+</section>
+<section id="step-2-expected-number-of-failures-at-t_k" class="level4">
+<h4 class="anchored" data-anchor-id="step-2-expected-number-of-failures-at-t_k">Step 2: Expected Number of Failures at <span class="math inline">\(t_{(k)}\)</span></h4>
+<p>For each <span class="math inline">\(j \in \mathcal{R}_k\)</span>, define the indicator:</p>
+<p><span class="math display">\[I_j = \begin{cases} 1 &amp; \text{w.p. } p_j \\
+0 &amp; \text{w.p. } 1 - p_j \end{cases}\]</span></p>
+<p>Total failures at <span class="math inline">\(t_{(k)}\)</span>: <span class="math inline">\(D_k = \sum_{j \in \mathcal{R}_k} I_j\)</span> (Binomial). By linearity of expectation:</p>
+<p><span class="math display">\[\mathbb{E}[D_k] = \sum_{j \in \mathcal{R}_k} p_j =
+\alpha_k \sum_{j \in \mathcal{R}_k} \exp(\boldsymbol{\beta}^T \mathbf{X}_j)\]</span></p>
+</section>
+<section id="step-3-method-of-moments" class="level4">
+<h4 class="anchored" data-anchor-id="step-3-method-of-moments">Step 3: Method of Moments</h4>
+<p>Set observed failures = expected failures:</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Method of moments</strong> is one of the oldest estimation strategies in statistics. The idea is simple: find the parameter value that makes the theoretical moment (here, the expected number of failures) equal to the observed moment (the actual number of failures). No likelihood, no distribution — just equate and solve.</p>
+</div>
+</div>
+<p><span class="math display">\[d_k = \alpha_k \sum_{j \in \mathcal{R}_k}
+\exp(\boldsymbol{\beta}^T \mathbf{X}_j)\]</span></p>
+<p>Solving:</p>
+<p><span class="math display">\[\boxed{\hat{\alpha}_k = \frac{d_k}
+{\sum_{j \in \mathcal{R}_k} \exp(\hat{\boldsymbol{\beta}}^T \mathbf{X}_j)}}\]</span></p>
+<p>Breslow’s estimator for the jump at <span class="math inline">\(t_{(k)}\)</span>. Under the no-ties assumption, <span class="math inline">\(d_k = 1\)</span> always. The denominator is the total risk score in the pool at <span class="math inline">\(t_{(k)}\)</span>.</p>
+</section>
+<section id="step-4-build-everything" class="level4">
+<h4 class="anchored" data-anchor-id="step-4-build-everything">Step 4: Build Everything</h4>
+<p><span class="math display">\[\hat{\Lambda}_0(t) = \sum_{k:\, t_{(k)} \leq t} \hat{\alpha}_k =
+\sum_{k:\, t_{(k)} \leq t} \frac{d_k}
+{\sum_{j \in \mathcal{R}_k} \exp(\hat{\boldsymbol{\beta}}^T \mathbf{X}_j)}\]</span></p>
+<p><span class="math display">\[\hat{S}_0(t) = \exp(-\hat{\Lambda}_0(t))\]</span></p>
+<p><span class="math display">\[\boxed{\hat{S}(t \mid \mathbf{X}_i) =
+\hat{S}_0(t)^{\exp(\hat{\boldsymbol{\beta}}^T \mathbf{X}_i)}}\]</span></p>
+<p>That machine — 8 years old, running at high load, operating at 110°C with a vibration level of 6.2 — now has a survival curve. This is what we came for.</p>
+<p>Enough theory. Let’s fit the Cox model to our machine fleet and see what the data says.</p>
+<div id="cox-fit" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> lifelines <span class="im">import</span> CoxPHFitter</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'../../data/machine_fleet.csv'</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Drop non-numeric columns and one-hot encode categoricals</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>df_model <span class="op">=</span> pd.get_dummies(</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    df.drop(columns<span class="op">=</span>[<span class="st">'machine_id'</span>]),</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    columns<span class="op">=</span>[<span class="st">'environment'</span>, <span class="st">'manufacturer'</span>],</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    drop_first<span class="op">=</span><span class="va">True</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit Cox PH model</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>cph <span class="op">=</span> CoxPHFitter()</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>cph.fit(df_model, duration_col<span class="op">=</span><span class="st">'observed_time'</span>, event_col<span class="op">=</span><span class="st">'event_observed'</span>)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>cph.print_summary()</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Personalised survival curves + baseline</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>plt.close(<span class="st">'all'</span>)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Get integer indices of first outdoor machine per manufacturer</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>outdoor_idx <span class="op">=</span> (df[df[<span class="st">'environment'</span>] <span class="op">==</span> <span class="st">'outdoor'</span>]</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>               .groupby(<span class="st">'manufacturer'</span>)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>               .<span class="bu">apply</span>(<span class="kw">lambda</span> x: x.index[<span class="dv">0</span>], include_groups<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>               .values)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>machines <span class="op">=</span> df_model.loc[outdoor_idx]</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">5</span>))</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Left — personalised curves</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>ax     <span class="op">=</span> axes[<span class="dv">0</span>]</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>colors <span class="op">=</span> [<span class="st">'steelblue'</span>, <span class="st">'seagreen'</span>, <span class="st">'firebrick'</span>]</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, (idx, row) <span class="kw">in</span> <span class="bu">enumerate</span>(machines.iterrows()):</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    mfr        <span class="op">=</span> df.loc[idx, <span class="st">'manufacturer'</span>]</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    machine_id <span class="op">=</span> df.loc[idx, <span class="st">'machine_id'</span>]</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    cph.predict_survival_function(row.to_frame().T).plot(</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>        ax<span class="op">=</span>ax,</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>        label<span class="op">=</span><span class="ss">f"Machine </span><span class="sc">{</span>machine_id<span class="sc">}</span><span class="ss"> | Mfr </span><span class="sc">{</span>mfr<span class="sc">}</span><span class="ss"> "</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>              <span class="ss">f"(age=</span><span class="sc">{</span>df<span class="sc">.</span>loc[idx, <span class="st">'machine_age'</span>]<span class="sc">:.1f}</span><span class="ss">, "</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>              <span class="ss">f"load=</span><span class="sc">{</span>df<span class="sc">.</span>loc[idx, <span class="st">'load_factor'</span>]<span class="sc">:.2f}</span><span class="ss">)"</span>,</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>        color<span class="op">=</span>colors[i]</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Time (hours)'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="vs">r'</span><span class="dv">$</span><span class="er">\</span><span class="vs">hat{S}</span><span class="kw">(</span><span class="vs">t </span><span class="dv">\m</span><span class="vs">id </span><span class="dv">\m</span><span class="vs">athbf{X}_i</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Personalised Survival Curves — Cox PH'</span>, fontsize<span class="op">=</span><span class="dv">13</span>)</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>ax.legend(fontsize<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>ax.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a><span class="co"># Right — baseline survival</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axes[<span class="dv">1</span>]</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>cph.baseline_survival_.plot(ax<span class="op">=</span>ax, color<span class="op">=</span><span class="st">'black'</span>, linewidth<span class="op">=</span><span class="fl">1.5</span>)</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">'Time (hours)'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="vs">r'</span><span class="dv">$</span><span class="er">\</span><span class="vs">hat{S}_0</span><span class="kw">(</span><span class="vs">t</span><span class="kw">)</span><span class="dv">$</span><span class="vs">'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">'Baseline Survival Function — Cox PH'</span>, fontsize<span class="op">=</span><span class="dv">13</span>)</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>ax.grid(<span class="va">True</span>, alpha<span class="op">=</span><span class="fl">0.3</span>)</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>plt.suptitle(<span class="st">'Cox PH Model — Machine Fleet'</span>, fontsize<span class="op">=</span><span class="dv">13</span>)</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>plt.close(<span class="st">'all'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="cox-fit-1" class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">model</th>
+<td>lifelines.CoxPHFitter</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">duration col</th>
+<td>'observed_time'</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">event col</th>
+<td>'event_observed'</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">baseline estimation</th>
+<td>breslow</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">number of observations</th>
+<td>1000</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">number of events observed</th>
+<td>886</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">partial log-likelihood</th>
+<td>-5177.04</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">time fit was run</th>
+<td>2026-06-10 00:13:51 UTC</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th" style="min-width: 12px"></th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">coef</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">exp(coef)</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">se(coef)</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">coef lower 95%</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">coef upper 95%</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">exp(coef) lower 95%</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">exp(coef) upper 95%</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">cmp to</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">z</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">p</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">-log2(p)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">machine_age</th>
+<td>0.02</td>
+<td>1.02</td>
+<td>0.01</td>
+<td>0.01</td>
+<td>0.04</td>
+<td>1.01</td>
+<td>1.04</td>
+<td>0.00</td>
+<td>3.04</td>
+<td>&lt;0.005</td>
+<td>8.73</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">usage_intensity</th>
+<td>0.17</td>
+<td>1.18</td>
+<td>0.08</td>
+<td>0.02</td>
+<td>0.32</td>
+<td>1.02</td>
+<td>1.38</td>
+<td>0.00</td>
+<td>2.16</td>
+<td>0.03</td>
+<td>5.00</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">operating_temp</th>
+<td>0.00</td>
+<td>1.00</td>
+<td>0.00</td>
+<td>-0.00</td>
+<td>0.01</td>
+<td>1.00</td>
+<td>1.01</td>
+<td>0.00</td>
+<td>0.93</td>
+<td>0.35</td>
+<td>1.50</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">load_factor</th>
+<td>0.30</td>
+<td>1.34</td>
+<td>0.17</td>
+<td>-0.04</td>
+<td>0.64</td>
+<td>0.96</td>
+<td>1.89</td>
+<td>0.00</td>
+<td>1.70</td>
+<td>0.09</td>
+<td>3.49</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">rpm</th>
+<td>0.00</td>
+<td>1.00</td>
+<td>0.00</td>
+<td>-0.00</td>
+<td>0.00</td>
+<td>1.00</td>
+<td>1.00</td>
+<td>0.00</td>
+<td>0.78</td>
+<td>0.43</td>
+<td>1.20</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">vibration_level</th>
+<td>0.03</td>
+<td>1.04</td>
+<td>0.01</td>
+<td>0.01</td>
+<td>0.06</td>
+<td>1.01</td>
+<td>1.06</td>
+<td>0.00</td>
+<td>2.82</td>
+<td>&lt;0.005</td>
+<td>7.69</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">oil_quality</th>
+<td>0.25</td>
+<td>1.28</td>
+<td>0.12</td>
+<td>0.02</td>
+<td>0.48</td>
+<td>1.02</td>
+<td>1.62</td>
+<td>0.00</td>
+<td>2.10</td>
+<td>0.04</td>
+<td>4.82</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">maintenance_count</th>
+<td>-0.03</td>
+<td>0.97</td>
+<td>0.01</td>
+<td>-0.04</td>
+<td>-0.02</td>
+<td>0.96</td>
+<td>0.98</td>
+<td>0.00</td>
+<td>-4.64</td>
+<td>&lt;0.005</td>
+<td>18.10</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">environment_indoor</th>
+<td>-0.78</td>
+<td>0.46</td>
+<td>0.10</td>
+<td>-0.97</td>
+<td>-0.59</td>
+<td>0.38</td>
+<td>0.55</td>
+<td>0.00</td>
+<td>-8.11</td>
+<td>&lt;0.005</td>
+<td>50.76</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">environment_outdoor</th>
+<td>-0.41</td>
+<td>0.66</td>
+<td>0.09</td>
+<td>-0.59</td>
+<td>-0.22</td>
+<td>0.55</td>
+<td>0.80</td>
+<td>0.00</td>
+<td>-4.31</td>
+<td>&lt;0.005</td>
+<td>15.92</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">manufacturer_B</th>
+<td>0.15</td>
+<td>1.16</td>
+<td>0.08</td>
+<td>-0.00</td>
+<td>0.30</td>
+<td>1.00</td>
+<td>1.35</td>
+<td>0.00</td>
+<td>1.92</td>
+<td>0.06</td>
+<td>4.17</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">manufacturer_C</th>
+<td>0.74</td>
+<td>2.09</td>
+<td>0.09</td>
+<td>0.56</td>
+<td>0.92</td>
+<td>1.74</td>
+<td>2.50</td>
+<td>0.00</td>
+<td>7.96</td>
+<td>&lt;0.005</td>
+<td>49.03</td>
+</tr>
+</tbody>
+</table>
+<br><div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Concordance</th>
+<td>0.63</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Partial AIC</th>
+<td>10378.08</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">log-likelihood ratio test</th>
+<td>164.64 on 12 df</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">-log2(p) of ll-ratio test</th>
+<td>93.77</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cox-fit-output-2.png" id="cox-fit-2" width="1332" height="476" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The model summary and the survival curves tell a clear story.</p>
+<p><strong>Manufacturer.</strong> Manufacturer C has <span class="math inline">\(\hat{\beta} = 0.74\)</span>, <span class="math inline">\(\exp(\hat{\beta}) = 2.09\)</span>. Controlling for everything else — age, load, temperature, vibration — manufacturer C machines have roughly twice the hazard of manufacturer A at every point in time. Not surprising given what the log-rank test already told us in Part 4. Manufacturer B is not significantly different from A (<span class="math inline">\(p = 0.06\)</span>).</p>
+<p><strong>Environment.</strong> The biggest effect in the model. Indoor machines have <span class="math inline">\(\hat{\beta} = -0.78\)</span>, <span class="math inline">\(\exp(-0.78) = 0.46\)</span> — less than half the hazard of machines in harsh conditions. Outdoor machines are in between (<span class="math inline">\(\exp(-0.41) = 0.66\)</span>). Where you put the machine matters more than almost anything else.</p>
+<p><strong>Maintenance count.</strong> <span class="math inline">\(\hat{\beta} = -0.03\)</span> — each additional maintenance visit slightly reduces hazard. Small effect, right direction.</p>
+<p><strong>RPM.</strong> Not significant (<span class="math inline">\(p = 0.43\)</span>). Once you control for load factor and vibration level, RPM adds nothing. Classic collinearity — RPM is probably correlated with load factor and the model attributes the effect there.</p>
+<p><strong>The three survival curves</strong> show exactly this. Same environment (outdoor), different manufacturers. Machine from manufacturer C (red) drops fastest. Manufacturer A (blue) survives longest. The gap is not noise — it is <span class="math inline">\(\exp(0.74) = 2.09\)</span> baked in.</p>
+<p><strong>The baseline survival</strong> (right panel) is the survival curve for a reference machine — all continuous covariates at zero, manufacturer A, harsh environment. Drops to 50% around 80 hours. Every other machine’s curve is this baseline raised to the power of its risk score. Same shape, different speed.</p>
+</section>
+<section id="the-concordance-index" class="level4">
+<h4 class="anchored" data-anchor-id="the-concordance-index">The Concordance Index</h4>
+<p>You may have noticed a line at the bottom of the Cox PH summary:</p>
+<p><strong>Concordance = 0.63</strong>. What is this?</p>
+<p>The concordance index (C-index) is the standard metric for evaluating the discriminative ability of a survival model. In plain English: given two randomly chosen machines, how often does the model correctly identify which one fails first?</p>
+<p>Formally, consider any two machines <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> where <span class="math inline">\(i\)</span> fails before <span class="math inline">\(j\)</span> — and <span class="math inline">\(j\)</span>’s failure is actually observed, not censored (otherwise the comparison is unfair). The model assigns a risk score <span class="math inline">\(\exp(\hat{\boldsymbol{\beta}}^T \mathbf{X}_i)\)</span> to each machine. A <strong>concordant pair</strong> is one where the machine that fails first also has the higher risk score — the model got the ordering right. A <strong>discordant pair</strong> is one where it got it wrong.</p>
+<p><span class="math display">\[C = \frac{\text{concordant pairs}}{\text{concordant pairs} + \text{discordant pairs}}\]</span></p>
+<ul>
+<li><span class="math inline">\(C = 0.5\)</span> — coin flip. The model knows nothing.</li>
+<li><span class="math inline">\(C = 1.0\)</span> — perfect ranking. Every pair ordered correctly.</li>
+<li><span class="math inline">\(C &lt; 0.5\)</span> — worse than random. Systematically wrong.</li>
+</ul>
+<p>Our model has <span class="math inline">\(C = 0.63\)</span>. Not great, not terrible. It correctly ranks 63% of all comparable pairs — there is real signal, but the model is clearly missing something. That something is what Parts 6 onwards are about.</p>
+<p>One important distinction: the C-index measures <em>ranking</em> ability, not <em>calibration</em>. A model can rank machines correctly but still output survival probabilities that are way off. Both matter. The C-index only tells you half the story.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>A note on calibration.</strong> The C-index tells you whether the model ranks machines correctly — but not whether the predicted survival probabilities are trustworthy in absolute terms. A model might correctly identify that machine A is riskier than machine B, but predict <span class="math inline">\(\hat{S}(100 \mid \mathbf{X}_A) = 0.4\)</span> when the true value is 0.2.</p>
+<p>In binary classification, Platt scaling and isotonic regression fix this. For survival models it is harder — the output is a function <span class="math inline">\(\hat{S}(t \mid \mathbf{X}_i)\)</span>, not a scalar, and censoring means you don’t always observe the true outcome. Extensions exist: you can apply isotonic regression at a fixed time horizon <span class="math inline">\(t^*\)</span> using IPCW (inverse probability of censoring weighting) to handle censored observations, or use <strong>D-calibration</strong> — a survival-specific test that checks whether predicted survival probabilities are uniformly distributed under the true distribution. Calibration in survival analysis is an active research area and a topic for a future part.</p>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>Part 5 is done.</p>
+<p>We started with a question: what is the survival probability for <em>this</em> machine, given its age, load, temperature, and vibration level? The log-rank test from Part 4 couldn’t answer it. Cox PH can.</p>
+<p>The model is simple in structure:</p>
+<p><span class="math display">\[\lambda(t \mid \mathbf{X}_i) = \lambda_0(t) \cdot
+\exp(\boldsymbol{\beta}^T \mathbf{X}_i)\]</span></p>
+<p>Two components. Time lives in <span class="math inline">\(\lambda_0(t)\)</span>. The machine lives in <span class="math inline">\(\exp(\boldsymbol{\beta}^T \mathbf{X}_i)\)</span>. They never mix.</p>
+<p>Estimating <span class="math inline">\(\boldsymbol{\beta}\)</span> without knowing <span class="math inline">\(\lambda_0(t)\)</span> — that’s the partial likelihood. Cox’s trick. At each failure time, condition on the fact that exactly one machine failed and ask which one. Softmax over the risk set. Multiply across all failure times. Optimise. <span class="math inline">\(\lambda_0(t)\)</span> never appears.</p>
+<p>Then Breslow gives you <span class="math inline">\(\lambda_0(t)\)</span> back — method of moments, set observed failures equal to expected, solve for the jump size <span class="math inline">\(\alpha_k\)</span> at each failure time. Stack the jumps, exponentiate, and you have <span class="math inline">\(\hat{S}_0(t)\)</span>. And then:</p>
+<p><span class="math display">\[\hat{S}(t \mid \mathbf{X}_i) =
+\hat{S}_0(t)^{\exp(\hat{\boldsymbol{\beta}}^T \mathbf{X}_i)}\]</span></p>
+<p>That’s the answer. That machine — 8 years old, high load, 110°C, vibration 6.2 — now has a survival curve.</p>
+<p>On our fleet: manufacturer C has twice the hazard of A. Harsh environments more than double the hazard compared to indoor. Maintenance helps. RPM doesn’t — collinearity with load factor. C-index of 0.63 — real signal, room to improve.</p>
+<p>Parts 1 through 5 cover what I’d call the core of classical survival analysis. But the story doesn’t end there.</p>
+<p>What’s next? The Cox model as derived breaks down when two machines fail at exactly the same time. Part 6 fixes that — Breslow, Efron, and the exact partial likelihood for tied failure times. Part 7 handles time-varying covariates. Part 8 is diagnostics — how do you know if the proportional hazards assumption actually holds?</p>
+<p>The ticking clock is still running.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/madhavpr191221\.github\.io\/blog");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
