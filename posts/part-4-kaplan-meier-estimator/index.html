@@ -328,7 +328,7 @@ window.Quarto = {
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Total machines       : </span><span class="sc">{</span><span class="bu">len</span>(df)<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Observed failures    : </span><span class="sc">{</span>df[<span class="st">'event_observed'</span>]<span class="sc">.</span><span class="bu">sum</span>()<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span><span class="dv">100</span><span class="op">*</span>df[<span class="st">'event_observed'</span>]<span class="sc">.</span>mean()<span class="sc">:.1f}</span><span class="ss">%)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="fig-km-fleet" class="quarto-float quarto-figure quarto-figure-center anchored" height="470" width="948">
+<div id="fig-km-fleet" class="quarto-float quarto-figure quarto-figure-center anchored" width="948" height="470">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-km-fleet-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="index_files/figure-html/fig-km-fleet-output-1.png" id="fig-km-fleet" width="948" height="470" class="figure-img">
@@ -448,7 +448,7 @@ Observed failures    : 886 (88.6%)</code></pre>
 <span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"</span><span class="sc">{</span>ci_upper[i]<span class="sc">:&gt;14.4f}</span><span class="ss">"</span>)</span>
 <span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">(Showing first 15 failure times out of </span><span class="sc">{</span>mask<span class="sc">.</span><span class="bu">sum</span>()<span class="sc">}</span><span class="ss"> total)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="fig-km-fleet-ci" class="quarto-float quarto-figure quarto-figure-center anchored" height="470" width="948">
+<div id="fig-km-fleet-ci" class="quarto-float quarto-figure quarto-figure-center anchored" width="948" height="470">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-km-fleet-ci-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="index_files/figure-html/fig-km-fleet-ci-output-1.png" id="fig-km-fleet-ci" width="948" height="470" class="figure-img">
@@ -641,7 +641,7 @@ Figure&nbsp;2
 naive_lower values : [-0.00123213 -0.00224921]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<div id="fig-km-ci-comparison" class="quarto-float quarto-figure quarto-figure-center anchored" height="476" width="1332">
+<div id="fig-km-ci-comparison" class="quarto-float quarto-figure quarto-figure-center anchored" width="1332" height="476">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-km-ci-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="index_files/figure-html/fig-km-ci-comparison-output-2.png" id="fig-km-ci-comparison" width="1332" height="476" class="figure-img">
@@ -1008,7 +1008,7 @@ V_{gh} = -\sum_{j=1}^{K} \frac{d_j \cdot n_{gj} \cdot n_{hj}}{n_j^2}
 <span id="cb10-95"><a href="#cb10-95" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pw_env.summary[[<span class="st">'p'</span>]])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display">
-<div id="fig-logrank" class="quarto-float quarto-figure quarto-figure-center anchored" height="476" width="1332">
+<div id="fig-logrank" class="quarto-float quarto-figure quarto-figure-center anchored" width="1332" height="476">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-logrank-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="index_files/figure-html/fig-logrank-output-1.png" id="fig-logrank" width="1332" height="476" class="figure-img">

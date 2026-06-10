@@ -527,9 +527,770 @@ Figure&nbsp;1
 </div>
 </div>
 </div>
-
-
+<p>Now our next big task is to estimate <img src="https://latex.codecogs.com/png.latex?%5Calpha_k"> for each <img src="https://latex.codecogs.com/png.latex?k">. Once that is done, our entire story of personalised survival curves is complete.</p>
 </section>
+<section id="estimating-alpha_k" class="level3">
+<h3 class="anchored" data-anchor-id="estimating-alpha_k">Estimating <img src="https://latex.codecogs.com/png.latex?%5Calpha_k"></h3>
+<p>At each failure time <img src="https://latex.codecogs.com/png.latex?t_%7B(k)%7D">, we know:</p>
+<ol type="1">
+<li>The risk set <img src="https://latex.codecogs.com/png.latex?%5Cmathcal%7BR%7D_k%20=%20%5C%7Bj%20:%20Y_j%20%5Cgeq%20t_%7B(k)%7D%5C%7D"> — all machines still under observation</li>
+<li>The number of failures <img src="https://latex.codecogs.com/png.latex?d_k"> (always 1 under the no-ties assumption)</li>
+<li>The covariate vector <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BX%7D_j"> for every <img src="https://latex.codecogs.com/png.latex?j%20%5Cin%20%5Cmathcal%7BR%7D_k"></li>
+<li>The estimated <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Cboldsymbol%7B%5Cbeta%7D%7D"> from the partial likelihood</li>
+</ol>
+<p>Now we want the jump size <img src="https://latex.codecogs.com/png.latex?%5Calpha_k">.</p>
+<p>We already established that:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5CDelta%5CLambda(t_%7B(k)%7D%20%5Cmid%20%5Cmathbf%7BX%7D_j)%20=%0A%5Cexp(%5Cboldsymbol%7B%5Cbeta%7D%5ET%20%5Cmathbf%7BX%7D_j)%20%5Ccdot%20%5Calpha_k"></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Technically, the exact relationship should use the left limit <img src="https://latex.codecogs.com/png.latex?t_%7B(k)%7D%5E-"> — the time just before the jump:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5CLambda(t_%7B(k)%7D%20%5Cmid%20%5Cmathbf%7BX%7D_j)%20=%0A%5CLambda(t_%7B(k)%7D%5E-%20%5Cmid%20%5Cmathbf%7BX%7D_j)%20+%20%5Calpha_k"></p>
+<p>Since we have information only at the actual failure times, we write <img src="https://latex.codecogs.com/png.latex?%5CLambda(t_%7B(k)%7D%5E-%20%5Cmid%20%5Cmathbf%7BX%7D_j)%20=%20%5CLambda(t_%7B(k-1)%7D%20%5Cmid%20%5Cmathbf%7BX%7D_j)"> — the cumulative hazard just before <img src="https://latex.codecogs.com/png.latex?t_%7B(k)%7D"> equals its value at the previous failure time.</p>
+</div>
+</div>
+<p><img src="https://latex.codecogs.com/png.latex?%5Calpha_k"> controls how likely each machine in <img src="https://latex.codecogs.com/png.latex?%5Cmathcal%7BR%7D_k"> is to fail at <img src="https://latex.codecogs.com/png.latex?t_%7B(k)%7D">. A larger <img src="https://latex.codecogs.com/png.latex?%5Calpha_k"> means a bigger drop in each machine’s survival curve, which means more expected failures. So the strategy is:</p>
+<ol type="1">
+<li>Write down <img src="https://latex.codecogs.com/png.latex?p_j"> — probability that machine <img src="https://latex.codecogs.com/png.latex?j"> fails at <img src="https://latex.codecogs.com/png.latex?t_%7B(k)%7D"> — as a function of <img src="https://latex.codecogs.com/png.latex?%5Calpha_k"></li>
+<li>Sum over <img src="https://latex.codecogs.com/png.latex?%5Cmathcal%7BR%7D_k"> to get <img src="https://latex.codecogs.com/png.latex?%5Cmathbb%7BE%7D%5BD_k%5D"> as a function of <img src="https://latex.codecogs.com/png.latex?%5Calpha_k"></li>
+<li>Method of moments: set observed = expected, solve for <img src="https://latex.codecogs.com/png.latex?%5Calpha_k"></li>
+</ol>
+<section id="step-1-p_j-probability-of-machine-j-failing-at-t_k" class="level4">
+<h4 class="anchored" data-anchor-id="step-1-p_j-probability-of-machine-j-failing-at-t_k">Step 1: <img src="https://latex.codecogs.com/png.latex?p_j"> — Probability of Machine <img src="https://latex.codecogs.com/png.latex?j"> Failing at <img src="https://latex.codecogs.com/png.latex?t_%7B(k)%7D"></h4>
+<p>Machine <img src="https://latex.codecogs.com/png.latex?j"> is in <img src="https://latex.codecogs.com/png.latex?%5Cmathcal%7BR%7D_k"> — alive just before <img src="https://latex.codecogs.com/png.latex?t_%7B(k)%7D">, i.e.&nbsp; <img src="https://latex.codecogs.com/png.latex?T_j%20%5Cgeq%20t_%7B(k)%7D%5E-">. <img src="https://latex.codecogs.com/png.latex?p_j"> is a discrete failure probability — conditioned on survival up to <img src="https://latex.codecogs.com/png.latex?t_%7B(k)%7D">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?p_j%20=%20P(T_j%20=%20t_%7B(k)%7D%20%5Cmid%20%5Cmathbf%7BX%7D_j)"></p>
+<p>Expressing in terms of the survival function. Breaking down the event <img src="https://latex.codecogs.com/png.latex?%5C%7BT_j%20%5Cgeq%20t_%7B(k)%7D%5C%7D">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5C%7BT_j%20%5Cgeq%20t_%7B(k)%7D%5C%7D%20=%20%5C%7BT_j%20=%20t_%7B(k)%7D%5C%7D%20%5Ccup%20%5C%7BT_j%20%3E%20t_%7B(k)%7D%5C%7D"></p>
+<p>In fact (obviously) <img src="https://latex.codecogs.com/png.latex?%5C%7BT_j%20=%20t_%7B(k)%7D%5C%7D%20%5Csubseteq%20%5C%7BT_j%20%5Cgeq%20t_%7B(k)%7D%5C%7D">, so:</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(T_j%20=%20t_%7B(k)%7D%20%5Cmid%20%5Cmathbf%7BX%7D_j)%20=%0AP(T_j%20%5Cgeq%20t_%7B(k)%7D%20%5Cmid%20%5Cmathbf%7BX%7D_j)%20-%20P(T_j%20%3E%20t_%7B(k)%7D%20%5Cmid%20%5Cmathbf%7BX%7D_j)"></p>
+<p><img src="https://latex.codecogs.com/png.latex?=%20S(t_%7B(k)%7D%5E-%20%5Cmid%20%5Cmathbf%7BX%7D_j)%20-%20S(t_%7B(k)%7D%20%5Cmid%20%5Cmathbf%7BX%7D_j)"></p>
+<p><img src="https://latex.codecogs.com/png.latex?=%20S(t_%7B(k)%7D%5E-%20%5Cmid%20%5Cmathbf%7BX%7D_j)%20%5Ccdot%0A%5Cleft%5B1%20-%20%5Cfrac%7BS(t_%7B(k)%7D%20%5Cmid%20%5Cmathbf%7BX%7D_j)%7D%0A%7BS(t_%7B(k)%7D%5E-%20%5Cmid%20%5Cmathbf%7BX%7D_j)%7D%5Cright%5D"></p>
+<p>Remember: <img src="https://latex.codecogs.com/png.latex?%5CLambda_0(t)"> is a step function — it jumps at <img src="https://latex.codecogs.com/png.latex?t_%7B(k)%7D">. So <img src="https://latex.codecogs.com/png.latex?%5CLambda_0(t_%7B(k)%7D%5E-)%20=%20%5CLambda_0(t_%7B(k-1)%7D)"> before the jump, and <img src="https://latex.codecogs.com/png.latex?%5CLambda_0(t_%7B(k)%7D)%20=%20%5CLambda_0(t_%7B(k-1)%7D)%20+%20%5Calpha_k"> at and after the jump. Now:</p>
+<p><img src="https://latex.codecogs.com/png.latex?S(t_%7B(k)%7D%20%5Cmid%20%5Cmathbf%7BX%7D_j)%20=%0A%5Cexp%5C!%5Cleft(-%5CLambda(t_%7B(k)%7D%20%5Cmid%20%5Cmathbf%7BX%7D_j)%5Cright)"></p>
+<p><img src="https://latex.codecogs.com/png.latex?=%20%5Cexp%5C!%5Cleft(-%5CLambda(t_%7B(k)%7D%5E-%20%5Cmid%20%5Cmathbf%7BX%7D_j)%20-%0A%5CDelta%5CLambda(t_%7B(k)%7D%20%5Cmid%20%5Cmathbf%7BX%7D_j)%5Cright)"></p>
+<p><img src="https://latex.codecogs.com/png.latex?=%20S(t_%7B(k)%7D%5E-%20%5Cmid%20%5Cmathbf%7BX%7D_j)%20%5Ccdot%0A%5Cexp%5C!%5Cleft(-%5Calpha_k%20%5Cexp(%5Cboldsymbol%7B%5Cbeta%7D%5ET%20%5Cmathbf%7BX%7D_j)%5Cright)"></p>
+<p>Therefore:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cfrac%7BS(t_%7B(k)%7D%20%5Cmid%20%5Cmathbf%7BX%7D_j)%7D%7BS(t_%7B(k)%7D%5E-%20%5Cmid%20%5Cmathbf%7BX%7D_j)%7D%20=%0A%5Cexp%5C!%5Cleft(-%5Calpha_k%20%5Cexp(%5Cboldsymbol%7B%5Cbeta%7D%5ET%20%5Cmathbf%7BX%7D_j)%5Cright)"></p>
+<p>Substituting back:</p>
+<p><img src="https://latex.codecogs.com/png.latex?p_j%20=%20S(t_%7B(k)%7D%5E-%20%5Cmid%20%5Cmathbf%7BX%7D_j)%20%5Ccdot%0A%5Cleft%5B1%20-%20%5Cexp%5C!%5Cleft(-%5Calpha_k%20%5Cexp(%5Cboldsymbol%7B%5Cbeta%7D%5ET%20%5Cmathbf%7BX%7D_j)%0A%5Cright)%5Cright%5D"></p>
+<p>For small <img src="https://latex.codecogs.com/png.latex?%5Calpha_k">: <img src="https://latex.codecogs.com/png.latex?1%20-%20e%5E%7B-x%7D%20%5Capprox%20x"> because <img src="https://latex.codecogs.com/png.latex?e%5E%7B-x%7D%20%5Capprox%201-x">. Setting <img src="https://latex.codecogs.com/png.latex?x%20=%20%5Calpha_k%20%5Cexp(%5Cboldsymbol%7B%5Cbeta%7D%5ET%20%5Cmathbf%7BX%7D_j)">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?p_j%20%5Capprox%20S(t_%7B(k)%7D%5E-%20%5Cmid%20%5Cmathbf%7BX%7D_j)%20%5Ccdot%0A%5Calpha_k%20%5Cexp(%5Cboldsymbol%7B%5Cbeta%7D%5ET%20%5Cmathbf%7BX%7D_j)"></p>
+<p>Machine <img src="https://latex.codecogs.com/png.latex?j"> is alive just before <img src="https://latex.codecogs.com/png.latex?t_%7B(k)%7D">, so <img src="https://latex.codecogs.com/png.latex?S(t_%7B(k)%7D%5E-%20%5Cmid%20%5Cmathbf%7BX%7D_j)%20%5Capprox%201">. Thus:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cboxed%7Bp_j%20%5Capprox%20%5Calpha_k%20%5Cexp(%5Cboldsymbol%7B%5Cbeta%7D%5ET%20%5Cmathbf%7BX%7D_j)%7D"></p>
+</section>
+<section id="step-2-expected-number-of-failures-at-t_k" class="level4">
+<h4 class="anchored" data-anchor-id="step-2-expected-number-of-failures-at-t_k">Step 2: Expected Number of Failures at <img src="https://latex.codecogs.com/png.latex?t_%7B(k)%7D"></h4>
+<p>For each <img src="https://latex.codecogs.com/png.latex?j%20%5Cin%20%5Cmathcal%7BR%7D_k">, define the indicator:</p>
+<p><img src="https://latex.codecogs.com/png.latex?I_j%20=%20%5Cbegin%7Bcases%7D%201%20&amp;%20%5Ctext%7Bw.p.%20%7D%20p_j%20%5C%5C%0A0%20&amp;%20%5Ctext%7Bw.p.%20%7D%201%20-%20p_j%20%5Cend%7Bcases%7D"></p>
+<p>Total failures at <img src="https://latex.codecogs.com/png.latex?t_%7B(k)%7D">: <img src="https://latex.codecogs.com/png.latex?D_k%20=%20%5Csum_%7Bj%20%5Cin%20%5Cmathcal%7BR%7D_k%7D%20I_j"> (Binomial). By linearity of expectation:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cmathbb%7BE%7D%5BD_k%5D%20=%20%5Csum_%7Bj%20%5Cin%20%5Cmathcal%7BR%7D_k%7D%20p_j%20=%0A%5Calpha_k%20%5Csum_%7Bj%20%5Cin%20%5Cmathcal%7BR%7D_k%7D%20%5Cexp(%5Cboldsymbol%7B%5Cbeta%7D%5ET%20%5Cmathbf%7BX%7D_j)"></p>
+</section>
+<section id="step-3-method-of-moments" class="level4">
+<h4 class="anchored" data-anchor-id="step-3-method-of-moments">Step 3: Method of Moments</h4>
+<p>Set observed failures = expected failures:</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Method of moments</strong> is one of the oldest estimation strategies in statistics. The idea is simple: find the parameter value that makes the theoretical moment (here, the expected number of failures) equal to the observed moment (the actual number of failures). No likelihood, no distribution — just equate and solve.</p>
+</div>
+</div>
+<p><img src="https://latex.codecogs.com/png.latex?d_k%20=%20%5Calpha_k%20%5Csum_%7Bj%20%5Cin%20%5Cmathcal%7BR%7D_k%7D%0A%5Cexp(%5Cboldsymbol%7B%5Cbeta%7D%5ET%20%5Cmathbf%7BX%7D_j)"></p>
+<p>Solving:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cboxed%7B%5Chat%7B%5Calpha%7D_k%20=%20%5Cfrac%7Bd_k%7D%0A%7B%5Csum_%7Bj%20%5Cin%20%5Cmathcal%7BR%7D_k%7D%20%5Cexp(%5Chat%7B%5Cboldsymbol%7B%5Cbeta%7D%7D%5ET%20%5Cmathbf%7BX%7D_j)%7D%7D"></p>
+<p>Breslow’s estimator for the jump at <img src="https://latex.codecogs.com/png.latex?t_%7B(k)%7D">. Under the no-ties assumption, <img src="https://latex.codecogs.com/png.latex?d_k%20=%201"> always. The denominator is the total risk score in the pool at <img src="https://latex.codecogs.com/png.latex?t_%7B(k)%7D">.</p>
+</section>
+<section id="step-4-build-everything" class="level4">
+<h4 class="anchored" data-anchor-id="step-4-build-everything">Step 4: Build Everything</h4>
+<p><img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5CLambda%7D_0(t)%20=%20%5Csum_%7Bk:%5C,%20t_%7B(k)%7D%20%5Cleq%20t%7D%20%5Chat%7B%5Calpha%7D_k%20=%0A%5Csum_%7Bk:%5C,%20t_%7B(k)%7D%20%5Cleq%20t%7D%20%5Cfrac%7Bd_k%7D%0A%7B%5Csum_%7Bj%20%5Cin%20%5Cmathcal%7BR%7D_k%7D%20%5Cexp(%5Chat%7B%5Cboldsymbol%7B%5Cbeta%7D%7D%5ET%20%5Cmathbf%7BX%7D_j)%7D"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D_0(t)%20=%20%5Cexp(-%5Chat%7B%5CLambda%7D_0(t))"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cboxed%7B%5Chat%7BS%7D(t%20%5Cmid%20%5Cmathbf%7BX%7D_i)%20=%0A%5Chat%7BS%7D_0(t)%5E%7B%5Cexp(%5Chat%7B%5Cboldsymbol%7B%5Cbeta%7D%7D%5ET%20%5Cmathbf%7BX%7D_i)%7D%7D"></p>
+<p>That machine — 8 years old, running at high load, operating at 110°C with a vibration level of 6.2 — now has a survival curve. This is what we came for.</p>
+<p>Enough theory. Let’s fit the Cox model to our machine fleet and see what the data says.</p>
+<div id="cox-fit" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> pd</span>
+<span id="cb2-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> numpy <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> np</span>
+<span id="cb2-3"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> matplotlib.pyplot <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> plt</span>
+<span id="cb2-4"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> lifelines <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CoxPHFitter</span>
+<span id="cb2-5"></span>
+<span id="cb2-6">df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.read_csv(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'../../data/machine_fleet.csv'</span>)</span>
+<span id="cb2-7"></span>
+<span id="cb2-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Drop non-numeric columns and one-hot encode categoricals</span></span>
+<span id="cb2-9">df_model <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.get_dummies(</span>
+<span id="cb2-10">    df.drop(columns<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'machine_id'</span>]),</span>
+<span id="cb2-11">    columns<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'environment'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'manufacturer'</span>],</span>
+<span id="cb2-12">    drop_first<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span></span>
+<span id="cb2-13">)</span>
+<span id="cb2-14"></span>
+<span id="cb2-15"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Fit Cox PH model</span></span>
+<span id="cb2-16">cph <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> CoxPHFitter()</span>
+<span id="cb2-17">cph.fit(df_model, duration_col<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'observed_time'</span>, event_col<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'event_observed'</span>)</span>
+<span id="cb2-18"></span>
+<span id="cb2-19">cph.print_summary()</span>
+<span id="cb2-20"></span>
+<span id="cb2-21"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Personalised survival curves + baseline</span></span>
+<span id="cb2-22">plt.close(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'all'</span>)</span>
+<span id="cb2-23"></span>
+<span id="cb2-24"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Get integer indices of first outdoor machine per manufacturer</span></span>
+<span id="cb2-25">outdoor_idx <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (df[df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'environment'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'outdoor'</span>]</span>
+<span id="cb2-26">               .groupby(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'manufacturer'</span>)</span>
+<span id="cb2-27">               .<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">apply</span>(<span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">lambda</span> x: x.index[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>], include_groups<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>)</span>
+<span id="cb2-28">               .values)</span>
+<span id="cb2-29">machines <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> df_model.loc[outdoor_idx]</span>
+<span id="cb2-30"></span>
+<span id="cb2-31">fig, axes <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> plt.subplots(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, figsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">14</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>))</span>
+<span id="cb2-32"></span>
+<span id="cb2-33"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Left — personalised curves</span></span>
+<span id="cb2-34">ax     <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]</span>
+<span id="cb2-35">colors <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'steelblue'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'seagreen'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'firebrick'</span>]</span>
+<span id="cb2-36"></span>
+<span id="cb2-37"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i, (idx, row) <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">enumerate</span>(machines.iterrows()):</span>
+<span id="cb2-38">    mfr        <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> df.loc[idx, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'manufacturer'</span>]</span>
+<span id="cb2-39">    machine_id <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> df.loc[idx, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'machine_id'</span>]</span>
+<span id="cb2-40">    cph.predict_survival_function(row.to_frame().T).plot(</span>
+<span id="cb2-41">        ax<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>ax,</span>
+<span id="cb2-42">        label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Machine </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>machine_id<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> | Mfr </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>mfr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> "</span></span>
+<span id="cb2-43">              <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"(age=</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>df<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>loc[idx, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'machine_age'</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.1f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">, "</span></span>
+<span id="cb2-44">              <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"load=</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>df<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">.</span>loc[idx, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'load_factor'</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.2f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">)"</span>,</span>
+<span id="cb2-45">        color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>colors[i]</span>
+<span id="cb2-46">    )</span>
+<span id="cb2-47"></span>
+<span id="cb2-48">ax.set_xlabel(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Time (hours)'</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>)</span>
+<span id="cb2-49">ax.set_ylabel(<span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">r'</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">$</span><span class="er" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">\</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">hat{S}</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">(</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">t </span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">\m</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">id </span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">\m</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">athbf{X}_i</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">)</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">$</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>)</span>
+<span id="cb2-50">ax.set_title(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Personalised Survival Curves — Cox PH'</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">13</span>)</span>
+<span id="cb2-51">ax.legend(fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>)</span>
+<span id="cb2-52">ax.grid(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>, alpha<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>)</span>
+<span id="cb2-53"></span>
+<span id="cb2-54"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Right — baseline survival</span></span>
+<span id="cb2-55">ax <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> axes[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]</span>
+<span id="cb2-56">cph.baseline_survival_.plot(ax<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>ax, color<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'black'</span>, linewidth<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.5</span>)</span>
+<span id="cb2-57">ax.set_xlabel(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Time (hours)'</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>)</span>
+<span id="cb2-58">ax.set_ylabel(<span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">r'</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">$</span><span class="er" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">\</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">hat{S}_0</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">(</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">t</span><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">)</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">$</span><span class="vs" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>)</span>
+<span id="cb2-59">ax.set_title(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Baseline Survival Function — Cox PH'</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">13</span>)</span>
+<span id="cb2-60">ax.grid(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>, alpha<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>)</span>
+<span id="cb2-61"></span>
+<span id="cb2-62">plt.suptitle(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Cox PH Model — Machine Fleet'</span>, fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">13</span>)</span>
+<span id="cb2-63">plt.tight_layout()</span>
+<span id="cb2-64">plt.show()</span>
+<span id="cb2-65">plt.close(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'all'</span>)</span></code></pre></div></div>
+<div id="cox-fit-1" class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">model</th>
+<td>lifelines.CoxPHFitter</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">duration col</th>
+<td>'observed_time'</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">event col</th>
+<td>'event_observed'</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">baseline estimation</th>
+<td>breslow</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">number of observations</th>
+<td>1000</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">number of events observed</th>
+<td>886</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">partial log-likelihood</th>
+<td>-5177.04</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">time fit was run</th>
+<td>2026-06-10 00:13:51 UTC</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th" style="min-width: 12px"></th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">coef</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">exp(coef)</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">se(coef)</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">coef lower 95%</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">coef upper 95%</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">exp(coef) lower 95%</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">exp(coef) upper 95%</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">cmp to</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">z</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">p</th>
+<th data-quarto-table-cell-role="th" style="min-width: 12px">-log2(p)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">machine_age</th>
+<td>0.02</td>
+<td>1.02</td>
+<td>0.01</td>
+<td>0.01</td>
+<td>0.04</td>
+<td>1.01</td>
+<td>1.04</td>
+<td>0.00</td>
+<td>3.04</td>
+<td>&lt;0.005</td>
+<td>8.73</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">usage_intensity</th>
+<td>0.17</td>
+<td>1.18</td>
+<td>0.08</td>
+<td>0.02</td>
+<td>0.32</td>
+<td>1.02</td>
+<td>1.38</td>
+<td>0.00</td>
+<td>2.16</td>
+<td>0.03</td>
+<td>5.00</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">operating_temp</th>
+<td>0.00</td>
+<td>1.00</td>
+<td>0.00</td>
+<td>-0.00</td>
+<td>0.01</td>
+<td>1.00</td>
+<td>1.01</td>
+<td>0.00</td>
+<td>0.93</td>
+<td>0.35</td>
+<td>1.50</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">load_factor</th>
+<td>0.30</td>
+<td>1.34</td>
+<td>0.17</td>
+<td>-0.04</td>
+<td>0.64</td>
+<td>0.96</td>
+<td>1.89</td>
+<td>0.00</td>
+<td>1.70</td>
+<td>0.09</td>
+<td>3.49</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">rpm</th>
+<td>0.00</td>
+<td>1.00</td>
+<td>0.00</td>
+<td>-0.00</td>
+<td>0.00</td>
+<td>1.00</td>
+<td>1.00</td>
+<td>0.00</td>
+<td>0.78</td>
+<td>0.43</td>
+<td>1.20</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">vibration_level</th>
+<td>0.03</td>
+<td>1.04</td>
+<td>0.01</td>
+<td>0.01</td>
+<td>0.06</td>
+<td>1.01</td>
+<td>1.06</td>
+<td>0.00</td>
+<td>2.82</td>
+<td>&lt;0.005</td>
+<td>7.69</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">oil_quality</th>
+<td>0.25</td>
+<td>1.28</td>
+<td>0.12</td>
+<td>0.02</td>
+<td>0.48</td>
+<td>1.02</td>
+<td>1.62</td>
+<td>0.00</td>
+<td>2.10</td>
+<td>0.04</td>
+<td>4.82</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">maintenance_count</th>
+<td>-0.03</td>
+<td>0.97</td>
+<td>0.01</td>
+<td>-0.04</td>
+<td>-0.02</td>
+<td>0.96</td>
+<td>0.98</td>
+<td>0.00</td>
+<td>-4.64</td>
+<td>&lt;0.005</td>
+<td>18.10</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">environment_indoor</th>
+<td>-0.78</td>
+<td>0.46</td>
+<td>0.10</td>
+<td>-0.97</td>
+<td>-0.59</td>
+<td>0.38</td>
+<td>0.55</td>
+<td>0.00</td>
+<td>-8.11</td>
+<td>&lt;0.005</td>
+<td>50.76</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">environment_outdoor</th>
+<td>-0.41</td>
+<td>0.66</td>
+<td>0.09</td>
+<td>-0.59</td>
+<td>-0.22</td>
+<td>0.55</td>
+<td>0.80</td>
+<td>0.00</td>
+<td>-4.31</td>
+<td>&lt;0.005</td>
+<td>15.92</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">manufacturer_B</th>
+<td>0.15</td>
+<td>1.16</td>
+<td>0.08</td>
+<td>-0.00</td>
+<td>0.30</td>
+<td>1.00</td>
+<td>1.35</td>
+<td>0.00</td>
+<td>1.92</td>
+<td>0.06</td>
+<td>4.17</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">manufacturer_C</th>
+<td>0.74</td>
+<td>2.09</td>
+<td>0.09</td>
+<td>0.56</td>
+<td>0.92</td>
+<td>1.74</td>
+<td>2.50</td>
+<td>0.00</td>
+<td>7.96</td>
+<td>&lt;0.005</td>
+<td>49.03</td>
+</tr>
+</tbody>
+</table>
+<br><div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">Concordance</th>
+<td>0.63</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">Partial AIC</th>
+<td>10378.08</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">log-likelihood ratio test</th>
+<td>164.64 on 12 df</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">-log2(p) of ll-ratio test</th>
+<td>93.77</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://madhavpr191221.github.io/blog/posts/part-5-cox-ph/index_files/figure-html/cox-fit-output-2.png" id="cox-fit-2" width="1332" height="476" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The model summary and the survival curves tell a clear story.</p>
+<p><strong>Manufacturer.</strong> Manufacturer C has <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Cbeta%7D%20=%200.74">, <img src="https://latex.codecogs.com/png.latex?%5Cexp(%5Chat%7B%5Cbeta%7D)%20=%202.09">. Controlling for everything else — age, load, temperature, vibration — manufacturer C machines have roughly twice the hazard of manufacturer A at every point in time. Not surprising given what the log-rank test already told us in Part 4. Manufacturer B is not significantly different from A (<img src="https://latex.codecogs.com/png.latex?p%20=%200.06">).</p>
+<p><strong>Environment.</strong> The biggest effect in the model. Indoor machines have <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Cbeta%7D%20=%20-0.78">, <img src="https://latex.codecogs.com/png.latex?%5Cexp(-0.78)%20=%200.46"> — less than half the hazard of machines in harsh conditions. Outdoor machines are in between (<img src="https://latex.codecogs.com/png.latex?%5Cexp(-0.41)%20=%200.66">). Where you put the machine matters more than almost anything else.</p>
+<p><strong>Maintenance count.</strong> <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Cbeta%7D%20=%20-0.03"> — each additional maintenance visit slightly reduces hazard. Small effect, right direction.</p>
+<p><strong>RPM.</strong> Not significant (<img src="https://latex.codecogs.com/png.latex?p%20=%200.43">). Once you control for load factor and vibration level, RPM adds nothing. Classic collinearity — RPM is probably correlated with load factor and the model attributes the effect there.</p>
+<p><strong>The three survival curves</strong> show exactly this. Same environment (outdoor), different manufacturers. Machine from manufacturer C (red) drops fastest. Manufacturer A (blue) survives longest. The gap is not noise — it is <img src="https://latex.codecogs.com/png.latex?%5Cexp(0.74)%20=%202.09"> baked in.</p>
+<p><strong>The baseline survival</strong> (right panel) is the survival curve for a reference machine — all continuous covariates at zero, manufacturer A, harsh environment. Drops to 50% around 80 hours. Every other machine’s curve is this baseline raised to the power of its risk score. Same shape, different speed.</p>
+</section>
+<section id="the-concordance-index" class="level4">
+<h4 class="anchored" data-anchor-id="the-concordance-index">The Concordance Index</h4>
+<p>You may have noticed a line at the bottom of the Cox PH summary:</p>
+<p><strong>Concordance = 0.63</strong>. What is this?</p>
+<p>The concordance index (C-index) is the standard metric for evaluating the discriminative ability of a survival model. In plain English: given two randomly chosen machines, how often does the model correctly identify which one fails first?</p>
+<p>Formally, consider any two machines <img src="https://latex.codecogs.com/png.latex?i"> and <img src="https://latex.codecogs.com/png.latex?j"> where <img src="https://latex.codecogs.com/png.latex?i"> fails before <img src="https://latex.codecogs.com/png.latex?j"> — and <img src="https://latex.codecogs.com/png.latex?j">’s failure is actually observed, not censored (otherwise the comparison is unfair). The model assigns a risk score <img src="https://latex.codecogs.com/png.latex?%5Cexp(%5Chat%7B%5Cboldsymbol%7B%5Cbeta%7D%7D%5ET%20%5Cmathbf%7BX%7D_i)"> to each machine. A <strong>concordant pair</strong> is one where the machine that fails first also has the higher risk score — the model got the ordering right. A <strong>discordant pair</strong> is one where it got it wrong.</p>
+<p><img src="https://latex.codecogs.com/png.latex?C%20=%20%5Cfrac%7B%5Ctext%7Bconcordant%20pairs%7D%7D%7B%5Ctext%7Bconcordant%20pairs%7D%20+%20%5Ctext%7Bdiscordant%20pairs%7D%7D"></p>
+<ul>
+<li><img src="https://latex.codecogs.com/png.latex?C%20=%200.5"> — coin flip. The model knows nothing.</li>
+<li><img src="https://latex.codecogs.com/png.latex?C%20=%201.0"> — perfect ranking. Every pair ordered correctly.</li>
+<li><img src="https://latex.codecogs.com/png.latex?C%20%3C%200.5"> — worse than random. Systematically wrong.</li>
+</ul>
+<p>Our model has <img src="https://latex.codecogs.com/png.latex?C%20=%200.63">. Not great, not terrible. It correctly ranks 63% of all comparable pairs — there is real signal, but the model is clearly missing something. That something is what Parts 6 onwards are about.</p>
+<p>One important distinction: the C-index measures <em>ranking</em> ability, not <em>calibration</em>. A model can rank machines correctly but still output survival probabilities that are way off. Both matter. The C-index only tells you half the story.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>A note on calibration.</strong> The C-index tells you whether the model ranks machines correctly — but not whether the predicted survival probabilities are trustworthy in absolute terms. A model might correctly identify that machine A is riskier than machine B, but predict <img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D(100%20%5Cmid%20%5Cmathbf%7BX%7D_A)%20=%200.4"> when the true value is 0.2.</p>
+<p>In binary classification, Platt scaling and isotonic regression fix this. For survival models it is harder — the output is a function <img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D(t%20%5Cmid%20%5Cmathbf%7BX%7D_i)">, not a scalar, and censoring means you don’t always observe the true outcome. Extensions exist: you can apply isotonic regression at a fixed time horizon <img src="https://latex.codecogs.com/png.latex?t%5E*"> using IPCW (inverse probability of censoring weighting) to handle censored observations, or use <strong>D-calibration</strong> — a survival-specific test that checks whether predicted survival probabilities are uniformly distributed under the true distribution. Calibration in survival analysis is an active research area and a topic for a future part.</p>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>Part 5 is done.</p>
+<p>We started with a question: what is the survival probability for <em>this</em> machine, given its age, load, temperature, and vibration level? The log-rank test from Part 4 couldn’t answer it. Cox PH can.</p>
+<p>The model is simple in structure:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Clambda(t%20%5Cmid%20%5Cmathbf%7BX%7D_i)%20=%20%5Clambda_0(t)%20%5Ccdot%0A%5Cexp(%5Cboldsymbol%7B%5Cbeta%7D%5ET%20%5Cmathbf%7BX%7D_i)"></p>
+<p>Two components. Time lives in <img src="https://latex.codecogs.com/png.latex?%5Clambda_0(t)">. The machine lives in <img src="https://latex.codecogs.com/png.latex?%5Cexp(%5Cboldsymbol%7B%5Cbeta%7D%5ET%20%5Cmathbf%7BX%7D_i)">. They never mix.</p>
+<p>Estimating <img src="https://latex.codecogs.com/png.latex?%5Cboldsymbol%7B%5Cbeta%7D"> without knowing <img src="https://latex.codecogs.com/png.latex?%5Clambda_0(t)"> — that’s the partial likelihood. Cox’s trick. At each failure time, condition on the fact that exactly one machine failed and ask which one. Softmax over the risk set. Multiply across all failure times. Optimise. <img src="https://latex.codecogs.com/png.latex?%5Clambda_0(t)"> never appears.</p>
+<p>Then Breslow gives you <img src="https://latex.codecogs.com/png.latex?%5Clambda_0(t)"> back — method of moments, set observed failures equal to expected, solve for the jump size <img src="https://latex.codecogs.com/png.latex?%5Calpha_k"> at each failure time. Stack the jumps, exponentiate, and you have <img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D_0(t)">. And then:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Chat%7BS%7D(t%20%5Cmid%20%5Cmathbf%7BX%7D_i)%20=%0A%5Chat%7BS%7D_0(t)%5E%7B%5Cexp(%5Chat%7B%5Cboldsymbol%7B%5Cbeta%7D%7D%5ET%20%5Cmathbf%7BX%7D_i)%7D"></p>
+<p>That’s the answer. That machine — 8 years old, high load, 110°C, vibration 6.2 — now has a survival curve.</p>
+<p>On our fleet: manufacturer C has twice the hazard of A. Harsh environments more than double the hazard compared to indoor. Maintenance helps. RPM doesn’t — collinearity with load factor. C-index of 0.63 — real signal, room to improve.</p>
+<p>Parts 1 through 5 cover what I’d call the core of classical survival analysis. But the story doesn’t end there.</p>
+<p>What’s next? The Cox model as derived breaks down when two machines fail at exactly the same time. Part 6 fixes that — Breslow, Efron, and the exact partial likelihood for tied failure times. Part 7 handles time-varying covariates. Part 8 is diagnostics — how do you know if the proportional hazards assumption actually holds?</p>
+<p>The ticking clock is still running.</p>
+
+
 </section>
 
  ]]></description>
@@ -830,7 +1591,7 @@ font-style: inherit;">:.1f}</span><span class="ss" style="color: #20794D;
 background-color: null;
 font-style: inherit;">%)"</span>)</span></code></pre></div></div>
 <div class="cell-output cell-output-display">
-<div id="fig-km-fleet" class="quarto-float quarto-figure quarto-figure-center anchored" height="470" width="948">
+<div id="fig-km-fleet" class="quarto-float quarto-figure quarto-figure-center anchored" width="948" height="470">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-km-fleet-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://madhavpr191221.github.io/blog/posts/part-4-kaplan-meier-estimator/index_files/figure-html/fig-km-fleet-output-1.png" id="fig-km-fleet" width="948" height="470" class="figure-img">
@@ -1307,7 +2068,7 @@ font-style: inherit;">}</span><span class="ss" style="color: #20794D;
 background-color: null;
 font-style: inherit;"> total)"</span>)</span></code></pre></div></div>
 <div class="cell-output cell-output-display">
-<div id="fig-km-fleet-ci" class="quarto-float quarto-figure quarto-figure-center anchored" height="470" width="948">
+<div id="fig-km-fleet-ci" class="quarto-float quarto-figure quarto-figure-center anchored" width="948" height="470">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-km-fleet-ci-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://madhavpr191221.github.io/blog/posts/part-4-kaplan-meier-estimator/index_files/figure-html/fig-km-fleet-ci-output-1.png" id="fig-km-fleet-ci" width="948" height="470" class="figure-img">
@@ -1942,7 +2703,7 @@ font-style: inherit;">"</span>)</span></code></pre></div></div>
 naive_lower values : [-0.00123213 -0.00224921]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<div id="fig-km-ci-comparison" class="quarto-float quarto-figure quarto-figure-center anchored" height="476" width="1332">
+<div id="fig-km-ci-comparison" class="quarto-float quarto-figure quarto-figure-center anchored" width="1332" height="476">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-km-ci-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://madhavpr191221.github.io/blog/posts/part-4-kaplan-meier-estimator/index_files/figure-html/fig-km-ci-comparison-output-2.png" id="fig-km-ci-comparison" width="1332" height="476" class="figure-img">
@@ -2870,7 +3631,7 @@ font-style: inherit;">print</span>(pw_env.summary[[<span class="st" style="color
 background-color: null;
 font-style: inherit;">'p'</span>]])</span></code></pre></div></div>
 <div class="cell-output cell-output-display">
-<div id="fig-logrank" class="quarto-float quarto-figure quarto-figure-center anchored" height="476" width="1332">
+<div id="fig-logrank" class="quarto-float quarto-figure quarto-figure-center anchored" width="1332" height="476">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-logrank-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://madhavpr191221.github.io/blog/posts/part-4-kaplan-meier-estimator/index_files/figure-html/fig-logrank-output-1.png" id="fig-logrank" width="1332" height="476" class="figure-img">
